@@ -72,9 +72,11 @@ public final class Tools {
     }
 
     /**
-     * If a method {@code A.a()} calls a method {@code B.b()}, then the result of calling this method in {@code b()} will be {@code A.class}.
+     * If a method {@code A.a()} calls a method {@code B.b()},
+     * then the result of calling this method in {@code b()} will be {@code A.class}.
      * <br>Warning: this method can only be used directly.
-     * <br>If you want to refactor your code, you can re-implement the functionality using {@code Thread.currentThread().getStackTrace()}.
+     * <br>If you want to refactor your code, you can re-implement the functionality
+     * using {@code Thread.currentThread().getStackTrace()}.
      *
      * @return {@code null} if the caller class cannot be retrieved
 	 * <br>Maybe null
@@ -103,7 +105,8 @@ public final class Tools {
      * <br>Shared
      * @return
      * <br>Does not return
-     * @throws RuntimeException with {@code cause} as cause if it is a checked exception, otherwise {@code cause} is re-thrown
+     * @throws RuntimeException with {@code cause} as cause if it is a checked exception,
+     * otherwise {@code cause} is re-thrown
      */
     public static final <T> T throwUnchecked(final Throwable cause) {
         if (cause instanceof RuntimeException) {
@@ -116,14 +119,16 @@ public final class Tools {
     }
 
 	/**
-	 * Does the same thing as {@link Class#cast(Object)}, but returns {@code null} instead of throwing an exception if the cast cannot be performed.
+	 * Does the same thing as {@link Class#cast(Object)},
+     * but returns {@code null} instead of throwing an exception if the cast cannot be performed.
 	 *
 	 * @param <T> the type into which {@code object} is tentatively being cast
 	 * @param cls
 	 * <br>Not null
 	 * @param object
 	 * <br>Maybe null
-	 * @return {@code null} if {@code object} is {@code null} or cannot be cast into {@code T}, otherwise {@code object}
+	 * @return {@code null} if {@code object} is {@code null} or cannot be cast into {@code T},
+     * otherwise {@code object}
 	 * <br>Maybe null
 	 */
 	public static final <T> T cast(final Class<T> cls, final Object object) {
@@ -139,7 +144,8 @@ public final class Tools {
      * @param <T> the caller type
      * @param object
 	 * <br>Maybe null
-     * @return {@code null} if {@code object} is {@code null} or cannot be cast into the caller type (obtained using {@link #getCallerClass()}) , otherwise {@code object}
+     * @return {@code null} if {@code object} is {@code null} or cannot be cast into the caller type
+     * (obtained using {@link #getCallerClass()}) , otherwise {@code object}
 	 * <br>Maybe null
      */
     @SuppressWarnings("unchecked")
@@ -171,10 +177,12 @@ public final class Tools {
 	}
 
     /**
-     * Concatenates the source location of the call and the string representations of the parameters separated by spaces.
+     * Concatenates the source location of the call and
+     * the string representations of the parameters separated by spaces.
      * <br>This is method helps to perform console debugging using System.out or System.err.
      *
-     * @param stackIndex 1 is the source of this method, 2 is the source of the call, 3 is the source of the call's caller, and so forth
+     * @param stackIndex 1 is the source of this method, 2 is the source of the call,
+     * 3 is the source of the call's caller, and so forth
      * <br>Range: {@code [O .. Integer.MAX_VALUE]}
      * @param objects
      * <br>Not null
@@ -184,7 +192,8 @@ public final class Tools {
      * @throws IndexOutOfBoundsException if {@code stackIndex} is invalid
      */
     public static final String debug(final int stackIndex, final Object... objects) {
-        final StringBuilder builder = new StringBuilder(Thread.currentThread().getStackTrace()[stackIndex].toString());
+        final StringBuilder builder = new StringBuilder(
+                Thread.currentThread().getStackTrace()[stackIndex].toString());
 
         for (final Object object : objects) {
             builder.append(" ").append(object);
