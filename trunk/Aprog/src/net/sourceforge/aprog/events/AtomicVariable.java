@@ -80,8 +80,7 @@ public final class AtomicVariable<T> extends AbstractObservable<Variable.Listene
 
     @Override
     public final boolean equals(final Object object) {
-        @SuppressWarnings("unchecked")
-        final Variable<T> that = Tools.cast(Variable.class, object);
+        final Variable<T> that = Tools.castToCurrentClass(object);
 
         return this == that ||
                 that != null &&
