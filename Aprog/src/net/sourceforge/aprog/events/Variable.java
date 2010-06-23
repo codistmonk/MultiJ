@@ -49,13 +49,16 @@ public interface Variable<T> extends Observable<Variable.Listener<T>> {
      *
      * @return
      * <br>Maybe null
+     * <br>Shared
      */
     public abstract T getValue();
 
     /**
+     * Sets this variable value to {@code value} and notifies the listeners, unless {@code value == this.getValue()}.
      *
      * @param value
      * <br>Maybe null
+     * <br>Shared
      */
     public abstract void setValue(T value);
 
