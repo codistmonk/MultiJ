@@ -44,12 +44,12 @@ import org.junit.Test;
 public final class ObservableTest {
 
     @Test
-    public final <R extends Recorder & DummyObservable.Listener> void testFireEvent() {
+    public final <R extends EventRecorder & DummyObservable.Listener> void testFireEvent() {
         final DummyObservable observable = new DummyObservable();
         @SuppressWarnings("unchecked")
-        final R recorder1 = (R) newRecorder(DummyObservable.Listener.class);
+        final R recorder1 = (R) newEventRecorder(DummyObservable.Listener.class);
         @SuppressWarnings("unchecked")
-        final R recorder2 = (R) newRecorder(DummyObservable.Listener.class);
+        final R recorder2 = (R) newEventRecorder(DummyObservable.Listener.class);
 
         observable.addListener(recorder1);
         observable.addListener(recorder2);
@@ -74,11 +74,11 @@ public final class ObservableTest {
      * <br>New
      */
     @SuppressWarnings("unchecked")
-    public static final <R extends Recorder> R newRecorder(
+    public static final <R extends EventRecorder> R newEventRecorder(
             final Class<?>... listenerTypes) {
         return (R) Proxy.newProxyInstance(
                 Tools.getCallerClass().getClassLoader(),
-                add(listenerTypes, Recorder.class),
+                add(listenerTypes, EventRecorder.class),
                 new RecorderInvocationHandler());
     }
 
@@ -108,7 +108,7 @@ public final class ObservableTest {
      *
      * @author codistmonk (creation 2010-06-18)
      */
-    public static interface Recorder {
+    public static interface EventRecorder {
 
         /**
          *
@@ -124,7 +124,7 @@ public final class ObservableTest {
      *
      * @author codistmonk (creation 2010-06-18)
      */
-    private static class RecorderInvocationHandler implements InvocationHandler, Recorder {
+    private static class RecorderInvocationHandler implements InvocationHandler, EventRecorder {
 
         private final List<Event<?>> events;
 
@@ -135,7 +135,7 @@ public final class ObservableTest {
         @Override
         public final Object invoke(final Object proxy, final Method method, final Object[] arguments)
                 throws Throwable {
-            if (method.getDeclaringClass().isAssignableFrom(Recorder.class)) {
+            if (method.getDeclaringClass().isAssignableFrom(EventRecorder.class)) {
                 return method.invoke(this, arguments);
             }
 
