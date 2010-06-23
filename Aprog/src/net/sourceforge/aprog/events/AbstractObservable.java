@@ -31,7 +31,8 @@ import java.util.Collection;
  * This abstract class provides a default implementation of {@link Observable} to be used as a base class
  * for observable objects.
  * <br>A default abstract event implementation ({@link AbstractEvent}) is also provided.
- * <br>The use of {@link AbstractEvent} is recommended but not mandatory.
+ * <br>The use of {@link AbstractEvent} is recommended but not mandatory;
+ * you can define your own event hierarchy and dispatching mechanism.
  *
  * @param <L> the event listener type
  * @author codistmonk (creation 2010-06-14)
