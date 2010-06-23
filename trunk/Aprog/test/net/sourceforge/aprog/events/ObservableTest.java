@@ -47,9 +47,9 @@ public final class ObservableTest {
     public final <R extends Recorder & DummyObservable.Listener> void testFireEvent() {
         final DummyObservable observable = new DummyObservable();
         @SuppressWarnings("unchecked")
-        final R recorder1 = (R) createRecorder(DummyObservable.Listener.class);
+        final R recorder1 = (R) newRecorder(DummyObservable.Listener.class);
         @SuppressWarnings("unchecked")
-        final R recorder2 = (R) createRecorder(DummyObservable.Listener.class);
+        final R recorder2 = (R) newRecorder(DummyObservable.Listener.class);
 
         observable.addListener(recorder1);
         observable.addListener(recorder2);
@@ -64,10 +64,19 @@ public final class ObservableTest {
         assertEquals(1, recorder2.getEvents().size());
     }
 
+    /**
+     *
+     * @param <R> the (multi)listener recorder proxy type
+     * @param listenerTypes
+     * <br>Not null
+     * @return
+     * <br>Not null
+     * <br>New
+     */
     @SuppressWarnings("unchecked")
-    private static final <T extends Recorder & Listener> T createRecorder(
+    public static final <R extends Recorder & Listener> R newRecorder(
             final Class<? extends Listener>... listenerTypes) {
-        return (T) Proxy.newProxyInstance(
+        return (R) Proxy.newProxyInstance(
                 Listener.class.getClassLoader(),
                 add(listenerTypes, Recorder.class),
                 new RecorderInvocationHandler());
@@ -81,57 +90,18 @@ public final class ObservableTest {
      * @param moreElements
      * <br>Not null
      * @return
-     * <br>New
      * <br>Not null
+     * <br>New
      */
     private static final <T> T[] add(final T[] array, final T... moreElements) {
         @SuppressWarnings("unchecked")
-        final T[] result = (T[]) Array.newInstance(array.getClass().getComponentType(), array.length + moreElements.length);
+        final T[] result = (T[]) Array.newInstance(
+                array.getClass().getComponentType(), array.length + moreElements.length);
 
         System.arraycopy(array, 0, result, 0, array.length);
         System.arraycopy(moreElements, 0, result, array.length, moreElements.length);
 
         return result;
-    }
-
-    /**
-     *
-     * @author codistmonk (creation 2010-06-23)
-     */
-    private static final class DummyObservable extends AbstractObservable<DummyObservable.Listener> {
-        
-        public final void fireNewEvent() {
-            new EventFiredEvent().fire();
-        }
-
-        /**
-         *
-         * @author codistmonk (creation 2010-06-23)
-         */
-        public static interface Listener extends Observable.Listener {
-
-            /**
-             *
-             * @param event
-             * <br>Not null
-             */
-            public abstract void eventFired(final EventFiredEvent event);
-
-        }
-
-        /**
-         *
-         * @author codistmonk (creation 2010-06-23)
-         */
-        public final class EventFiredEvent extends AbstractEvent<DummyObservable, Listener> {
-
-            @Override
-            protected final void notifyListener(final Listener listener) {
-                listener.eventFired(this);
-            }
-
-        }
-        
     }
 
     /**
@@ -163,8 +133,8 @@ public final class ObservableTest {
         }
 
         @Override
-        public final Object invoke(final Object proxy, final Method method, final Object[] arguments) throws Throwable {
-
+        public final Object invoke(final Object proxy, final Method method, final Object[] arguments)
+                throws Throwable {
             if (method.getDeclaringClass().isAssignableFrom(Recorder.class)) {
                 return method.invoke(this, arguments);
             }
@@ -192,6 +162,46 @@ public final class ObservableTest {
         @Override
         public final int hashCode() {
             return super.hashCode();
+        }
+
+    }
+
+    /**
+     *
+     * @author codistmonk (creation 2010-06-23)
+     */
+    private static final class DummyObservable extends AbstractObservable<DummyObservable.Listener> {
+
+        public final void fireNewEvent() {
+            new EventFiredEvent().fire();
+        }
+
+        /**
+         *
+         * @author codistmonk (creation 2010-06-23)
+         */
+        public static interface Listener extends Observable.Listener {
+
+            /**
+             *
+             * @param event
+             * <br>Not null
+             */
+            public abstract void eventFired(final EventFiredEvent event);
+
+        }
+
+        /**
+         *
+         * @author codistmonk (creation 2010-06-23)
+         */
+        public final class EventFiredEvent extends AbstractEvent<DummyObservable, Listener> {
+
+            @Override
+            protected final void notifyListener(final Listener listener) {
+                listener.eventFired(this);
+            }
+
         }
 
     }
