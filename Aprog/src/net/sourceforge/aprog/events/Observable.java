@@ -28,11 +28,18 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
+ * This interface defines the common behavior to observable objects,
+ * namely managing a collection of listeners.
+ * <br>A classic event interface is provided ({@link Event}),
+ * as well as an abstract implementation ({@link AbstractEvent})
+ * that takes care of dispatching itself using a visitor pattern.
+ * <br>The use of the {@link Event} interface is recommended but not mandatory;
+ * you can define your own event hierarchy and dispatching mechanism.
  *
  * @param <L> the event listener type
  * @author codistmonk (creation 2010-06-18)
  */
-public interface Observable<L extends Observable.Listener> {
+public interface Observable<L> {
 
     /**
      *
@@ -59,14 +66,7 @@ public interface Observable<L extends Observable.Listener> {
     public abstract Iterable<L> getListeners();
 
     /**
-     *
-     * @author codistmonk (creation 2010-06-14)
-     */
-    public static interface Listener {
-        // Nothing
-    }
-
-    /**
+     * This interface defines a classic event interface that you can use to notify listeners.
      *
      * @param <S> the event source type
      * @author codistmonk (creation 2010-06-18)
@@ -109,13 +109,15 @@ public interface Observable<L extends Observable.Listener> {
      * @param <L> the event listener type
      * @author codistmonk (creation 2010-06-15)
      */
-    public static abstract class AbstractEvent<S extends Observable<L>, L extends Observable.Listener> implements Event<S> {
+    public static abstract class AbstractEvent<S extends Observable<L>, L> implements Event<S> {
 
         private final S source;
 
         private final long time;
 
         private boolean interrupted;
+
+        private boolean alreadyFired;
 
         /**
          *
@@ -160,13 +162,36 @@ public interface Observable<L extends Observable.Listener> {
             this.interrupted = interrupted;
         }
 
+        /**
+         * Dispatches this event to its source listeners.
+         * <br>If a listener throws an exception (subclass of {@link Exception}, checked or unchecked),
+         * the exception is logged and the dispatching continues to the next listener.
+         * <br>If you want to stop the dispatching before all listeners have been notified,
+         * use {@link #setInterrupted(boolean)}.
+         *
+         * @throws IllegalStateException if this event has already been fired
+         */
         public final void fire() {
+            if (this.alreadyFired) {
+                throw new IllegalStateException("Already fired");
+            }
+
+            this.alreadyFired = true;
+
+            this.notifyListeners();
+        }
+
+        /**
+         *
+         * @param listener
+         * <br>Not null
+         * <br>Input-output
+         */
+        protected abstract void notifyListener(L listener);
+
+        private final void notifyListeners() {
             for (final L listener : this.getSource().getListeners()) {
-                try {
-                    this.notifyListener(listener);
-                } catch (final Exception exception) {
-                    Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, null, exception);
-                }
+                this.tryToNotifyListener(listener);
 
                 if (this.isInterrupted()) {
                     break;
@@ -180,7 +205,13 @@ public interface Observable<L extends Observable.Listener> {
          * <br>Not null
          * <br>Input-output
          */
-        protected abstract void notifyListener(L listener);
+        private final void tryToNotifyListener(final L listener) {
+            try {
+                this.notifyListener(listener);
+            } catch (final Exception exception) {
+                Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, null, exception);
+            }
+        }
 
     }
 

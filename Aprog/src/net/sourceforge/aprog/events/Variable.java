@@ -64,7 +64,7 @@ public interface Variable<T> extends Observable<Variable.Listener<T>> {
      * @param <T> the type of the variable value
      * @author codistmonk (creation 2010-06-20)
      */
-    public static interface Listener<T> extends Observable.Listener {
+    public static interface Listener<T> {
 
         /**
          *

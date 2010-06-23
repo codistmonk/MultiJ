@@ -28,11 +28,15 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 /**
+ * This abstract class provides a default implementation of {@link Observable} to be used as a base class
+ * for observable objects.
+ * <br>A default abstract event implementation ({@link AbstractEvent}) is also provided.
+ * <br>The use of {@link AbstractEvent} is recommended but not mandatory.
  *
  * @param <L> the event listener type
  * @author codistmonk (creation 2010-06-14)
  */
-public abstract class AbstractObservable<L extends Observable.Listener> implements Observable<L> {
+public abstract class AbstractObservable<L> implements Observable<L> {
 
     private final Collection<L> listeners;
 
@@ -56,15 +60,16 @@ public abstract class AbstractObservable<L extends Observable.Listener> implemen
     }
 
     /**
+     * This abstract event class provides simpler constructors than {@link Observable.AbstractEvent}, but
+     * derived concrete classes need to be instantiated from a subclass of {@link AbstractObservable}.
      *
      * @param <S> the event source type
      * @param <L> the event listener type
      * @author codistmonk (creation 2010-06-15)
      */
-    public abstract class AbstractEvent<S extends AbstractObservable<L>, L extends Observable.Listener> extends Observable.AbstractEvent<S, L> {
+    public abstract class AbstractEvent<S extends AbstractObservable<L>, L> extends Observable.AbstractEvent<S, L> {
 
         /**
-         *
          * @param time in milliseconds
          * <br>Range: {@code [0 .. Long.MAX_VALUE]}
          */
