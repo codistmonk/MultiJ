@@ -91,6 +91,25 @@ public final class Context extends AbstractObservable<Context.Listener> implemen
 
     /**
      *
+     * @param <T>
+     * @param variableName
+     * <br>Maybe null
+     * @return the removed variable
+     * <br>Maybe null
+     */
+    public final <T> Variable<T> remove(final String variableName) {
+        @SuppressWarnings("unchecked")
+        final Variable<T> removedVariable = (Variable<T>) this.variables.remove(variableName);
+
+        if (removedVariable != null) {
+            new VariableRemovedEvent<T>(removedVariable).fire();
+        }
+
+        return removedVariable;
+    }
+
+    /**
+     *
      * @param <T> the type of the variable value
      * @param variableName
      * <br>Not null
@@ -114,32 +133,13 @@ public final class Context extends AbstractObservable<Context.Listener> implemen
      * <br>Maybe null
      */
     public final <T, U> Variable<U> putVariable(final Variable<T> variable) {
-        final Variable<U> oldVariable = this.removeVariable(variable.getName());
+        final Variable<U> oldVariable = this.remove(variable.getName());
 
         this.variables.put(variable.getName(), variable);
 
         new VariableAddedEvent<T>(variable).fire();
 
         return oldVariable;
-    }
-
-    /**
-     *
-     * @param <T>
-     * @param variableName
-     * <br>Maybe null
-     * @return the removed variable
-     * <br>Maybe null
-     */
-    public final <T> Variable<T> removeVariable(final String variableName) {
-        @SuppressWarnings("unchecked")
-        final Variable<T> removedVariable = (Variable<T>) this.variables.remove(variableName);
-
-        if (removedVariable != null) {
-            new VariableRemovedEvent<T>(removedVariable).fire();
-        }
-
-        return removedVariable;
     }
 
     @Override
