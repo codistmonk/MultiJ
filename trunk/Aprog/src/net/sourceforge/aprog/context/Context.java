@@ -151,7 +151,7 @@ public final class Context extends AbstractObservable<Context.Listener> implemen
      * 
      * @author codistmonk (creation 2010-06-20)
      */
-    public static interface Listener extends AbstractObservable.Listener {
+    public static interface Listener {
 
         /**
          *

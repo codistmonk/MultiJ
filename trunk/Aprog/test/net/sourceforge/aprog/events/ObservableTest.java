@@ -34,7 +34,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import net.sourceforge.aprog.events.Observable.Event;
-import net.sourceforge.aprog.events.Observable.Listener;
+import net.sourceforge.aprog.tools.Tools;
 import org.junit.Test;
 
 /**
@@ -74,10 +74,10 @@ public final class ObservableTest {
      * <br>New
      */
     @SuppressWarnings("unchecked")
-    public static final <R extends Recorder & Listener> R newRecorder(
-            final Class<? extends Listener>... listenerTypes) {
+    public static final <R extends Recorder> R newRecorder(
+            final Class<?>... listenerTypes) {
         return (R) Proxy.newProxyInstance(
-                Listener.class.getClassLoader(),
+                Tools.getCallerClass().getClassLoader(),
                 add(listenerTypes, Recorder.class),
                 new RecorderInvocationHandler());
     }
@@ -108,7 +108,7 @@ public final class ObservableTest {
      *
      * @author codistmonk (creation 2010-06-18)
      */
-    public static interface Recorder extends Observable.Listener {
+    public static interface Recorder {
 
         /**
          *
@@ -180,7 +180,7 @@ public final class ObservableTest {
          *
          * @author codistmonk (creation 2010-06-23)
          */
-        public static interface Listener extends Observable.Listener {
+        public static interface Listener {
 
             /**
              *
