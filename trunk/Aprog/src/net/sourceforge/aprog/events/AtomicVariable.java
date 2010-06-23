@@ -75,7 +75,9 @@ public final class AtomicVariable<T> extends AbstractObservable<Variable.Listene
 
     @Override
     public final void setValue(final T value) {
-        this.new ValueChangedEvent(this.valueReference.getAndSet(this.getType().cast(value)), value).fire();
+        if (this.getValue() != value) {
+            this.new ValueChangedEvent(this.valueReference.getAndSet(this.getType().cast(value)), value).fire();
+        }
     }
 
     @Override

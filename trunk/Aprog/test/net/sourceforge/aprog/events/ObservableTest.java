@@ -57,9 +57,9 @@ public final class ObservableTest {
         observable.removeListener(recorder2);
         observable.fireNewEvent();
 
-        assertTrue(recorder1.getEvents().get(0) instanceof DummyObservable.EventFiredEvent);
-        assertTrue(recorder1.getEvents().get(1) instanceof DummyObservable.EventFiredEvent);
-        assertSame(recorder1.getEvents().get(0), recorder2.getEvents().get(0));
+        assertTrue(recorder1.getEvent(0) instanceof DummyObservable.EventFiredEvent);
+        assertTrue(recorder1.getEvent(1) instanceof DummyObservable.EventFiredEvent);
+        assertSame(recorder1.getEvent(0), recorder2.getEvent(0));
         assertEquals(2, recorder1.getEvents().size());
         assertEquals(1, recorder2.getEvents().size());
     }
@@ -118,6 +118,20 @@ public final class ObservableTest {
          */
         public abstract List<Event<?>> getEvents();
 
+        /**
+         *
+         * @param <E> the expected event type
+         * @param <S> the event source type
+         * @param <L> the event listener type
+         * @param index
+         * <br>Range: {@code [0 .. this.getEvents().size() - 1]}
+         * @return
+         * <br>Not null
+         * <br>Shared
+         * @throws IndexOutOfBoundsException if {@code index} is out of range
+         */
+        public abstract <E extends Event<?>> E getEvent(int index);
+
     }
 
     /**
@@ -149,6 +163,12 @@ public final class ObservableTest {
         @Override
         public final List<Event<?>> getEvents() {
             return Collections.unmodifiableList(this.events);
+        }
+
+        @Override
+        @SuppressWarnings("unchecked")
+        public final <E extends Event<?>> E getEvent(final int index) {
+            return (E) this.getEvents().get(index);
         }
 
         @Override
