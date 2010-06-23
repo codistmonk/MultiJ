@@ -40,32 +40,17 @@ public abstract class AbstractObservable<L extends Observable.Listener> implemen
         this.listeners = new ArrayList<L>();
     }
 
-    /**
-     *
-     * @param listener
-     * <br>Not null
-     * <br>Shared
-     */
+    @Override
     public final void addListener(final L listener) {
         this.listeners.add(listener);
     }
 
-    /**
-     *
-     * @param listener
-     * <br>Maybe null
-     * <br>Shared
-     */
+    @Override
     public final void removeListener(final L listener) {
         this.listeners.remove(listener);
     }
 
-    /**
-     *
-     * @return
-     * <br>Not null
-     * <br>New
-     */
+    @Override
     public final Iterable<L> getListeners() {
         return new ArrayList<L>(this.listeners);
     }
