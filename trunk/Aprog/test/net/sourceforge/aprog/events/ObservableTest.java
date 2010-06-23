@@ -121,8 +121,6 @@ public final class ObservableTest {
         /**
          *
          * @param <E> the expected event type
-         * @param <S> the event source type
-         * @param <L> the event listener type
          * @param index
          * <br>Range: {@code [0 .. this.getEvents().size() - 1]}
          * @return

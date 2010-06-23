@@ -22,59 +22,44 @@
  *  THE SOFTWARE.
  */
 
-package net.sourceforge.aprog.events;
+package net.sourceforge.aprog.context;
 
 import static org.junit.Assert.*;
 
+import net.sourceforge.aprog.context.Context.Listener;
+import net.sourceforge.aprog.events.ObservableTest;
 import net.sourceforge.aprog.events.ObservableTest.EventRecorder;
-import net.sourceforge.aprog.events.Variable.Listener;
 import org.junit.Test;
 
 /**
  *
  * @author codistmonk (creation 2010-06-23)
  */
-public final class AtomicVariableTest {
+public final class ContextTest {
 
     @Test
-    public final <R extends EventRecorder & Listener<Integer>> void testEvents() {
-        final AtomicVariable<Integer> x = new AtomicVariable<Integer>(Integer.class, "x", 42);
+    public final <R extends EventRecorder & Listener> void testSetAndGet() {
+        final Context context = new Context();
         @SuppressWarnings("unchecked")
-        final R recorder = (R) ObservableTest.newEventRecorder(Listener.class);
+        final R recorder = (R) ObservableTest.newEventRecorder(Context.Listener.class);
 
-        x.addListener(recorder);
+        context.addListener(recorder);
 
-        assertEquals(42, (Object) x.getValue());
+        assertNull(context.set("x", 42));
+        assertNull(context.set("y", "z"));
+        assertEquals(42, (Object) context.set("x", 33));
 
-        x.setValue(33);
+        assertEquals(33, context.get("x"));
+        assertEquals("z", context.get("y"));
 
-        assertEquals(33, (Object) x.getValue());
-        assertEquals(1, recorder.getEvents().size());
+        context.remove("x");
+        context.remove("y");
 
-        {
-            final AtomicVariable<Integer>.ValueChangedEvent event = recorder.getEvent(0);
-
-            assertSame(x, event.getSource());
-            assertEquals(42, (Object) event.getOldValue());
-            assertEquals(33, (Object) event.getNewValue());
-        }
-
-        x.setValue(x.getValue());
-
-        assertEquals(1, recorder.getEvents().size());
-
-        x.setValue(42);
-
-        assertEquals(42, (Object) x.getValue());
-        assertEquals(2, recorder.getEvents().size());
-
-        {
-            final AtomicVariable<Integer>.ValueChangedEvent event = recorder.getEvent(1);
-
-            assertSame(x, event.getSource());
-            assertEquals(33, (Object) event.getOldValue());
-            assertEquals(42, (Object) event.getNewValue());
-        }
-    }
+        assertTrue(recorder.getEvents().get(0) instanceof Context.VariableAddedEvent<?>);
+        assertTrue(recorder.getEvents().get(1) instanceof Context.VariableAddedEvent<?>);
+        assertTrue(recorder.getEvents().get(2) instanceof Context.VariableRemovedEvent<?>);
+        assertTrue(recorder.getEvents().get(3) instanceof Context.VariableRemovedEvent<?>);
+        assertEquals(4, recorder.getEvents().size());
+   }
 
 }
