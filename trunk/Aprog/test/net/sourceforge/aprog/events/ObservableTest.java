@@ -38,6 +38,7 @@ import net.sourceforge.aprog.tools.Tools;
 import org.junit.Test;
 
 /**
+ * Automated tests using JUnit 4 for {@link Observable}.
  *
  * @author codistmonk (creation 2010-06-23)
  */

@@ -31,6 +31,7 @@ import net.sourceforge.aprog.events.Variable.Listener;
 import org.junit.Test;
 
 /**
+ * Automated tests using JUnit 4 for {@link AtomicVariable}.
  *
  * @author codistmonk (creation 2010-06-23)
  */

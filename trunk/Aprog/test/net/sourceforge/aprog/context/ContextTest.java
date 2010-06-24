@@ -32,6 +32,7 @@ import net.sourceforge.aprog.events.ObservableTest.EventRecorder;
 import org.junit.Test;
 
 /**
+ * Automated tests using JUnit 4 for {@link Context}.
  *
  * @author codistmonk (creation 2010-06-23)
  */
