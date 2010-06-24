@@ -24,7 +24,9 @@
 
 package net.sourceforge.aprog.tools;
 
+import java.lang.reflect.Method;
 import java.util.LinkedHashSet;
+import java.util.logging.Logger;
 
 /**
  *
@@ -71,6 +73,103 @@ public final class Tools {
         return result;
     }
 
+	/**
+	 * This method tries to find a setter starting with "set" for the specified property of the object.
+	 * <br>Eg: {@code getSetter(object, "text", String.class)} tries to find a method {@code setText(String)}
+	 *
+	 * @param object
+	 * <br>Should not be null
+	 * @param propertyName
+	 * <br>Should not be null
+	 * @param propertyClass
+	 * <br>Should not be null
+	 * @return
+	 * <br>A non-null value
+	 * @throws RuntimeException if an appropriate setter cannot be retrieved
+	 */
+	public static final Method getSetter(final Object object, final String propertyName, final Class<?> propertyClass) {
+		final String setterName = "set" + toUpperCamelCase(propertyName);
+
+		try {
+			// Try to retrieve a public setter
+			return object.getClass().getMethod(setterName, propertyClass);
+		} catch (final Exception exception) {
+			// Do nothing
+		}
+
+		try {
+			// Try to retrieve a setter declared in object's class, regardless of its visibility
+			return object.getClass().getDeclaredMethod(setterName, propertyClass);
+		} catch (final Exception exception) {
+			// Do nothing
+		}
+
+		throw new RuntimeException("Unable to retrieve a getter for property " + propertyName);
+	}
+
+	/**
+	 * This method tries to find a getter starting with "get", "is", or "has" (in that order) for the specified property of the object.
+	 * <br>Eg: {@code getGetter(object, "empty")} tries to find a method {@code getEmpty()} or {@code isEmpty()} or {@code hasEmpty()}
+	 *
+	 * @param object
+	 * <br>Should not be null
+	 * @param propertyName the camelCase name of the property
+	 * <br>Should not be null
+	 * @return
+	 * <br>A non-null value
+	 * @throws RuntimeException if an appropriate getter cannot be retrieved
+	 */
+	public static final Method getGetter(final Object object, final String propertyName) {
+		final String upperCamelCase = toUpperCamelCase(propertyName);
+
+		for (final String prefix : array("get", "is", "has")) {
+			final String getterName = prefix + upperCamelCase;
+
+			try {
+				// Try to retrieve a public getter
+				return object.getClass().getMethod(getterName);
+			} catch (final Exception exception) {
+				// Do nothing
+			}
+
+			try {
+				// Try to retrieve a getter declared in object's class, regardless of its visibility
+				return object.getClass().getDeclaredMethod(getterName);
+			} catch (final Exception exception) {
+				// Do nothing
+			}
+		}
+
+		throw new RuntimeException("Unable to retrieve a getter for property " + propertyName);
+	}
+
+	/**
+	 * Converts "someName" into "SomeName".
+	 *
+	 * @param lowerCamelCase
+	 * <br>Should not be null
+	 * @return
+	 * <br>A new value
+	 * <br>A non-null value
+	 */
+	public static final String toUpperCamelCase(final String lowerCamelCase) {
+		return Character.toUpperCase(lowerCamelCase.charAt(0)) + lowerCamelCase.substring(1);
+	}
+
+	/**
+	 * Converts {@code null} into "", otherwise returns the parameter untouched.
+	 *
+	 * @param string
+	 * <br>Can be null
+	 * <br>Shared parameter
+	 * @return {@code string} or ""
+	 * <br>A non-null value
+	 * <br>A shared value
+	 */
+	public static final String emptyIfNull(final String string) {
+		return string == null ? "" : string;
+	}
+
     /**
      * If a method {@code A.a()} calls a method {@code B.b()},
      * then the result of calling this method in {@code b()} will be {@code A.class}.
@@ -94,6 +193,33 @@ public final class Tools {
 
         return null;
     }
+
+	/**
+	 * If a method {@code a()} calls a method {@code b()}, then the result of calling this method in b() will be "a".
+	 * <br>Warning: this method can only be used directly.
+	 * <br>If you want to refactor your code, you can re-implement the functionality using {@code Thread.currentThread().getStackTrace()}.
+	 *
+	 * @return {@code null} if the caller method cannot be retrieved
+	 * <br>A possibly null value
+	 */
+	public static final String getCallerMethodName() {
+		final StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+
+		return stackTrace.length > 3 ? stackTrace[3].getMethodName() : null;
+	}
+
+	/**
+	 * Calls {@link Logger#getLogger(String)} using the fully qualified name of the calling method.
+	 * <br>Warning: this method can only be used directly.
+	 * <br>If you want to refactor your code, you can re-implement the functionality using {@code Thread.currentThread().getStackTrace()}.
+	 *
+	 * @return
+	 * <br>A non-null value
+	 * @throws NullPointerException if the caller class cannot be retrieved
+	 */
+	public static final Logger getLoggerForThisMethod() {
+		return Logger.getLogger(getCallerClass().getCanonicalName() + "." + getCallerMethodName());
+	}
 
     /**
      * Use this method when you want to propagate a checked exception wrapped in a runtime exception
