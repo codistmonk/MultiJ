@@ -38,6 +38,7 @@ import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.logging.Level;
+
 import net.sourceforge.aprog.tools.Tools;
 
 /**
@@ -271,10 +272,10 @@ public class Translator {
 	 */
 	public final synchronized void collectAvailableLocales(final String messagesBase) {
 		// TODO don't rely on Locale.getAvailableLocales(), use only messagesBase if possible
-		for (final Locale locale : Locale.getAvailableLocales()) {
+		for (final Locale predefinedLocale : Locale.getAvailableLocales()) {
 			try {
-				if (locale.equals(ResourceBundle.getBundle(messagesBase, locale).getLocale())) {
-					this.availableLocales.add(locale);
+				if (predefinedLocale.equals(ResourceBundle.getBundle(messagesBase, predefinedLocale).getLocale())) {
+					this.availableLocales.add(predefinedLocale);
 				}
 			} catch (final Exception exception) {
 				// Do nothing

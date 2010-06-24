@@ -25,6 +25,7 @@
 package net.sourceforge.aprog.events;
 
 import java.util.concurrent.atomic.AtomicReference;
+
 import net.sourceforge.aprog.tools.Tools;
 
 /**

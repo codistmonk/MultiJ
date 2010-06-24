@@ -33,8 +33,10 @@ import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
 import net.sourceforge.aprog.events.Observable.Event;
 import net.sourceforge.aprog.tools.Tools;
+
 import org.junit.Test;
 
 /**

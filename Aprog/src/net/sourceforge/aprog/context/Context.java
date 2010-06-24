@@ -29,6 +29,7 @@ import static java.util.Collections.unmodifiableCollection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+
 import net.sourceforge.aprog.events.AbstractObservable;
 import net.sourceforge.aprog.events.AtomicVariable;
 import net.sourceforge.aprog.events.Variable;

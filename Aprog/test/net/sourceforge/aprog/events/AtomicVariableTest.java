@@ -28,6 +28,7 @@ import static org.junit.Assert.*;
 
 import net.sourceforge.aprog.events.ObservableTest.EventRecorder;
 import net.sourceforge.aprog.events.Variable.Listener;
+
 import org.junit.Test;
 
 /**
