@@ -46,17 +46,17 @@ public abstract class AbstractObservable<L> implements Observable<L> {
     }
 
     @Override
-    public final void addListener(final L listener) {
+    public final synchronized void addListener(final L listener) {
         this.listeners.add(listener);
     }
 
     @Override
-    public final void removeListener(final L listener) {
+    public final synchronized void removeListener(final L listener) {
         this.listeners.remove(listener);
     }
 
     @Override
-    public final Iterable<L> getListeners() {
+    public final synchronized Iterable<L> getListeners() {
         return new ArrayList<L>(this.listeners);
     }
 

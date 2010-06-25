@@ -38,6 +38,7 @@ import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.logging.Level;
+import net.sourceforge.aprog.events.AbstractObservable;
 
 import net.sourceforge.aprog.tools.Tools;
 
@@ -51,9 +52,7 @@ import net.sourceforge.aprog.tools.Tools;
  * @author codistmonk (2010-05-11)
  *
  */
-public class Translator {
-
-    private final Collection<Listener> listeners;
+public class Translator extends AbstractObservable<Translator.Listener> {
 
     private final Set<Autotranslator> autotranslators;
 
@@ -64,30 +63,10 @@ public class Translator {
     private boolean autoCollectingLocales;
 
     public Translator() {
-        this.listeners = new ArrayList<Listener>();
         this.autotranslators = new HashSet<Autotranslator>();
         this.availableLocales = new HashSet<Locale>();
         this.locale = Locale.getDefault();
         this.autoCollectingLocales = true;
-    }
-
-    /**
-     *
-     * @param listener
-     * <br>Should not be null
-     * <br>Shared parameter
-     */
-    public final synchronized void addTranslatorListener(final Listener listener) {
-        this.listeners.add(listener);
-    }
-
-    /**
-     *
-     * @param listener
-     * <br>Can be null
-     */
-    public final synchronized void removeTranslatorListener(final Listener listener) {
-        this.listeners.remove(listener);
     }
 
     /**
@@ -104,16 +83,6 @@ public class Translator {
      */
     public final void setAutoCollectingLocales(final boolean autoCollectingLocales) {
         this.autoCollectingLocales = autoCollectingLocales;
-    }
-
-    /**
-     *
-     * @return
-     * <br>A non-null value
-     * <br>A new value
-     */
-    public final synchronized Listener[] getTranslatorListeners() {
-        return this.listeners.toArray(new Listener[this.listeners.size()]);
     }
 
     /**
@@ -200,7 +169,7 @@ public class Translator {
      */
     public final synchronized void setLocale(final Locale locale) {
         if (!this.getLocale().equals(locale)) {
-            final Locale oldLocale = this.getLocale();
+            final LocaleChangedEvent event = this.new LocaleChangedEvent(this.getLocale(), locale);
 
             this.locale = locale;
 
@@ -208,9 +177,7 @@ public class Translator {
                 autotranslator.translate();
             }
 
-            for (final Listener listener : this.getTranslatorListeners()) {
-                listener.localeChanged(oldLocale, this.getLocale());
-            }
+            event.fire();
         }
     }
 
@@ -514,14 +481,58 @@ public class Translator {
          * Called whenever the translator's locale has been changed, and after the registered
          * objects have been translated.
          *
-         * @param oldLocale
-         * <br>Should not be null
-         * @param newLocale
-         * <br>Should not be null
-         * <br>Shared parameter
+         * @param event
+         * <br>Not null
          */
-        public abstract void localeChanged(Locale oldLocale, Locale newLocale);
+        public abstract void localeChanged(LocaleChangedEvent event);
 
+    }
+
+    public final class LocaleChangedEvent extends AbstractEvent<Translator, Listener> {
+
+        private final Locale oldLocale;
+
+        private final Locale newLocale;
+
+        /**
+         *
+         * @param oldLocale
+         * <br>Not null
+         * <br>Shared
+         * @param newLocale
+         * <br>Not null
+         * <br>Shared
+         */
+        public LocaleChangedEvent(final Locale oldLocale, final Locale newLocale) {
+            this.oldLocale = oldLocale;
+            this.newLocale = newLocale;
+        }
+
+        /**
+         *
+         * @return
+         * <br>Not null
+         * <br>Shared
+         */
+        public final Locale getNewLocale() {
+            return this.newLocale;
+        }
+
+        /**
+         *
+         * @return
+         * <br>Not null
+         * <br>Shared
+         */
+        public final Locale getOldLocale() {
+            return this.oldLocale;
+        }
+
+        @Override
+        protected final void notifyListener(final Listener listener) {
+            listener.localeChanged(this);
+        }
+        
     }
 
 }
