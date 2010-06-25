@@ -264,6 +264,57 @@ public class Translator extends AbstractObservable<Translator.Listener> {
 
     /**
      *
+     * @author codistmonk (creation 2010-06-25)
+     */
+    public final class LocaleChangedEvent extends AbstractEvent<Translator, Listener> {
+
+        private final Locale oldLocale;
+
+        private final Locale newLocale;
+
+        /**
+         *
+         * @param oldLocale
+         * <br>Not null
+         * <br>Shared
+         * @param newLocale
+         * <br>Not null
+         * <br>Shared
+         */
+        public LocaleChangedEvent(final Locale oldLocale, final Locale newLocale) {
+            this.oldLocale = oldLocale;
+            this.newLocale = newLocale;
+        }
+
+        /**
+         *
+         * @return
+         * <br>Not null
+         * <br>Shared
+         */
+        public final Locale getNewLocale() {
+            return this.newLocale;
+        }
+
+        /**
+         *
+         * @return
+         * <br>Not null
+         * <br>Shared
+         */
+        public final Locale getOldLocale() {
+            return this.oldLocale;
+        }
+
+        @Override
+        protected final void notifyListener(final Listener listener) {
+            listener.localeChanged(this);
+        }
+
+    }
+
+    /**
+     *
      * This class defines a property translation operation.
      *
      * @author codistmonk (creation 2010-05-11)
@@ -486,53 +537,6 @@ public class Translator extends AbstractObservable<Translator.Listener> {
          */
         public abstract void localeChanged(LocaleChangedEvent event);
 
-    }
-
-    public final class LocaleChangedEvent extends AbstractEvent<Translator, Listener> {
-
-        private final Locale oldLocale;
-
-        private final Locale newLocale;
-
-        /**
-         *
-         * @param oldLocale
-         * <br>Not null
-         * <br>Shared
-         * @param newLocale
-         * <br>Not null
-         * <br>Shared
-         */
-        public LocaleChangedEvent(final Locale oldLocale, final Locale newLocale) {
-            this.oldLocale = oldLocale;
-            this.newLocale = newLocale;
-        }
-
-        /**
-         *
-         * @return
-         * <br>Not null
-         * <br>Shared
-         */
-        public final Locale getNewLocale() {
-            return this.newLocale;
-        }
-
-        /**
-         *
-         * @return
-         * <br>Not null
-         * <br>Shared
-         */
-        public final Locale getOldLocale() {
-            return this.oldLocale;
-        }
-
-        @Override
-        protected final void notifyListener(final Listener listener) {
-            listener.localeChanged(this);
-        }
-        
     }
 
 }
