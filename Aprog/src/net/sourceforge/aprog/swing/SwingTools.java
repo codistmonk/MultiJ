@@ -58,9 +58,64 @@ public final class SwingTools {
         // Do nothing
     }
 
+    /**
+     * {@value}.
+     */
+    public static final String DEFAULT_IMAGES_BASE = "images/";
+
+    /**
+     * {@value}.
+     */
+    public static final String ICON_FORMAT = "png";
+
+    /**
+     * {@value}.
+     */
+    public static final String ROLLOVER_DISABLED_ICON_SUFFIX = "_disabled." + ICON_FORMAT;
+
+    /**
+     * {@value}.
+     */
+    public static final String ROLLOVER_NORMAL_ICON_SUFFIX = "." + ICON_FORMAT;
+
+    /**
+     * {@value}.
+     */
+    public static final String ROLLOVER_SELECTED_ICON_SUFFIX = "_selected." + ICON_FORMAT;
+
+    /**
+     * {@value}.
+     */
+    public static final String ROLLOVER_ROLLOVER_ICON_SUFFIX = "_rollover." + ICON_FORMAT;
+
+    /**
+     * {@value}.
+     */
+    public static final String ROLLOVER_ROLLOVER_SELECTED_ICON_SUFFIX = "_rollover_selected." + ICON_FORMAT;
+
     private static final Map<String, ImageIcon> iconCache = new HashMap<String, ImageIcon>();
 
-    public static final String IMAGES_BASE = "images/";
+    private static String imagesBase = DEFAULT_IMAGES_BASE;
+
+    /**
+     *
+     * @return
+     * <br>Not null
+     * <br>Shared
+     */
+    public static final String getImagesBase() {
+        return imagesBase;
+    }
+
+    /**
+     *
+     * @param imagesBase
+     * <br>Not null
+     * <br>Shared
+     */
+    public static final void setImagesBase(final String imagesBase) {
+        SwingTools.imagesBase = imagesBase;
+    }
 
     /**
      *
@@ -80,7 +135,7 @@ public final class SwingTools {
             }
 
             final ImageIcon icon = new ImageIcon(ImageIO.read(
-                    SwingTools.class.getClassLoader().getResourceAsStream(IMAGES_BASE + resourceName)));
+                    SwingTools.class.getClassLoader().getResourceAsStream(getImagesBase() + resourceName)));
 
             iconCache.put(resourceName, icon);
 
@@ -142,7 +197,7 @@ public final class SwingTools {
      * @param imageName
      * <br>Should not be null
      * @param borderPainted if {@code false}, then the preferred size is set to the size of the image,
-     * and the background and border are not drawn; if {@true}, {@code button} is left in its current state
+     * and the background and border are not drawn; if {@code true}, then {@code button} is left in its current state
      * @return {@code button}
      * <br>A non-null value
      * <br>A shared value
@@ -151,11 +206,11 @@ public final class SwingTools {
         checkAWT();
 
         button.setRolloverEnabled(true);
-        button.setDisabledIcon(getIconOrNull(imageName + "_disabled.png"));
-        button.setIcon(getIconOrNull(imageName + ".png"));
-        button.setSelectedIcon(getIconOrNull(imageName + "_selected.png"));
-        button.setRolloverIcon(getIconOrNull(imageName + "_rollover.png"));
-        button.setRolloverSelectedIcon(getIconOrNull(imageName + "_rollover_selected.png"));
+        button.setDisabledIcon(getIconOrNull(imageName + ROLLOVER_DISABLED_ICON_SUFFIX));
+        button.setIcon(getIconOrNull(imageName + ROLLOVER_NORMAL_ICON_SUFFIX));
+        button.setSelectedIcon(getIconOrNull(imageName + ROLLOVER_SELECTED_ICON_SUFFIX));
+        button.setRolloverIcon(getIconOrNull(imageName + ROLLOVER_ROLLOVER_ICON_SUFFIX));
+        button.setRolloverSelectedIcon(getIconOrNull(imageName + ROLLOVER_ROLLOVER_SELECTED_ICON_SUFFIX));
 
         if (!borderPainted) {
             if (button.getIcon() != null) {
