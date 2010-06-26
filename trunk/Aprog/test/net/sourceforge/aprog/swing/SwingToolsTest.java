@@ -31,10 +31,10 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 
 import javax.swing.JButton;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
-
 
 import net.sourceforge.aprog.tools.Tools;
 
@@ -64,41 +64,66 @@ public final class SwingToolsTest {
 
     @Test
     public final void testAdd() throws Exception {
-        SwingUtilities.invokeAndWait(new Runnable() {
+        if (SwingTools.canInvokeThisMethodInAWT(this)) {
+            final JPanel panel = new JPanel(new FlowLayout());
+            final JLabel label = new JLabel();
 
-            @Override
-            public final void run() {
-                final JPanel panel = new JPanel(new FlowLayout());
-                final JLabel label = new JLabel();
+            assertTrue(panel.getLayout() instanceof FlowLayout);
 
-                assertTrue(panel.getLayout() instanceof FlowLayout);
+            SwingTools.add(panel, label, new GridBagConstraints());
 
-                SwingTools.add(panel, label, new GridBagConstraints());
-
-                assertTrue(panel.getLayout() instanceof GridBagLayout);
-                assertSame(label, panel.getComponents()[0]);
-                assertEquals(1, panel.getComponentCount());
-            }
-
-        });
+            assertTrue(panel.getLayout() instanceof GridBagLayout);
+            assertSame(label, panel.getComponents()[0]);
+            assertEquals(1, panel.getComponentCount());
+        }
     }
 
     @Test
     public final void testRollover() throws Exception {
-        SwingUtilities.invokeAndWait(new Runnable() {
-            
-            @Override
-            public final void run() {
-                SwingTools.setImagesBase(Tools.getCallerPackagePath());
+        if (SwingTools.canInvokeThisMethodInAWT(this)) {
+            SwingTools.setImagesBase(Tools.getCallerPackagePath());
 
-                final JButton button = SwingTools.rollover(new JButton(), "start", false);
+            final JButton button = SwingTools.rollover(new JButton(), "start", false);
 
-                assertNotNull(button.getIcon());
-                assertNotNull(button.getRolloverIcon());
-                assertFalse(button.isBorderPainted());
-            }
-            
-        });
+            assertNotNull(button.getIcon());
+            assertNotNull(button.getRolloverIcon());
+            assertFalse(button.isBorderPainted());
+        }
+    }
+
+    @Test
+    public final void testCenter() throws Exception {
+        if (SwingTools.canInvokeThisMethodInAWT(this)) {
+            fail("TODO");
+        }
+    }
+
+    @Test
+    public final void testScrollable() throws Exception {
+        if (SwingTools.canInvokeThisMethodInAWT(this)) {
+            fail("TODO");
+        }
+    }
+
+    @Test
+    public final void testMenuBar() throws Exception {
+        if (SwingTools.canInvokeThisMethodInAWT(this)) {
+            fail("TODO");
+        }
+    }
+
+    @Test
+    public final void testMenu() throws Exception {
+        if (SwingTools.canInvokeThisMethodInAWT(this)) {
+            fail("TODO");
+        }
+    }
+
+    @Test
+    public final void testCanInvokeThisMethodInAWT() {
+        if (SwingTools.canInvokeThisMethodInAWT(this)) {
+            SwingTools.checkAWT();
+        }
     }
 
     @Test(expected=IllegalStateException.class)
