@@ -34,12 +34,12 @@ import java.util.logging.Logger;
  */
 public final class Tools {
 
-	/**
-	 * Private default constructor to prevent instantiation.
-	 */
-	private Tools() {
-		// Do nothing
-	}
+    /**
+     * Private default constructor to prevent instantiation.
+     */
+    private Tools() {
+        // Do nothing
+    }
 
     /**
      *
@@ -73,102 +73,124 @@ public final class Tools {
         return result;
     }
 
-	/**
-	 * This method tries to find a setter starting with "set" for the specified property of the object.
-	 * <br>Eg: {@code getSetter(object, "text", String.class)} tries to find a method {@code setText(String)}
-	 *
-	 * @param object
-	 * <br>Should not be null
-	 * @param propertyName
-	 * <br>Should not be null
-	 * @param propertyClass
-	 * <br>Should not be null
-	 * @return
-	 * <br>A non-null value
-	 * @throws RuntimeException if an appropriate setter cannot be retrieved
-	 */
-	public static final Method getSetter(final Object object, final String propertyName, final Class<?> propertyClass) {
-		final String setterName = "set" + toUpperCamelCase(propertyName);
+    /**
+     * This method tries to find a setter starting with "set" for the specified property of the object.
+     * <br>Eg: {@code getSetter(object, "text", String.class)} tries to find a method {@code setText(String)}
+     *
+     * @param object
+     * <br>Should not be null
+     * @param propertyName
+     * <br>Should not be null
+     * @param propertyClass
+     * <br>Should not be null
+     * @return
+     * <br>A non-null value
+     * @throws RuntimeException if an appropriate setter cannot be retrieved
+     */
+    public static final Method getSetter(final Object object, final String propertyName, final Class<?> propertyClass) {
+        final String setterName = "set" + toUpperCamelCase(propertyName);
 
-		try {
-			// Try to retrieve a public setter
-			return object.getClass().getMethod(setterName, propertyClass);
-		} catch (final Exception exception) {
-			// Do nothing
-		}
+        try {
+            // Try to retrieve a public setter
+            return object.getClass().getMethod(setterName, propertyClass);
+        } catch (final Exception exception) {
+            // Do nothing
+        }
 
-		try {
-			// Try to retrieve a setter declared in object's class, regardless of its visibility
-			return object.getClass().getDeclaredMethod(setterName, propertyClass);
-		} catch (final Exception exception) {
-			// Do nothing
-		}
+        try {
+            // Try to retrieve a setter declared in object's class, regardless of its visibility
+            return object.getClass().getDeclaredMethod(setterName, propertyClass);
+        } catch (final Exception exception) {
+            // Do nothing
+        }
 
-		throw new RuntimeException("Unable to retrieve a getter for property " + propertyName);
-	}
+        throw new RuntimeException("Unable to retrieve a getter for property " + propertyName);
+    }
 
-	/**
-	 * This method tries to find a getter starting with "get", "is", or "has" (in that order) for the specified property of the object.
-	 * <br>Eg: {@code getGetter(object, "empty")} tries to find a method {@code getEmpty()} or {@code isEmpty()} or {@code hasEmpty()}
-	 *
-	 * @param object
-	 * <br>Should not be null
-	 * @param propertyName the camelCase name of the property
-	 * <br>Should not be null
-	 * @return
-	 * <br>A non-null value
-	 * @throws RuntimeException if an appropriate getter cannot be retrieved
-	 */
-	public static final Method getGetter(final Object object, final String propertyName) {
-		final String upperCamelCase = toUpperCamelCase(propertyName);
+    /**
+     * This method tries to find a getter starting with "get", "is", or "has" (in that order) for the specified property of the object.
+     * <br>Eg: {@code getGetter(object, "empty")} tries to find a method {@code getEmpty()} or {@code isEmpty()} or {@code hasEmpty()}
+     *
+     * @param object
+     * <br>Should not be null
+     * @param propertyName the camelCase name of the property
+     * <br>Should not be null
+     * @return
+     * <br>A non-null value
+     * @throws RuntimeException if an appropriate getter cannot be retrieved
+     */
+    public static final Method getGetter(final Object object, final String propertyName) {
+        final String upperCamelCase = toUpperCamelCase(propertyName);
 
-		for (final String prefix : array("get", "is", "has")) {
-			final String getterName = prefix + upperCamelCase;
+        for (final String prefix : array("get", "is", "has")) {
+            final String getterName = prefix + upperCamelCase;
 
-			try {
-				// Try to retrieve a public getter
-				return object.getClass().getMethod(getterName);
-			} catch (final Exception exception) {
-				// Do nothing
-			}
+            try {
+                // Try to retrieve a public getter
+                return object.getClass().getMethod(getterName);
+            } catch (final Exception exception) {
+                // Do nothing
+            }
 
-			try {
-				// Try to retrieve a getter declared in object's class, regardless of its visibility
-				return object.getClass().getDeclaredMethod(getterName);
-			} catch (final Exception exception) {
-				// Do nothing
-			}
-		}
+            try {
+                // Try to retrieve a getter declared in object's class, regardless of its visibility
+                return object.getClass().getDeclaredMethod(getterName);
+            } catch (final Exception exception) {
+                // Do nothing
+            }
+        }
 
-		throw new RuntimeException("Unable to retrieve a getter for property " + propertyName);
-	}
+        throw new RuntimeException("Unable to retrieve a getter for property " + propertyName);
+    }
 
-	/**
-	 * Converts "someName" into "SomeName".
-	 *
-	 * @param lowerCamelCase
-	 * <br>Should not be null
-	 * @return
-	 * <br>A new value
-	 * <br>A non-null value
-	 */
-	public static final String toUpperCamelCase(final String lowerCamelCase) {
-		return Character.toUpperCase(lowerCamelCase.charAt(0)) + lowerCamelCase.substring(1);
-	}
+    /**
+     * Converts "someName" into "SomeName".
+     *
+     * @param lowerCamelCase
+     * <br>Should not be null
+     * @return
+     * <br>A new value
+     * <br>A non-null value
+     */
+    public static final String toUpperCamelCase(final String lowerCamelCase) {
+        return Character.toUpperCase(lowerCamelCase.charAt(0)) + lowerCamelCase.substring(1);
+    }
 
-	/**
-	 * Converts {@code null} into "", otherwise returns the parameter untouched.
-	 *
-	 * @param string
-	 * <br>Can be null
-	 * <br>Shared parameter
-	 * @return {@code string} or ""
-	 * <br>A non-null value
-	 * <br>A shared value
-	 */
-	public static final String emptyIfNull(final String string) {
-		return string == null ? "" : string;
-	}
+    /**
+     * Converts {@code null} into "", otherwise returns the parameter untouched.
+     *
+     * @param string
+     * <br>Can be null
+     * <br>Shared parameter
+     * @return {@code string} or ""
+     * <br>A non-null value
+     * <br>A shared value
+     */
+    public static final String emptyIfNull(final String string) {
+        return string == null ? "" : string;
+    }
+
+    /**
+     * Returns "package/name/" if the package of {@code cls} is of the form "package.name".
+     *
+     * @param cls
+     * <br>Not null
+     * @return
+     * <br>Not null
+     */
+    public static final String getPackagePath(final Class<?> cls) {
+        return cls.getPackage().getName().replaceAll("\\.", "/") + "/";
+    }
+
+    /**
+     * Returns "package/name/" if the package of the caller class is of the form "package.name".
+     *
+     * @return
+     * <br>Not null
+     */
+    public static final String getCallerPackagePath() {
+        return getPackagePath(getCallerClass());
+    }
 
     /**
      *
@@ -189,7 +211,7 @@ public final class Tools {
      * using {@code Thread.currentThread().getStackTrace()}.
      *
      * @return {@code null} if the caller class cannot be retrieved
-	 * <br>Maybe null
+     * <br>Maybe null
      */
     public static final Class<?> getCallerClass() {
         final StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
@@ -205,32 +227,32 @@ public final class Tools {
         return null;
     }
 
-	/**
-	 * If a method {@code a()} calls a method {@code b()}, then the result of calling this method in b() will be "a".
-	 * <br>Warning: this method can only be used directly.
-	 * <br>If you want to refactor your code, you can re-implement the functionality using {@code Thread.currentThread().getStackTrace()}.
-	 *
-	 * @return {@code null} if the caller method cannot be retrieved
-	 * <br>A possibly null value
-	 */
-	public static final String getCallerMethodName() {
-		final StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+    /**
+     * If a method {@code a()} calls a method {@code b()}, then the result of calling this method in b() will be "a".
+     * <br>Warning: this method can only be used directly.
+     * <br>If you want to refactor your code, you can re-implement the functionality using {@code Thread.currentThread().getStackTrace()}.
+     *
+     * @return {@code null} if the caller method cannot be retrieved
+     * <br>A possibly null value
+     */
+    public static final String getCallerMethodName() {
+        final StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
 
-		return stackTrace.length > 3 ? stackTrace[3].getMethodName() : null;
-	}
+        return stackTrace.length > 3 ? stackTrace[3].getMethodName() : null;
+    }
 
-	/**
-	 * Calls {@link Logger#getLogger(String)} using the fully qualified name of the calling method.
-	 * <br>Warning: this method can only be used directly.
-	 * <br>If you want to refactor your code, you can re-implement the functionality using {@code Thread.currentThread().getStackTrace()}.
-	 *
-	 * @return
-	 * <br>A non-null value
-	 * @throws NullPointerException if the caller class cannot be retrieved
-	 */
-	public static final Logger getLoggerForThisMethod() {
-		return Logger.getLogger(getCallerClass().getCanonicalName() + "." + getCallerMethodName());
-	}
+    /**
+     * Calls {@link Logger#getLogger(String)} using the fully qualified name of the calling method.
+     * <br>Warning: this method can only be used directly.
+     * <br>If you want to refactor your code, you can re-implement the functionality using {@code Thread.currentThread().getStackTrace()}.
+     *
+     * @return
+     * <br>A non-null value
+     * @throws NullPointerException if the caller class cannot be retrieved
+     */
+    public static final Logger getLoggerForThisMethod() {
+        return Logger.getLogger(getCallerClass().getCanonicalName() + "." + getCallerMethodName());
+    }
 
     /**
      * Use this method when you want to propagate a checked exception wrapped in a runtime exception
@@ -238,7 +260,7 @@ public final class Tools {
      *
      * @param <T> the type that the caller is supposed to return
      * @param cause
-	 * <br>Not null
+     * <br>Not null
      * <br>Shared
      * @return
      * <br>Does not return
@@ -255,63 +277,63 @@ public final class Tools {
         throw new RuntimeException(cause);
     }
 
-	/**
-	 * Does the same thing as {@link Class#cast(Object)},
+    /**
+     * Does the same thing as {@link Class#cast(Object)},
      * but returns {@code null} instead of throwing an exception if the cast cannot be performed.
-	 *
-	 * @param <T> the type into which {@code object} is tentatively being cast
-	 * @param cls
-	 * <br>Not null
-	 * @param object
-	 * <br>Maybe null
-	 * @return {@code null} if {@code object} is {@code null} or cannot be cast into {@code T},
+     *
+     * @param <T> the type into which {@code object} is tentatively being cast
+     * @param cls
+     * <br>Not null
+     * @param object
+     * <br>Maybe null
+     * @return {@code null} if {@code object} is {@code null} or cannot be cast into {@code T},
      * otherwise {@code object}
-	 * <br>Maybe null
-	 */
-	public static final <T> T cast(final Class<T> cls, final Object object) {
-		if (object == null || !cls.isAssignableFrom(object.getClass())) {
-			return null;
-		}
+     * <br>Maybe null
+     */
+    public static final <T> T cast(final Class<T> cls, final Object object) {
+        if (object == null || !cls.isAssignableFrom(object.getClass())) {
+            return null;
+        }
 
-		return cls.cast(object);
-	}
+        return cls.cast(object);
+    }
 
     /**
      *
      * @param <T> the caller type
      * @param object
-	 * <br>Maybe null
+     * <br>Maybe null
      * @return {@code null} if {@code object} is {@code null} or cannot be cast into the caller type
      * (obtained using {@link #getCallerClass()}) , otherwise {@code object}
-	 * <br>Maybe null
+     * <br>Maybe null
      */
     @SuppressWarnings("unchecked")
     public static final <T> T castToCurrentClass(final Object object) {
         return (T) cast(getCallerClass(), object);
     }
 
-	/**
-	 *
-	 * @param object1
-	 * <br>Maybe null
-	 * @param object2
-	 * <br>Maybe null
-	 * @return {@code true} if both objects are the same (using {@code ==}) or equal (using {@code equals()})
-	 */
-	public static final boolean equals(final Object object1, final Object object2) {
-		return object1 == object2 || (object1 != null && object1.equals(object2));
-	}
+    /**
+     *
+     * @param object1
+     * <br>Maybe null
+     * @param object2
+     * <br>Maybe null
+     * @return {@code true} if both objects are the same (using {@code ==}) or equal (using {@code equals()})
+     */
+    public static final boolean equals(final Object object1, final Object object2) {
+        return object1 == object2 || (object1 != null && object1.equals(object2));
+    }
 
-	/**
-	 *
-	 * @param object
-	 * <br>Maybe null
-	 * @return {@code 0} if {@code object is null}, otherwise {@code object.hashcode()}
-	 * <br>Range: any integer
-	 */
-	public static final int hashCode(final Object object) {
-		return object == null ? 0 : object.hashCode();
-	}
+    /**
+     *
+     * @param object
+     * <br>Maybe null
+     * @return {@code 0} if {@code object is null}, otherwise {@code object.hashcode()}
+     * <br>Range: any integer
+     */
+    public static final int hashCode(final Object object) {
+        return object == null ? 0 : object.hashCode();
+    }
 
     /**
      * Concatenates the source location of the call and

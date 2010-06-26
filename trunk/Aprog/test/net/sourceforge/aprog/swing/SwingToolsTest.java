@@ -26,10 +26,19 @@ package net.sourceforge.aprog.swing;
 
 import static org.junit.Assert.*;
 
+import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
-import org.junit.Test;
 
+import net.sourceforge.aprog.tools.Tools;
+
+import org.junit.Test;
 /**
  * Automated tests using JUnit 4 for {@link SwingTools}.
  *
@@ -39,22 +48,57 @@ public final class SwingToolsTest {
 
     @Test
     public final void testGetIcon() {
-        fail("TODO");
+        SwingTools.setImagesBase(Tools.getCallerPackagePath());
+
+        assertNotNull(SwingTools.getIcon("start.png"));
     }
 
     @Test
     public final void testGetIconOrNull() {
         assertNull(SwingTools.getIconOrNull("inexisting_icon"));
+
+        SwingTools.setImagesBase(Tools.getCallerPackagePath());
+
+        assertNotNull(SwingTools.getIconOrNull("start.png"));
     }
 
     @Test
-    public final void testAdd() {
-        fail("TODO");
+    public final void testAdd() throws Exception {
+        SwingUtilities.invokeAndWait(new Runnable() {
+
+            @Override
+            public final void run() {
+                final JPanel panel = new JPanel(new FlowLayout());
+                final JLabel label = new JLabel();
+
+                assertTrue(panel.getLayout() instanceof FlowLayout);
+
+                SwingTools.add(panel, label, new GridBagConstraints());
+
+                assertTrue(panel.getLayout() instanceof GridBagLayout);
+                assertSame(label, panel.getComponents()[0]);
+                assertEquals(1, panel.getComponentCount());
+            }
+
+        });
     }
 
     @Test
-    public final void testRollover() {
-        fail("TODO");
+    public final void testRollover() throws Exception {
+        SwingUtilities.invokeAndWait(new Runnable() {
+            
+            @Override
+            public final void run() {
+                SwingTools.setImagesBase(Tools.getCallerPackagePath());
+
+                final JButton button = SwingTools.rollover(new JButton(), "start", false);
+
+                assertNotNull(button.getIcon());
+                assertNotNull(button.getRolloverIcon());
+                assertFalse(button.isBorderPainted());
+            }
+            
+        });
     }
 
     @Test(expected=IllegalStateException.class)
@@ -63,16 +107,19 @@ public final class SwingToolsTest {
 
             @Override
             public final void run() {
+                // Doesn't throw
                 SwingTools.checkAWT();
             }
 
         });
 
+        // Throws
         SwingTools.checkAWT();
     }
 
     @Test
     public final void testCheckNotAWT() throws Exception {
+        // Doesn't throw
         SwingTools.checkNotAWT();
 
         SwingUtilities.invokeAndWait(new Runnable() {
@@ -80,6 +127,7 @@ public final class SwingToolsTest {
             @Override
             public final void run() {
                 try {
+                    // Throws
                     SwingTools.checkNotAWT();
 
                     fail("This section wasn't supposed to be reached");
