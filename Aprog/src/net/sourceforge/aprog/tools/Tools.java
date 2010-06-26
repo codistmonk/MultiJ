@@ -24,6 +24,7 @@
 
 package net.sourceforge.aprog.tools;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.util.LinkedHashSet;
 import java.util.logging.Logger;
@@ -69,6 +70,28 @@ public final class Tools {
         for (final T element : elements) {
             result.add(element);
         }
+
+        return result;
+    }
+
+    /**
+     *
+     * @param <T>
+     * @param array
+     * <br>Not null
+     * @param moreElements
+     * <br>Not null
+     * @return
+     * <br>Not null
+     * <br>New
+     */
+    public static final <T> T[] add(final T[] array, final T... moreElements) {
+        @SuppressWarnings("unchecked")
+        final T[] result = (T[]) Array.newInstance(
+                array.getClass().getComponentType(), array.length + moreElements.length);
+
+        System.arraycopy(array, 0, result, 0, array.length);
+        System.arraycopy(moreElements, 0, result, array.length, moreElements.length);
 
         return result;
     }

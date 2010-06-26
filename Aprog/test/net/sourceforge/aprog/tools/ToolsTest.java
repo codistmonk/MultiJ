@@ -55,6 +55,15 @@ public final class ToolsTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
+    public final void testAdd() {
+        assertArrayEquals(Tools.array(42, 33, 42), Tools.add(Tools.array(42), Tools.array(33, 42)));
+        assertArrayEquals(Tools.array(42), Tools.add(Tools.array(42), Tools.array()));
+        assertArrayEquals(Tools.array(42), Tools.add(Tools.array(), Tools.array((Object) 42)));
+        assertArrayEquals(Tools.array(), Tools.add(Tools.array(), Tools.array()));
+    }
+
+    @Test
     public final void testGetGetter() {
         final ObjectWithArbitraryProperties objectWithArbitraryProperties = new ObjectWithArbitraryProperties();
 
