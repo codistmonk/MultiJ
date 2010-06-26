@@ -251,13 +251,13 @@ public class TranslatorTest {
 		}
 	}
 	
-	private static final String MESSAGES_BASE = TranslatorTest.class.getPackage().getName().replaceAll("\\.", "/") + "/messages";
+	static final String MESSAGES_BASE = TranslatorTest.class.getPackage().getName().replaceAll("\\.", "/") + "/Messages";
 	
 	/**
 	 * 
 	 * @author codistmonk (creation 2010-06-03)
 	 */
-	private static class Translatable {
+	private static final class Translatable {
 		
 		private String publicText;
 		

@@ -1,7 +1,7 @@
 /*
  *  The MIT License
  * 
- *  Copyright 2010 The Codist Monk.
+ *  Copyright 2010 Codist Monk.
  * 
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -169,6 +169,17 @@ public final class Tools {
 	public static final String emptyIfNull(final String string) {
 		return string == null ? "" : string;
 	}
+
+    /**
+     *
+     * @param cls
+     * <br>Not null
+     * @return the top level class enclosing {@code cls}, or {@code cls} itself if it is a top level class
+     * <br>Not null
+     */
+    public static final Class<?> getTopLevelEnclosingClass(final Class<?> cls) {
+        return cls.getEnclosingClass() == null ? cls : getTopLevelEnclosingClass(cls.getEnclosingClass());
+    }
 
     /**
      * If a method {@code A.a()} calls a method {@code B.b()},

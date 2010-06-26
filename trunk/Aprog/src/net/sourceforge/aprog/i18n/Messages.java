@@ -24,12 +24,23 @@
 
 package net.sourceforge.aprog.i18n;
 
+import static java.util.Collections.unmodifiableSet;
+
 import static net.sourceforge.aprog.i18n.Translator.*;
 import static net.sourceforge.aprog.tools.Tools.*;
+
+import java.util.HashSet;
+import java.util.Set;
+
+import net.sourceforge.aprog.tools.Tools;
 
 /**
  * This class contains static methods that help manipulate the default translator.
  * <br>It is recommended to use a static import so that the only name to remember is translate.
+ * <br>Static getters and setters are provided to customize the location of the message bundle.
+ * <br>If you need to alternate between different message bases or property sets, you can define your
+ * own utility class with appropriate static "translate" methods,
+ * so that the messagesBase and propertyNames attributes can be precisely controlled.
  *
  * @author codistmonk (creation 2010-06-25)
  */
@@ -43,57 +54,108 @@ public final class Messages {
     }
 
     /**
-     * This method registers {@code object} in the default translator and translates it using the specified translation key and optional parameters.
-     * <br>The messages bundle is the one associated with the caller class.
-     *
-     * @param <T> the actual type of {@code object}
-     * @param object the object whose properties need to be translated
-     * <br>Should not be null
-     * <br>Input-output parameter
-     * <br>Shared parameter
-     * @param textPropertyName the lowerCamelCase name of the property to translate; a setter named "set" + UpperCamelCase name is expected
-     * <br>Should not be null
-     * <br>Shared parameter
-     * @param translationKey
-     * <br>Should not be null
-     * <br>Shared parameter
-     * @param parameters optional parameters to build the translated message; if an exception is passed, its localized message will be used
-     * <br>Should not be null
-     * <br>Shared parameter
-     * @return {@code object}
-     * <br>A non-null value
-     * <br>A shared value
+     * {@value}.
      */
-    public static final <T> T translate(final T object, final String textPropertyName, final String translationKey, final Object... parameters) {
-        return getDefaultTranslator().translate(object, textPropertyName, translationKey, makeResourceBundleBaseName(getCallerClass()), parameters);
+    public static final String DEFAULT_MESSAGES_BASE = "i18n/Messages";
+
+    /**
+     * {{@code "text"}, {@code "title"}, {@code "toolTipText"}, {@code "string"}}.
+     */
+    public static final Set<String> DEFAULT_PROPERTY_NAMES =
+            unmodifiableSet(Tools.set("text", "title", "toolTipText", "string"));
+
+    private static String messagesBase = DEFAULT_MESSAGES_BASE;
+
+    private static final Set<String> propertyNames = new HashSet<String>(DEFAULT_PROPERTY_NAMES);
+
+    /**
+     *
+     * @return
+     * <br>Not null
+     * <br>Shared
+     */
+    public static final String getMessagesBase() {
+        return messagesBase;
     }
 
     /**
-     * This method tries to translate {@code component}'s properties named "text", "title" and "toolTipText".
-     * <br>If the property doesn't exist or is not accessible with public getter and setter, nothing happens.
+     *
+     * @param messagesBase
+     * <br>Not null
+     * <br>Shared
+     */
+    public static final void setMessagesBase(final String messagesBase) {
+        Messages.messagesBase = messagesBase;
+    }
+
+    /**
+     *
+     * @return A mutable set
+     * <br>Not null
+     * <br>Shared
+     */
+    public static final Set<String> getPropertyNames() {
+        return propertyNames;
+    }
+
+    /**
+     * This method registers {@code object} in the default translator and translates it
+     * using the specified translation key and optional parameters.
+     * <br>The message bundle is the one associated with the caller class.
+     *
+     * @param <T> The actual type of {@code object}
+     * @param object The object whose properties need to be translated
+     * <br>Not null
+     * <br>Input-output
+     * <br>Shared
+     * @param textPropertyName The lowerCamelCase name of the property to translate;
+     * a setter named "set" + UpperCamelCase name is expected
+     * <br>Not null
+     * <br>Shared
+     * @param translationKey
+     * <br>Not null
+     * <br>Shared
+     * @param parameters Optional parameters to build the translated message;
+     * if an exception is passed, its localized message will be used
+     * <br>Not null
+     * <br>Shared
+     * @return {@code object}
+     * <br>Not null
+     * <br>Shared
+     */
+    public static final <T> T translate(
+            final T object, final String textPropertyName, final String translationKey, final Object... parameters) {
+        return getDefaultTranslator().translate(
+                object, textPropertyName, translationKey, getMessagesBase(), parameters);
+    }
+
+    /**
+     * This method tries to translate {@code component}'s properties found in {@link #getPropertyNames()}.
+     * <br>If the property doesn't exist or is not accessible with a getter and setter, nothing happens.
      * <br>The translation key for each property is the value of the property before the call.
      * <br>Warning: {@code parameters} will be used for all 3 properties if they are accessible.
-     * <br>The messages bundle is the one associated with the caller class.
+     * <br>The message bundle is the one retrieved from {@link #getMessagesBase()}.
      *
-     * @param <T> the actual type of {@code component}
+     * @param <T> The actual type of {@code component}
      * @param component
-     * <br>Should not be null
-     * <br>Input-output parameter
-     * <br>Shared parameter
+     * <br>Not null
+     * <br>Input-output
+     * <br>Shared
      * @param parameters
-     * <br>Should not be null
-     * <br>Shared parameter
+     * <br>Not null
+     * <br>Shared
      * @return {@code component}
-     * <br>A non-null value
-     * <br>A shared value
+     * <br>Not null
+     * <br>Shared
      */
     public static final <T> T translate(final T component, final Object... parameters) {
-        for (final String textPropertyName : array("text", "title", "toolTipText")) {
+        for (final String textPropertyName : getPropertyNames()) {
             try {
                 final String translationKey = (String) getGetter(component, textPropertyName).invoke(component);
 
                 if (translationKey != null && !translationKey.isEmpty()) {
-                    getDefaultTranslator().translate(component, textPropertyName, translationKey, makeResourceBundleBaseName(getCallerClass()), parameters);
+                    getDefaultTranslator().translate(
+                            component, textPropertyName, translationKey, getMessagesBase(), parameters);
                 }
             } catch (final Exception exception) {
                 // Do nothing
@@ -104,42 +166,36 @@ public final class Messages {
     }
 
     /**
-     * This method tries to translate {@code translationKey} with the specified parameter using the caller's class
-     * to obtain a resource bundle.
+     * This method tries to translate {@code translationKey} with the specified parameter using
+     * the message bundle obtained from {@link #getMessagesBase()}.
      *
      * @param translationKey
-     * <br>Should not be null
+     * <br>Not null
      * @param parameters
-     * <br>Should not be null
-     * <br>Shared parameter
+     * <br>Not null
+     * <br>Shared
      * @return
-     * <br>A non-null value
+     * <br>Not null
      */
     public static final String translate(final String translationKey, final Object... parameters) {
-        return getDefaultTranslator().translate(translationKey, makeResourceBundleBaseName(getCallerClass()), parameters);
+        return getDefaultTranslator().translate(translationKey, getMessagesBase(), parameters);
     }
 
     /**
      *
-     * @param cls
-     * <br>Should not be null
-     * @return the top level class enclosing {@code cls}, or {@code cls} itself if it is a top level class
-     * <br>A non-null value
+     * @param translationKey
+     * <br>Not null
+     * <br>Shared
+     * @param messageParameters
+     * <br>Not null
+     * <br>Shared
+     * @return
+     * <br>Not null
+     * <br>New
      */
-    private static final Class<?> getTopLevelEnclosingClass(final Class<?> cls) {
-        return cls.getEnclosingClass() == null ? cls : getTopLevelEnclosingClass(cls.getEnclosingClass());
-    }
-
-    /**
-     *
-     *
-     * @param callerClass
-     * <br />The class {@code translate} was called from
-     * <br />Should not be null
-     * @return the correct ResourceBundle base name for the calling class
-     */
-    private static final String makeResourceBundleBaseName(final Class<?> callerClass) {
-        return "l10n/" + getTopLevelEnclosingClass(callerClass).getName().substring("net.sourceforge.transfile.".length()).replace(".", "/");
+    public static final LocalizedException createLocalizedException(
+            final String translationKey, final Object... messageParameters) {
+        return new LocalizedException(Translator.getDefaultTranslator(), translationKey, getMessagesBase(), messageParameters);
     }
 
 }
