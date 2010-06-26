@@ -28,6 +28,7 @@ import static org.junit.Assert.*;
 
 import java.lang.reflect.Method;
 import java.util.Set;
+import java.util.concurrent.Callable;
 
 import org.junit.Test;
 
@@ -186,6 +187,18 @@ public final class ToolsTest {
 		assertSame("", Tools.emptyIfNull(""));
 		assertSame("42", Tools.emptyIfNull("42"));
 	}
+
+    @Test
+    public final void testGetTopLevelEclosingClass() throws Exception {
+        assertEquals(this.getClass(), new Callable<Class<?>>() {
+
+            @Override
+            public final Class<?> call() throws Exception {
+                return Tools.getTopLevelEnclosingClass(this.getClass());
+            }
+
+        }.call());
+    }
 
     @Test
     public final void testGetCallerClass() {

@@ -224,27 +224,7 @@ public class Translator extends AbstractObservable<Translator.Listener> {
             final String messagesBase, final Object... parameters) {
         this.autoCollectLocales(messagesBase);
 
-        String translatedMessage = translationKey;
-
-        try {
-            final ResourceBundle messages = ResourceBundle.getBundle(messagesBase, this.getLocale());
-
-            translatedMessage = iso88591ToUTF8(messages.getString(translationKey));
-        } catch (final MissingResourceException exception) {
-            System.err.println(debug(2, exception.getMessage()));
-            getLoggerForThisMethod().log(Level.WARNING,
-                    "Missing translation for locale (" + Translator.this.getLocale() + ") of " + translationKey);
-        }
-
-        final Object[] localizedParameters = parameters.clone();
-
-        for (int i = 0; i < localizedParameters.length; ++i) {
-            if (localizedParameters[i] instanceof Throwable) {
-                localizedParameters[i] = ((Throwable) localizedParameters[i]).getLocalizedMessage();
-            }
-        }
-
-        return MessageFormat.format(translatedMessage, localizedParameters);
+        return translate(this.getLocale(), translationKey, messagesBase, parameters);
     }
 
     /**
@@ -535,6 +515,49 @@ public class Translator extends AbstractObservable<Translator.Listener> {
 
             return translatedMessage;
         }
+    }
+
+    /**
+     * Returns a message using the property file prefixed with {@code messageBase}
+     * and corresponding to {@code locale}, or {@code translationKey} if a message or the key cannot be found.
+     * <br>If a message bundle is found, then the message associated with {@code translationKey} is retrieved,
+     * re-encoded in UTF-8, and formatted with the optional {@code parameters}.
+     * <br>If a message bundle or the key cannot be found, a warning is logged.
+     *
+     * @param locale
+     * <br>Not null
+     * @param translationKey
+     * <br>Not null
+     * @param messagesBase
+     * <br>Not null
+     * @param parameters
+     * <br>Not null
+     * @return
+     * <br>Not null
+     */
+    public static final String translate(final Locale locale, final String translationKey,
+            final String messagesBase, final Object... parameters) {
+        String translatedMessage = translationKey;
+
+        try {
+            final ResourceBundle messages = ResourceBundle.getBundle(messagesBase, locale);
+
+            translatedMessage = iso88591ToUTF8(messages.getString(translationKey));
+        } catch (final MissingResourceException exception) {
+            System.err.println(debug(2, exception.getMessage()));
+            getLoggerForThisMethod().log(Level.WARNING,
+                    "Missing translation for locale (" + locale + ") of " + translationKey);
+        }
+
+        final Object[] localizedParameters = parameters.clone();
+
+        for (int i = 0; i < localizedParameters.length; ++i) {
+            if (localizedParameters[i] instanceof Throwable) {
+                localizedParameters[i] = ((Throwable) localizedParameters[i]).getLocalizedMessage();
+            }
+        }
+
+        return MessageFormat.format(translatedMessage, localizedParameters);
     }
 
     /**
