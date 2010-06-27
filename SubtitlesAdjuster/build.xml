@@ -71,4 +71,22 @@
     nbproject/build-impl.xml file. 
 
     -->
+    <target name="single-jar" depends="clean,jar">
+        <jar destfile="temporary.jar" filesetmanifest="skip">
+            <zipgroupfileset dir="${dist.dir}" includes="*.jar"/>
+            <zipgroupfileset dir="${dist.dir}/lib" includes="*.jar"/>
+
+            <manifest>
+                <attribute name="Main-Class" value="${main.class}"/>
+            </manifest>
+        </jar>
+
+        <zip destfile="${dist.jar}">
+            <zipfileset src="temporary.jar" excludes="META-INF/*.SF, META-INF/*.DSA, META-INF/*.RSA"/>
+        </zip>
+
+        <delete file="temporary.jar"/>
+        <delete file="${dist.dir}/README.TXT"/>
+        <delete dir="${dist.dir}/lib"/>
+    </target>
 </project>
