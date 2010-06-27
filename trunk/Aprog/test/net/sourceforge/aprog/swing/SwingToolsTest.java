@@ -24,6 +24,7 @@
 
 package net.sourceforge.aprog.swing;
 
+import java.awt.Component;
 import static org.junit.Assert.*;
 
 import java.awt.FlowLayout;
@@ -31,8 +32,10 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 
 import net.sourceforge.aprog.tools.Tools;
@@ -41,6 +44,7 @@ import org.junit.Test;
 
 /**
  * Automated tests using JUnit 4 for {@link SwingTools}.
+ * <br>Some methods that affect the visual appearance of components are not tested.
  *
  * @author codistmonk (creation 2010-06-26)
  */
@@ -92,23 +96,12 @@ public final class SwingToolsTest {
     }
 
     @Test
-    public final void testPackAndCenter() throws Exception {
-        if (SwingTools.canInvokeThisMethodInAWT(this)) {
-            fail("TODO");
-        }
-    }
-
-    @Test
-    public final void testCenter() throws Exception {
-        if (SwingTools.canInvokeThisMethodInAWT(this)) {
-            fail("TODO");
-        }
-    }
-
-    @Test
     public final void testScrollable() throws Exception {
         if (SwingTools.canInvokeThisMethodInAWT(this)) {
-            fail("TODO");
+            final Component component = new JLabel();
+            final JScrollPane scrollPane = SwingTools.scrollable(component);
+
+            assertSame(component, scrollPane.getViewport().getView());
         }
     }
 

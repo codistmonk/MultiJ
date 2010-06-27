@@ -56,11 +56,17 @@ public final class ToolsTest {
 
     @Test
     @SuppressWarnings("unchecked")
-    public final void testAdd() {
-        assertArrayEquals(Tools.array(42, 33, 42), Tools.add(Tools.array(42), Tools.array(33, 42)));
-        assertArrayEquals(Tools.array(42), Tools.add(Tools.array(42), Tools.array()));
-        assertArrayEquals(Tools.array(42), Tools.add(Tools.array(), Tools.array((Object) 42)));
-        assertArrayEquals(Tools.array(), Tools.add(Tools.array(), Tools.array()));
+    public final void testAppend() {
+        assertArrayEquals(Tools.array(42, 33, 42), Tools.append(Tools.array(42), Tools.array(33, 42)));
+        assertArrayEquals(Tools.array(42), Tools.append(Tools.array(42), Tools.array()));
+        assertArrayEquals(Tools.array(42), Tools.append(Tools.array(), Tools.array((Object) 42)));
+        assertArrayEquals(Tools.array(), Tools.append(Tools.array(), Tools.array()));
+    }
+
+    @Test
+    public final void testInvoke() {
+        assertEquals(42, Tools.invoke(Integer.class, "parseInt", "42"));
+        assertEquals(42, Tools.invoke(42L, "intValue"));
     }
 
     @Test

@@ -81,7 +81,7 @@ public final class ObservableTest {
             final Class<?>... listenerTypes) {
         return (R) Proxy.newProxyInstance(
                 Tools.getCallerClass().getClassLoader(),
-                Tools.add(listenerTypes, EventRecorder.class),
+                Tools.append(listenerTypes, EventRecorder.class),
                 new RecorderInvocationHandler());
     }
 

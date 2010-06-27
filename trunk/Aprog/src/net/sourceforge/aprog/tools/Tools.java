@@ -25,7 +25,9 @@
 package net.sourceforge.aprog.tools;
 
 import java.lang.reflect.Array;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.logging.Logger;
 
@@ -85,7 +87,7 @@ public final class Tools {
      * <br>Not null
      * <br>New
      */
-    public static final <T> T[] add(final T[] array, final T... moreElements) {
+    public static final <T> T[] append(final T[] array, final T... moreElements) {
         @SuppressWarnings("unchecked")
         final T[] result = (T[]) Array.newInstance(
                 array.getClass().getComponentType(), array.length + moreElements.length);
@@ -97,7 +99,44 @@ public final class Tools {
     }
 
     /**
-     * This method tries to find a setter starting with "set" for the specified property of the object.
+     * Searches for and invokes a method named {@code methodName} that can accept {@code arguments}.
+     *
+     * @param <T> The expected return type
+     * @param objectOrClass
+     * <br>Not null
+     * @param methodName
+     * <br>Not null
+     * @param arguments
+     * <br>Not null
+     * @return
+     * <br>Maybe null
+     * @throws RuntimeException if an appropriate method isn't found or if it throws an exception
+     */
+    @SuppressWarnings("unchecked")
+    public static final <T> T invoke(final Object objectOrClass,
+            final String methodName, final Object... arguments) {
+        final Object object = objectOrClass instanceof Class<?> ? null : objectOrClass;
+        final Class<?> objectClass = (Class<?>) (objectOrClass instanceof Class<?> ? objectOrClass : objectOrClass.getClass());
+
+        for (final Method method : Tools.append(objectClass.getMethods(), objectClass.getDeclaredMethods())) {
+            if (method.getName().equals(methodName)) {
+                try {
+                    return (T) method.invoke(object, arguments);
+                } catch (final InvocationTargetException exception) {
+                    throwUnchecked(exception.getCause());
+                } catch (final Exception exception) {
+                    // Ignore
+                }
+            }
+        }
+
+        throw new RuntimeException(
+                "Method " + methodName + " accepting arguments " + Arrays.toString(arguments) +
+                " was not found for object " + object + " of class " + objectClass);
+    }
+
+    /**
+     * Tries to find a setter starting with "set" for the specified property of the object.
      * <br>Eg: {@code getSetter(object, "text", String.class)} tries to find a method {@code setText(String)}
      *
      * @param object
@@ -131,7 +170,7 @@ public final class Tools {
     }
 
     /**
-     * This method tries to find a getter starting with "get", "is", or "has" (in that order) for the specified property of the object.
+     * Tries to find a getter starting with "get", "is", or "has" (in that order) for the specified property of the object.
      * <br>Eg: {@code getGetter(object, "empty")} tries to find a method {@code getEmpty()} or {@code isEmpty()} or {@code hasEmpty()}
      *
      * @param object

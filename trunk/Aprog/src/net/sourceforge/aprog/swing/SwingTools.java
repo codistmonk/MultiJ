@@ -417,19 +417,9 @@ public final class SwingTools {
 
                 @Override
                 public final void run() {
-                    for (final Method method : Tools.add(callerClass.getMethods(), callerClass.getDeclaredMethods())) {
-                        if (method.getName().equals(callerMethodName)) {
-                            try {
-                                method.invoke(object, arguments);
-                                return;
-                            } catch (final InvocationTargetException exception) {
-                                Tools.throwUnchecked(exception.getCause());
-                            } catch (final Exception exception) {
-                                // Ignore
-                            }
-                        }
-                    }
+                    Tools.invoke(object == null ? callerClass : object, callerMethodName, arguments);
                 }
+
             });
         } catch (final InterruptedException exception) {
             Tools.getLoggerForThisMethod().log(Level.WARNING, null, exception);
