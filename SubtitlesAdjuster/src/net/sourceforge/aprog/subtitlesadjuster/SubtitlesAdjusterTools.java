@@ -28,8 +28,13 @@ import static net.sourceforge.aprog.i18n.Messages.*;
 
 import javax.swing.JMenuItem;
 import javax.swing.KeyStroke;
+import net.sourceforge.aprog.context.Context;
+import net.sourceforge.aprog.events.Variable;
+import net.sourceforge.aprog.events.Variable.Listener;
+import net.sourceforge.aprog.events.Variable.ValueChangedEvent;
 
 import net.sourceforge.aprog.swing.InvokerAction;
+import net.sourceforge.aprog.tools.Tools;
 
 /**
  *
@@ -42,6 +47,37 @@ public final class SubtitlesAdjusterTools {
      */
     private SubtitlesAdjusterTools() {
         // Do nothing
+    }
+
+    /**
+     *
+     * @param context
+     * <br>Not null
+     * @param variableName
+     * <br>Not null
+     * @param objectOrClass
+     * <br>Not null
+     * <br>Shared
+     * @param methodName
+     * <br>Not null
+     * <br>Shared
+     * @param arguments
+     * <br>Not null
+     * <br>Shared
+     */
+    public static final void invokeOnVariableChanged(final Context context, final String variableName, final Object objectOrClass, final String methodName, final Object... arguments) {
+        final Variable<Object> variable = context.getVariable(variableName);
+
+        variable.addListener(new Listener<Object>() {
+
+            @Override
+            public final void valueChanged(final ValueChangedEvent<Object, ?> event) {
+                Tools.invoke(objectOrClass, methodName, arguments);
+            }
+
+        });
+
+        Tools.invoke(objectOrClass, methodName, arguments);
     }
 
     /**
@@ -61,7 +97,7 @@ public final class SubtitlesAdjusterTools {
      */
     public static final JMenuItem item(final String translationKey, final String methodName, final Object... arguments) {
         return translate(new JMenuItem(
-                action(SubtitlesAdjuster.class, methodName, arguments)
+                action(Actions.class, methodName, arguments)
                 .setName(translationKey)));
     }
 
@@ -85,7 +121,7 @@ public final class SubtitlesAdjusterTools {
      */
     public static final JMenuItem item(final String translationKey, final KeyStroke shortcut, final String methodName, final Object... arguments) {
         return translate(new JMenuItem(
-                action(SubtitlesAdjuster.class, methodName, arguments)
+                action(Actions.class, methodName, arguments)
                 .setName(translationKey)
                 .setShortcut(shortcut)));
     }

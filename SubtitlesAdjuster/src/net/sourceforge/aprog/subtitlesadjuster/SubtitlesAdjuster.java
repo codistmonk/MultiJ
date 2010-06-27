@@ -24,9 +24,8 @@
 
 package net.sourceforge.aprog.subtitlesadjuster;
 
-import static javax.swing.KeyStroke.getKeyStroke;
-
 import static net.sourceforge.aprog.i18n.Messages.*;
+import static net.sourceforge.aprog.subtitlesadjuster.Constants.*;
 import static net.sourceforge.aprog.subtitlesadjuster.Constants.Variables.*;
 import static net.sourceforge.aprog.subtitlesadjuster.SubtitlesAdjusterTools.*;
 import static net.sourceforge.aprog.swing.SwingTools.*;
@@ -36,35 +35,22 @@ import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
 import java.awt.Window;
-import java.awt.event.WindowEvent;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
 
 import java.io.File;
 import java.util.Date;
 import java.util.Locale;
 
-import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
-import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JMenuBar;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JSpinner;
-import javax.swing.SpinnerDateModel;
 import javax.swing.SwingUtilities;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-import javax.swing.filechooser.FileFilter;
 
 import net.sourceforge.aprog.context.Context;
-import net.sourceforge.aprog.events.Variable;
-import net.sourceforge.aprog.events.Variable.Listener;
-import net.sourceforge.aprog.events.Variable.ValueChangedEvent;
 import net.sourceforge.aprog.i18n.Translator;
 
 /**
@@ -80,26 +66,6 @@ public final class SubtitlesAdjuster {
         // Do nothing
     }
 
-    /**
-     * {@value}.
-     */
-    private static final int INSET = 8;
-
-    /**
-     * {@value}.
-     */
-    public static final String APPLICATION_NAME = "SubtitlesAdjuster";
-
-    /**
-     * {@value}.
-     */
-    public static final String APPLICATION_VERSION = "1.0.0-M3";
-
-    /**
-     * {@value}.
-     */
-    public static final String APPLICATION_COPYRIGHT = "© 2010 Codist Monk";
-
     static {
         useSystemLookAndFeel();
         setMessagesBase(getCallerPackagePath() + "Messages");
@@ -113,405 +79,8 @@ public final class SubtitlesAdjuster {
      */
     public static final void main(final String[] arguments) {
         if (canInvokeThisMethodInAWT(null, (Object) arguments)) {
-            createMainFrame(createContext()).setVisible(true);
+            Components.createMainFrame(createContext()).setVisible(true);
         }
-    }
-
-    /**
-     *
-     * @param context
-     * <br>Not null
-     * <br>Shared
-     * @return
-     * <br>Not null
-     * <br>New
-     */
-    public static final JFrame createMainFrame(final Context context) {
-        final JFrame result = new JFrame();
-
-        context.set(MAIN_FRAME, result);
-
-        result.setJMenuBar(createMenuBar(context));
-        result.add(createMainPanel(context));
-
-        result.addWindowListener(new WindowAdapter() {
-
-            @Override
-            public final void windowClosing(final WindowEvent event) {
-                quit(context);
-            }
-
-        });
-
-        invokeOnVariableChanged(context, FILE, SubtitlesAdjuster.class, "updateMainFrameTitle", context);
-        invokeOnVariableChanged(context, FILE_MODIFIED, SubtitlesAdjuster.class, "updateMainFrameTitle", context);
-
-        return center(packAndUpdateMinimumSize(result));
-    }
-
-    /**
-     *
-     * @param context
-     * <br>Not null
-     */
-    public static final void updateMainFrameTitle(final Context context) {
-        ((JFrame) context.get(MAIN_FRAME)).setTitle(createMainFrameTitle(context));
-    }
-
-    /**
-     *
-     * @param context
-     * <br>Not null
-     * @param variableName
-     * <br>Not null
-     * @param objectOrClass
-     * <br>Not null
-     * <br>Shared
-     * @param methodName
-     * <br>Not null
-     * <br>Shared
-     * @param arguments
-     * <br>Not null
-     * <br>Shared
-     */
-    public static final void invokeOnVariableChanged(final Context context, final String variableName, final Object objectOrClass, final String methodName, final Object... arguments) {
-        final Variable<Object> variable = context.getVariable(variableName);
-
-        variable.addListener(new Listener<Object>() {
-
-            @Override
-            public final void valueChanged(final ValueChangedEvent<Object, ?> event) {
-                invoke(objectOrClass, methodName, arguments);
-            }
-
-        });
-
-        invoke(objectOrClass, methodName, arguments);
-    }
-
-    /**
-     *
-     * @param context
-     * <br>Not null
-     * @return
-     * <br>Not null
-     */
-    public static final String createMainFrameTitle(final Context context) {
-        final File file = context.get(FILE);
-        final Boolean fileModified = context.get(FILE_MODIFIED);
-
-        return file == null ? APPLICATION_NAME : file.getName() + (fileModified ? "*" : "");
-    }
-
-    /**
-     *
-     * @param context
-     * <br>Not null
-     * <br>Shared
-     * @return
-     * <br>Not null
-     * <br>New
-     */
-    public static final JMenuBar createMenuBar(final Context context) {
-        return menuBar(
-                translate(menu("Application",
-                        item("About", "showAboutDialog", context),
-                        null,
-                        item("Preferences...", getKeyStroke("meta P"), "showPreferencesDialog", context),
-                        null,
-                        item("Quit", getKeyStroke("meta Q"), "quit", context)
-                )),
-                translate(menu("File",
-                        item("Open...", getKeyStroke("meta O"), "open", context),
-                        item("Save", getKeyStroke("meta S"), "save", context)
-                )),
-                translate(menu("Help",
-                        item("Manual", getKeyStroke("F1"), "showManual", context)
-                )));
-    }
-
-    /**
-     *
-     * @param context
-     * <br>Not null
-     */
-    public static final void showAboutDialog(final Context context) {
-        JOptionPane.showMessageDialog(
-                (Component) context.get(MAIN_FRAME),
-                APPLICATION_NAME + "\n" + APPLICATION_VERSION + "\n" + APPLICATION_COPYRIGHT,
-                translate("About $0", APPLICATION_NAME),
-                JOptionPane.INFORMATION_MESSAGE);
-    }
-
-    /**
-     *
-     * @param context
-     * <br>Not null
-     */
-    public static final void showPreferencesDialog(final Context context) {
-        createPreferencesDialog(context).setVisible(true);
-    }
-
-    /**
-     *
-     * @param context
-     * <br>Not null
-     * @return
-     * <br>Not null
-     * <br>New
-     */
-    public static final JDialog createPreferencesDialog(final Context context) {
-        final JDialog result = translate(new JDialog((JFrame) context.get(MAIN_FRAME), "Preferences", true));
-
-        result.add(createPreferencesPanel(context));
-
-        return center(packAndUpdateMinimumSize(result));
-    }
-
-    /**
-     *
-     * @param context
-     * <br>Not null
-     * @return
-     * <br>Not null
-     * <br>New
-     */
-    public static final JPanel createPreferencesPanel(final Context context) {
-        final JPanel result = new JPanel();
-        final GridBagConstraints constraints = new GridBagConstraints();
-
-        {
-            constraints.gridx = 0;
-            constraints.gridy = 0;
-            constraints.weightx = 1.0;
-            constraints.weighty = 0.0;
-            constraints.anchor = GridBagConstraints.LINE_START;
-            constraints.insets = new Insets(INSET, INSET, INSET, INSET);
-
-            add(result, translate(new JLabel("Language")), constraints);
-        }
-        {
-            ++constraints.gridx;
-            constraints.weightx = 0.0;
-
-            add(result, createLanguageComboBox(), constraints);
-        }
-
-        return result;
-    }
-
-    /**
-     *
-     * @return
-     * <br>Not null
-     * <br>New
-     */
-    public static final JComboBox createLanguageComboBox() {
-        final Translator translator = Translator.getDefaultTranslator();
-        final JComboBox result = new JComboBox(translator.getAvailableLocales());
-
-        result.setSelectedItem(translator.getBestAvailableLocale());
-
-        result.addActionListener(new ActionListener() {
-
-            @Override
-            public final void actionPerformed(final ActionEvent event) {
-                translator.setLocale((Locale) result.getSelectedItem());
-
-                final Component root = SwingUtilities.getRoot(result);
-
-                if (root instanceof Window) {
-                    ((Window) root).pack();
-                }
-            }
-
-        });
-
-        return result;
-    }
-
-    /**
-     *
-     * @param context
-     * <br>Not null
-     */
-    public static final void quit(final Context context) {
-        System.exit(0);
-    }
-
-    /**
-     *
-     * @param context
-     * <br>Not null
-     * <br>Input-output
-     */
-    public static final void open(final Context context) {
-        final JFileChooser fileChooser = new JFileChooser();
-
-        fileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
-        fileChooser.setMultiSelectionEnabled(false);
-        fileChooser.setFileFilter(new FileFilter() {
-
-            @Override
-            public final boolean accept(final File file) {
-                return file.getName().endsWith(".srt");
-            }
-
-            @Override
-            public final String getDescription() {
-                return translate("Subtitles file $0", "(*.srt)");
-            }
-
-        });
-
-        if (JFileChooser.APPROVE_OPTION == fileChooser.showOpenDialog((Component) context.get(MAIN_FRAME)) &&
-                fileChooser.getSelectedFile() != null) {
-            context.set(FILE, fileChooser.getSelectedFile());
-        }
-    }
-
-    /**
-     *
-     * @param context
-     * <br>Not null
-     * <br>Input-output
-     */
-    public static final void save(final Context context) {
-        showTODOMessage(context);
-    }
-
-    /**
-     *
-     * @param context
-     * <br>Not null
-     */
-    public static final void showManual(final Context context) {
-        showTODOMessage(context);
-    }
-
-    /**
-     *
-     * @param context
-     * <br>Not null
-     */
-    public static final void showTODOMessage(final Context context) {
-        System.out.println(debug(3, "TODO"));
-        JOptionPane.showMessageDialog(
-                (Component) context.get(MAIN_FRAME),
-                "Not implemented",
-                APPLICATION_NAME,
-                JOptionPane.INFORMATION_MESSAGE);
-    }
-
-    /**
-     *
-     * @param context
-     * <br>Not null
-     * <br>Shared
-     * @return
-     * <br>Not null
-     * <br>New
-     */
-    public static final JPanel createMainPanel(final Context context) {
-        final JPanel result = new JPanel();
-        final GridBagConstraints constraints = new GridBagConstraints();
-
-        {
-            constraints.gridx = 0;
-            constraints.gridy = 0;
-            constraints.weightx = 1.0;
-            constraints.weighty = 0.0;
-            constraints.anchor = GridBagConstraints.LINE_START;
-            constraints.insets = new Insets(INSET, INSET, INSET, INSET);
-
-            add(result, translate(new JLabel("First message time")), constraints);
-        }
-        {
-            ++constraints.gridx;
-            constraints.weightx = 0.0;
-
-            add(result, createTimeSpinner(context, FIRST_TIME), constraints);
-        }
-        {
-            constraints.gridx = 0;
-            ++constraints.gridy;
-            constraints.weightx = 1.0;
-
-            add(result, translate(new JLabel("Last message time")), constraints);
-        }
-        {
-            ++constraints.gridx;
-            constraints.weightx = 0.0;
-
-            add(result, createTimeSpinner(context, LAST_TIME), constraints);
-        }
-        {
-            ++constraints.gridy;
-
-            add(result, createSaveButton(context), constraints);
-        }
-
-        return result;
-    }
-
-    /**
-     *
-     * @param context
-     * <br>Not null
-     * @return
-     * <br>Not null
-     * <br>New
-     */
-    public static final JButton createSaveButton(final Context context) {
-        final JButton result = translate(new JButton("Save"));
-
-        synchronizeComponentEnabledWithFileVariableNullity(result, context);
-
-        return result;
-    }
-
-    /**
-     *
-     * @param context
-     * <br>Not null
-     * <br>Shared
-     * @param variableName
-     * <br>Not null
-     * <br>Shared
-     * @return
-     * <br>Not null
-     * <br>New
-     */
-    public static final JSpinner createTimeSpinner(final Context context, final String variableName) {
-        final JSpinner result = new JSpinner(new SpinnerDateModel());
-
-        result.setEditor(new JSpinner.DateEditor(result, "HH:mm:ss,SSS"));
-
-        result.addChangeListener(new ChangeListener() {
-
-            @Override
-            public final void stateChanged(final ChangeEvent event) {
-                context.set(variableName, result.getValue());
-            }
-
-        });
-
-        final Variable<Date> timeVariable = context.getVariable(variableName);
-
-        timeVariable.addListener(new Listener<Date>() {
-
-            @Override
-            public final void valueChanged(final ValueChangedEvent<Date, ?> event) {
-                result.setValue(event.getNewValue());
-            }
-
-        });
-
-        result.setValue(context.get(variableName));
-
-        synchronizeComponentEnabledWithFileVariableNullity(result, context);
-
-        return result;
     }
 
     /**
@@ -533,30 +102,6 @@ public final class SubtitlesAdjuster {
         setFileModifiedOnVariableChanged(result, FILE, false);
 
         return result;
-    }
-
-    /**
-     *
-     * @param component
-     * <br>Not null
-     * <br>Shared
-     * @param context
-     * <br>Not null
-     */
-    private static final void synchronizeComponentEnabledWithFileVariableNullity(
-            final Component component, final Context context) {
-        final Variable<File> fileVariable = context.getVariable(FILE);
-
-        fileVariable.addListener(new Listener<File>() {
-
-            @Override
-            public final void valueChanged(final ValueChangedEvent<File, ?> event) {
-                component.setEnabled(event.getNewValue() != null);
-            }
-
-        });
-
-        component.setEnabled(context.get(FILE) != null);
     }
 
     /**

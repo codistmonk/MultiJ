@@ -38,6 +38,21 @@ public final class Constants {
     }
 
     /**
+     * {@value}.
+     */
+    public static final String APPLICATION_NAME = "SubtitlesAdjuster";
+
+    /**
+     * {@value}.
+     */
+    public static final String APPLICATION_VERSION = "1.0.0-M3";
+
+    /**
+     * {@value}.
+     */
+    public static final String APPLICATION_COPYRIGHT = "© 2010 Codist Monk";
+
+    /**
      *
      * @author codistmonk (creation 2010-06-27)
      */
