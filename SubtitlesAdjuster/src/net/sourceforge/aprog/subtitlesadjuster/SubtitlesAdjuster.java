@@ -24,14 +24,16 @@
 
 package net.sourceforge.aprog.subtitlesadjuster;
 
+import static net.sourceforge.aprog.i18n.Messages.*;
+import static net.sourceforge.aprog.swing.SwingTools.*;
+
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
 import java.io.File;
 import java.util.Date;
-import javax.swing.event.ChangeEvent;
-import net.sourceforge.aprog.events.Variable.ValueChangedEvent;
-import static net.sourceforge.aprog.swing.SwingTools.*;
 
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenuBar;
@@ -39,16 +41,26 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerDateModel;
-import javax.swing.event.ChangeListener;
+
 import net.sourceforge.aprog.context.Context;
 import net.sourceforge.aprog.events.Variable;
 import net.sourceforge.aprog.events.Variable.Listener;
+import net.sourceforge.aprog.events.Variable.ValueChangedEvent;
+import net.sourceforge.aprog.i18n.Messages;
+import net.sourceforge.aprog.tools.Tools;
 
 /**
  *
  * @author codistmonk (creation 2010-06-26)
  */
 public final class SubtitlesAdjuster {
+
+    /**
+     * Private default constructor to prevent instantiation.
+     */
+    private SubtitlesAdjuster() {
+        // Do nothing
+    }
 
     /**
      * {@value}.
@@ -70,15 +82,9 @@ public final class SubtitlesAdjuster {
      */
     public static final String END_TIME = "endTime";
 
-    /**
-     * Private default constructor to prevent instantiation.
-     */
-    private SubtitlesAdjuster() {
-        // Do nothing
-    }
-
     static {
         useSystemLookAndFeel();
+        setMessagesBase(Tools.getCallerPackagePath() + "Messages");
     }
 
     /**
@@ -130,20 +136,20 @@ public final class SubtitlesAdjuster {
      */
     public static final JMenuBar createMenuBar() {
         return menuBar(
-                menu("Application",
-                        new JMenuItem("About"),
+                translate(menu("Application",
+                        translate(new JMenuItem("About")),
                         null,
-                        new JMenuItem("Preferences..."),
+                        translate(new JMenuItem("Preferences...")),
                         null,
-                        new JMenuItem("Quit")
-                ),
-                menu("File",
-                        new JMenuItem("Open..."),
-                        new JMenuItem("Save")
-                ),
-                menu("Help",
-                        new JMenuItem("Manual")
-                ));
+                        translate(new JMenuItem("Quit"))
+                )),
+                translate(menu("File",
+                        translate(new JMenuItem("Open...")),
+                        translate(new JMenuItem("Save"))
+                )),
+                translate(menu("Help",
+                        translate(new JMenuItem("Manual"))
+                )));
     }
 
     /**
@@ -167,7 +173,7 @@ public final class SubtitlesAdjuster {
             constraints.anchor = GridBagConstraints.LINE_START;
             constraints.insets = new Insets(INSET, INSET, INSET, INSET);
 
-            add(result, new JLabel("Start time:"), constraints);
+            add(result, translate(new JLabel("Start time")), constraints);
         }
         {
             ++constraints.gridx;
@@ -180,7 +186,7 @@ public final class SubtitlesAdjuster {
             ++constraints.gridy;
             constraints.weightx = 1.0;
 
-            add(result, new JLabel("End time:"), constraints);
+            add(result, translate(new JLabel("End time")), constraints);
         }
         {
             ++constraints.gridx;
