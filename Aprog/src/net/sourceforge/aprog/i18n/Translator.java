@@ -38,6 +38,7 @@ import java.util.Set;
 import java.util.logging.Level;
 
 import net.sourceforge.aprog.events.AbstractObservable;
+import net.sourceforge.aprog.tools.Tools;
 
 /**
  * Instances of this class can translate messages using locales and resource bundles.
@@ -202,6 +203,31 @@ public class Translator extends AbstractObservable<Translator.Listener> {
      */
     public final synchronized Locale[] getAvailableLocales() {
         return this.availableLocales.toArray(new Locale[this.availableLocales.size()]);
+    }
+
+    /**
+     * Finds the available locale which is closest to this locale.
+     * <br>If none of the available locales is close to this locale,
+     * then an arbitrary available locale is returned.
+     *
+     * @return {@code null} if and only if {@code this.getAvailableLocales().length == 0}
+     * <br>Maybe null
+     * <br>Shared
+     */
+    public final synchronized Locale getBestAvailableLocale() {
+        Locale result = null;
+        int bestMatchingLevel = 0;
+
+        for (final Locale availableLocale : this.getAvailableLocales()) {
+            final int matchingLevel = getMatchingLevel(availableLocale, this.getLocale());
+
+            if (matchingLevel >= bestMatchingLevel) {
+                result = availableLocale;
+                bestMatchingLevel = matchingLevel;
+            }
+        }
+
+        return result;
     }
 
     /**
@@ -558,6 +584,37 @@ public class Translator extends AbstractObservable<Translator.Listener> {
         }
 
         return MessageFormat.format(translatedMessage, localizedParameters);
+    }
+
+    /**
+     *
+     * @param locale1
+     * <br>Not null
+     * @param locale2
+     * <br>Not null
+     * @return
+     * <br>Range: {@code [0 .. 3]}
+     */
+    private static final int getMatchingLevel(final Locale locale1, final Locale locale2) {
+        int result = 0;
+
+        if (!Tools.equals(locale1.getLanguage(), locale2.getLanguage())) {
+            return result;
+        }
+
+        ++result;
+
+        if (!Tools.equals(locale1.getCountry(), locale2.getCountry())) {
+            return result;
+        }
+
+        ++result;
+
+        if (!Tools.equals(locale1.getVariant(), locale2.getVariant())) {
+            return result;
+        }
+
+        return ++result;
     }
 
     /**

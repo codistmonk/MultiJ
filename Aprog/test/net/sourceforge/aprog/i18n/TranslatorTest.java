@@ -38,13 +38,10 @@ import org.junit.Test;
  *
  * @author codistmonk (creation 2010-06-03)
  */
-public class TranslatorTest {
+public final class TranslatorTest {
 
-    /**
-     * Test method for {@link Translator#translate(Object, String, String, String, Object[])}.
-     */
     @Test
-    public void testTranslateObject() {
+    public final void testTranslateObject() {
         final String translationKey1 = "public_key";
         final String textPropertyName1 = "publicText";
         final String translationKey2 = "package_key";
@@ -77,11 +74,8 @@ public class TranslatorTest {
         assertEquals("Package key", translatable.getPackageText());
     }
 
-    /**
-     * Test method for {@link Translator#translate(Object, String, String, String, Object[])}.
-     */
     @Test
-    public void testTranslateObjectWithParameterizedMessage() {
+    public final void testTranslateObjectWithParameterizedMessage() {
         final String translationKey = "life_universe_everything";
         final String textPropertyName = "parameterizedText";
         final Translator translator = new Translator();
@@ -106,11 +100,8 @@ public class TranslatorTest {
         assertEquals("Answer: 42", translatable.getParameterizedText());
     }
 
-    /**
-     * Test method for {@link Translator#untranslate(Object, String)}.
-     */
     @Test
-    public void testUntranslateObject() {
+    public final void testUntranslateObject() {
         final String translationKey1 = "public_key";
         final String textPropertyName1 = "publicText";
         final String translationKey2 = "package_key";
@@ -145,11 +136,8 @@ public class TranslatorTest {
 
     }
 
-    /**
-     * Test method for {@link Translator#translate(String, String, Object[])}.
-     */
     @Test
-    public void testTranslateMessage() {
+    public final void testTranslateMessage() {
         final String translationKey = "life_universe_everything";
         final Translator translator = new Translator();
 
@@ -171,9 +159,21 @@ public class TranslatorTest {
         }
     }
 
-    /**
-     * Test method for {@link Translator#createLocale(String)}.
-     */
+    @Test
+    public final void testGetBestAvailableLocale() {
+        final Translator translator = new Translator();
+
+        translator.collectAvailableLocales(MESSAGES_BASE);
+
+        translator.setLocale(new Locale("fr", "FR"));
+
+        assertEquals(new Locale("fr"), translator.getBestAvailableLocale());
+
+        translator.setLocale(new Locale("en", "US"));
+
+        assertEquals(new Locale("en"), translator.getBestAvailableLocale());
+    }
+
     @Test
     public final void testCreateLocale() {
         {
@@ -196,9 +196,6 @@ public class TranslatorTest {
         }
     }
 
-    /**
-     * Test method for {@link Translator#getLanguageCountryVariant(Locale)}.
-     */
     @Test
     public final void testGetLanguageCountryVariant() {
         final String language = "fr";
