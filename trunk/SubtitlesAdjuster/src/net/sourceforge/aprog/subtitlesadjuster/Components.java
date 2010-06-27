@@ -31,6 +31,7 @@ import static net.sourceforge.aprog.subtitlesadjuster.Actions.*;
 import static net.sourceforge.aprog.subtitlesadjuster.Constants.Variables.*;
 import static net.sourceforge.aprog.subtitlesadjuster.SubtitlesAdjusterTools.*;
 import static net.sourceforge.aprog.swing.SwingTools.*;
+import static net.sourceforge.aprog.tools.Tools.*;
 
 import java.awt.Component;
 import java.awt.GridBagConstraints;
@@ -48,7 +49,9 @@ import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JMenu;
 import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 
 import javax.swing.JSpinner;
@@ -62,6 +65,10 @@ import net.sourceforge.aprog.events.Variable;
 import net.sourceforge.aprog.events.Variable.Listener;
 import net.sourceforge.aprog.events.Variable.ValueChangedEvent;
 import net.sourceforge.aprog.i18n.Translator;
+import net.sourceforge.jmacadapter.MacAdapterTools;
+import net.sourceforge.jmacadapter.eawtwrappers.Application;
+import net.sourceforge.jmacadapter.eawtwrappers.ApplicationAdapter;
+import net.sourceforge.jmacadapter.eawtwrappers.ApplicationEvent;
 
 /**
  *
@@ -201,21 +208,59 @@ public final class Components {
      * <br>New
      */
     public static final JMenuBar createMenuBar(final Context context) {
-        return menuBar(
+        final JMenu[] optionalApplicationMenu;
+
+        if (MacAdapterTools.isMacOSX()) {
+            MacAdapterTools.setUseScreenMenuBar(true);
+
+            Application.getApplication().setEnabledAboutMenu(true);
+            Application.getApplication().setEnabledPreferencesMenu(true);
+
+            Application.getApplication().addApplicationListener(new ApplicationAdapter() {
+
+                @Override
+                protected final void handleAbout(final ApplicationEvent event) {
+                    event.setHandled(true);
+
+                    showAboutDialog(context);
+                }
+
+                @Override
+                protected final void handlePreferences(final ApplicationEvent event) {
+                    event.setHandled(true);
+
+                    showPreferencesDialog(context);
+                }
+
+                @Override
+                protected final void handleQuit(final ApplicationEvent event) {
+                    event.setHandled(true);
+
+                    quit(context);
+                }
+
+            });
+
+            optionalApplicationMenu = new JMenu[0];
+        } else {
+            optionalApplicationMenu = array(
                 translate(menu("Application",
-                        item("About", "showAboutDialog", context),
-                        null,
-                        item("Preferences...", getKeyStroke("meta P"), "showPreferencesDialog", context),
-                        null,
-                        item("Quit", getKeyStroke("meta Q"), "quit", context)
-                )),
+                    item("About", "showAboutDialog", context),
+                    null,
+                    item("Preferences...", getKeyStroke("meta P"), "showPreferencesDialog", context),
+                    null,
+                    item("Quit", getKeyStroke("meta Q"), "quit", context))
+                    ));
+        }
+
+        return menuBar(append(optionalApplicationMenu,
                 translate(menu("File",
                         item("Open...", getKeyStroke("meta O"), "open", context),
                         item("Save", getKeyStroke("meta S"), "save", context)
                 )),
                 translate(menu("Help",
                         item("Manual", getKeyStroke("F1"), "showManual", context)
-                )));
+                ))));
     }
 
     /**

@@ -31,27 +31,13 @@ import static net.sourceforge.aprog.subtitlesadjuster.SubtitlesAdjusterTools.*;
 import static net.sourceforge.aprog.swing.SwingTools.*;
 import static net.sourceforge.aprog.tools.Tools.*;
 
-import java.awt.Component;
-import java.awt.GridBagConstraints;
-import java.awt.Insets;
-import java.awt.Window;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-
-import java.io.File;
 import java.util.Date;
-import java.util.Locale;
-
-import javax.swing.JComboBox;
-import javax.swing.JDialog;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
 
 import net.sourceforge.aprog.context.Context;
-import net.sourceforge.aprog.i18n.Translator;
+import net.sourceforge.jmacadapter.MacAdapterTools;
+import net.sourceforge.jmacadapter.eawtwrappers.Application;
+import net.sourceforge.jmacadapter.eawtwrappers.ApplicationAdapter;
+import net.sourceforge.jmacadapter.eawtwrappers.ApplicationEvent;
 
 /**
  *
@@ -67,6 +53,7 @@ public final class SubtitlesAdjuster {
     }
 
     static {
+        MacAdapterTools.setApplicationName(APPLICATION_NAME);
         useSystemLookAndFeel();
         setMessagesBase(getCallerPackagePath() + "Messages");
     }
