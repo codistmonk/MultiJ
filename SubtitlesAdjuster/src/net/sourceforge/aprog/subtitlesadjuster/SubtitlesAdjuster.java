@@ -27,6 +27,8 @@ package net.sourceforge.aprog.subtitlesadjuster;
 import static javax.swing.KeyStroke.getKeyStroke;
 
 import static net.sourceforge.aprog.i18n.Messages.*;
+import static net.sourceforge.aprog.subtitlesadjuster.Constants.Variables.*;
+import static net.sourceforge.aprog.subtitlesadjuster.SubtitlesAdjusterTools.*;
 import static net.sourceforge.aprog.swing.SwingTools.*;
 import static net.sourceforge.aprog.tools.Tools.*;
 
@@ -43,8 +45,6 @@ import java.io.File;
 import java.util.Date;
 import java.util.Locale;
 
-import javax.swing.AbstractAction;
-import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
@@ -52,11 +52,9 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
-import javax.swing.KeyStroke;
 import javax.swing.SpinnerDateModel;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
@@ -101,31 +99,6 @@ public final class SubtitlesAdjuster {
      * {@value}.
      */
     public static final String APPLICATION_COPYRIGHT = "© 2010 Codist Monk";
-
-    /**
-     * {@value}.
-     */
-    public static final String MAIN_FRAME = "mainFrame";
-
-    /**
-     * {@value}.
-     */
-    public static final String FILE = "file";
-
-    /**
-     * {@value}.
-     */
-    public static final String FILE_MODIFIED = "file.modified";
-
-    /**
-     * {@value}.
-     */
-    public static final String FIRST_TIME = "firstTime";
-
-    /**
-     * {@value}.
-     */
-    public static final String LAST_TIME = "lastTime";
 
     static {
         useSystemLookAndFeel();
@@ -255,52 +228,6 @@ public final class SubtitlesAdjuster {
                 translate(menu("Help",
                         item("Manual", getKeyStroke("F1"), "showManual", context)
                 )));
-    }
-
-    /**
-     *
-     * @param translationKey
-     * <br>Not null
-     * <br>Shared
-     * @param methodName
-     * <br>Not null
-     * <br>Shared
-     * @param arguments
-     * <br>Not null
-     * <br>Shared
-     * @return
-     * <br>Not null
-     * <br>New
-     */
-    public static final JMenuItem item(final String translationKey, final String methodName, final Object... arguments) {
-        return translate(new JMenuItem(
-                action(SubtitlesAdjuster.class, methodName, arguments)
-                .setName(translationKey)));
-    }
-
-    /**
-     *
-     * @param translationKey
-     * <br>Not null
-     * <br>Shared
-     * @param shortcut
-     * <br>Not null
-     * <br>Shared
-     * @param methodName
-     * <br>Not null
-     * <br>Shared
-     * @param arguments
-     * <br>Not null
-     * <br>Shared
-     * @return
-     * <br>Not null
-     * <br>New
-     */
-    public static final JMenuItem item(final String translationKey, final KeyStroke shortcut, final String methodName, final Object... arguments) {
-        return translate(new JMenuItem(
-                action(SubtitlesAdjuster.class, methodName, arguments)
-                .setName(translationKey)
-                .setShortcut(shortcut)));
     }
 
     /**
@@ -474,121 +401,6 @@ public final class SubtitlesAdjuster {
                 "Not implemented",
                 APPLICATION_NAME,
                 JOptionPane.INFORMATION_MESSAGE);
-    }
-
-    /**
-     * Creates an action that will invoke the specified method with the specified arguments when it is performed.
-     *
-     * @param objectOrClass
-     * <br>Not null
-     * <br>Shared
-     * @param methodName
-     * <br>Not null
-     * <br>Shared
-     * @param arguments
-     * <br>Not null
-     * <br>Shared
-     * @return
-     * <br>Not null
-     * <br>New
-     */
-    public static final CustomizableAction action(final Object objectOrClass, final String methodName, final Object... arguments) {
-        return new CustomizableAction(objectOrClass, methodName, arguments);
-    }
-
-    /**
-     *
-     * @author codistmonk (creation 2010-06-27)
-     */
-    public static final class CustomizableAction extends AbstractAction {
-
-        private final Object objectOrClass;
-
-        private final String methodName;
-
-        private final Object[] arguments;
-
-        /**
-         *
-         * @param objectOrClass
-         * <br>Not null
-         * <br>Shared
-         * @param methodName
-         * <br>Not null
-         * <br>Shared
-         * @param arguments
-         * <br>Not null
-         * <br>Shared
-         */
-        public CustomizableAction(final Object objectOrClass, final String methodName, final Object... arguments) {
-            this.objectOrClass = objectOrClass;
-            this.methodName = methodName;
-            this.arguments = arguments;
-        }
-
-        /**
-         *
-         * @param name
-         * <br>Maybe null
-         * <br>Shared
-         * @return {@code this}
-         * <br>Not null
-         */
-        public final CustomizableAction setName(final String name) {
-            this.putValue(NAME, name);
-
-            return this;
-        }
-
-        @Override
-        public final void actionPerformed(final ActionEvent event) {
-            invoke(this.objectOrClass, this.methodName, this.arguments);
-        }
-
-        /**
-         *
-         * @param icon
-         * <br>Maybe null
-         * <br>Shared
-         * @return {@code this}
-         * <br>Not null
-         */
-        public final CustomizableAction setSmallIcon(final Icon icon) {
-            this.putValue(SMALL_ICON, icon);
-
-            return this;
-        }
-
-        /**
-         *
-         * @param icon
-         * <br>Maybe null
-         * <br>Shared
-         * @return {@code this}
-         * <br>Not null
-         */
-        public final CustomizableAction setLargeIcon(final Icon icon) {
-            this.putValue(LARGE_ICON_KEY, icon);
-
-            return this;
-        }
-
-        /**
-         *
-         * @param shortcut
-         * <br>Maybe null
-         * <br>Shared
-         * @return {@code this}
-         * <br>Not null
-         */
-        public final CustomizableAction setShortcut(final KeyStroke shortcut) {
-            this.putValue(ACCELERATOR_KEY, shortcut);
-
-            return this;
-        }
-
-        private static final long serialVersionUID = -2429711084032575051L;
-
     }
 
     /**
