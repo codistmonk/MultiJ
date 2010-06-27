@@ -1,7 +1,7 @@
 /*
  *  The MIT License
  * 
- *  Copyright 2010 greg.
+ *  Copyright 2010 Codist Monk.
  * 
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -38,6 +38,7 @@ import javax.swing.SwingUtilities;
 import net.sourceforge.aprog.tools.Tools;
 
 import org.junit.Test;
+
 /**
  * Automated tests using JUnit 4 for {@link SwingTools}.
  *
