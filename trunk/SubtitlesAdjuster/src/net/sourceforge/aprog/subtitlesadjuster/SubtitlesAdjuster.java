@@ -24,6 +24,7 @@
 
 package net.sourceforge.aprog.subtitlesadjuster;
 
+import java.awt.event.WindowEvent;
 import static net.sourceforge.aprog.i18n.Messages.*;
 import static net.sourceforge.aprog.swing.SwingTools.*;
 import static net.sourceforge.aprog.tools.Tools.*;
@@ -34,6 +35,7 @@ import java.awt.GridBagConstraints;
 import java.awt.Insets;
 import java.awt.Window;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
 
 import java.io.File;
 import java.util.Date;
@@ -128,6 +130,7 @@ public final class SubtitlesAdjuster {
     /**
      * @param arguments the command line arguments
      * <br>Not null
+     * <br>Shared
      * <br>Unused
      */
     public static final void main(final String[] arguments) {
@@ -148,35 +151,64 @@ public final class SubtitlesAdjuster {
     public static final JFrame createMainFrame(final Context context) {
         final JFrame result = new JFrame();
 
-        result.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        context.set(MAIN_FRAME, result);
+
         result.setJMenuBar(createMenuBar(context));
         result.add(createMainPanel(context));
 
-        final Variable<File> fileVariable = context.getVariable(FILE);
-
-        fileVariable.addListener(new Listener<File>() {
+        result.addWindowListener(new WindowAdapter() {
 
             @Override
-            public final void valueChanged(final ValueChangedEvent<File, ?> event) {
-                result.setTitle(createMainFrameTitle(context));
+            public final void windowClosing(final WindowEvent event) {
+                quit(context);
             }
 
         });
 
-        final Variable<Boolean> fileModifiedVariable = context.getVariable(FILE_MODIFIED);
-
-        fileModifiedVariable.addListener(new Listener<Boolean>() {
-
-            @Override
-            public final void valueChanged(final ValueChangedEvent<Boolean, ?> event) {
-                result.setTitle(createMainFrameTitle(context));
-            }
-
-        });
-
-        result.setTitle(createMainFrameTitle(context));
+        invokeOnVariableChanged(context, FILE, SubtitlesAdjuster.class, "updateMainFrameTitle", context);
+        invokeOnVariableChanged(context, FILE_MODIFIED, SubtitlesAdjuster.class, "updateMainFrameTitle", context);
 
         return center(packAndUpdateMinimumSize(result));
+    }
+
+    /**
+     *
+     * @param context
+     * <br>Not null
+     */
+    public static final void updateMainFrameTitle(final Context context) {
+        ((JFrame) context.get(MAIN_FRAME)).setTitle(createMainFrameTitle(context));
+    }
+
+    /**
+     *
+     * @param context
+     * <br>Not null
+     * @param variableName
+     * <br>Not null
+     * @param objectOrClass
+     * <br>Not null
+     * <br>Shared
+     * @param methodName
+     * <br>Not null
+     * <br>Shared
+     * @param arguments
+     * <br>Not null
+     * <br>Shared
+     */
+    public static final void invokeOnVariableChanged(final Context context, final String variableName, final Object objectOrClass, final String methodName, final Object... arguments) {
+        final Variable<Object> variable = context.getVariable(variableName);
+
+        variable.addListener(new Listener<Object>() {
+
+            @Override
+            public final void valueChanged(final ValueChangedEvent<Object, ?> event) {
+                invoke(objectOrClass, methodName, arguments);
+            }
+
+        });
+
+        invoke(objectOrClass, methodName, arguments);
     }
 
     /**
@@ -538,6 +570,27 @@ public final class SubtitlesAdjuster {
 
     /**
      *
+     * @return
+     * <br>Not null
+     * <br>New
+     */
+    public static final Context createContext() {
+        final Context result = new Context();
+
+        result.set(FILE, null);
+        result.set(FILE_MODIFIED, false);
+        result.set(FIRST_TIME, new Date(0L));
+        result.set(LAST_TIME, new Date(0L));
+
+        setFileModifiedOnVariableChanged(result, FIRST_TIME, true);
+        setFileModifiedOnVariableChanged(result, LAST_TIME, true);
+        setFileModifiedOnVariableChanged(result, FILE, false);
+
+        return result;
+    }
+
+    /**
+     *
      * @param component
      * <br>Not null
      * <br>Shared
@@ -562,43 +615,15 @@ public final class SubtitlesAdjuster {
 
     /**
      *
-     * @return
+     * @param context
      * <br>Not null
-     * <br>New
+     * @param variableName
+     * <br>Not null
+     * @param value
      */
-    public static final Context createContext() {
-        final Context result = new Context();
-
-        result.set(FILE, null);
-        result.set(FILE_MODIFIED, false);
-        result.set(FIRST_TIME, new Date(0L));
-        result.set(LAST_TIME, new Date(0L));
-
-        final Variable<File> fileVariable = result.getVariable(FILE);
-
-        fileVariable.addListener(new Listener<File>() {
-
-            @Override
-            public final void valueChanged(final ValueChangedEvent<File, ?> event) {
-                result.set(FILE_MODIFIED, false);
-            }
-
-        });
-
-        for (final String timeVariableName : array(FIRST_TIME, LAST_TIME)) {
-            final Variable<Date> timeVariable = result.getVariable(timeVariableName);
-
-            timeVariable.addListener(new Listener<Date>() {
-
-                @Override
-                public final void valueChanged(final ValueChangedEvent<Date, ?> event) {
-                    result.set(FILE_MODIFIED, true);
-                }
-
-            });
-        }
-
-        return result;
+    private static final void setFileModifiedOnVariableChanged(
+            final Context context, final String variableName, final boolean value) {
+        invokeOnVariableChanged(context, variableName, context.getVariable(FILE_MODIFIED), "setValue", value);
     }
 
 }
