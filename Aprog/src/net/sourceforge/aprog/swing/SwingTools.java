@@ -253,17 +253,35 @@ public final class SwingTools {
 		return new JScrollPane(component);
 	}
 
+    /**
+     * Packs and updates {@code window}'s minimum size so that it cannot be resized to be smaller than its packed size.
+     *
+     * @param <W> The actual type of {@code window}
+     * @param window
+	 * <br>Not null
+	 * <br>input-output
+     * @return {@code window}
+	 * <br>Not null
+     */
+    public static final <W extends Window> W packAndUpdateMinimumSize(final W window) {
+		checkAWT();
+
+        window.setMinimumSize(null);
+        window.pack();
+        window.setMinimumSize(window.getSize());
+
+        return window;
+    }
+
 	/**
-	 * Centers {@code window} on the screen.
+	 * Packs and centers {@code window} on the screen.
 	 *
-	 * @param <W> the actual type of {@code window}
+	 * @param <W> The actual type of {@code window}
 	 * @param window
 	 * <br>Not null
 	 * <br>input-output
-	 * <br>Shared
 	 * @return {@code window}
 	 * <br>Not null
-	 * <br>Shared
 	 */
 	public static final <W extends Window> W packAndCenter(final W window) {
 		checkAWT();
