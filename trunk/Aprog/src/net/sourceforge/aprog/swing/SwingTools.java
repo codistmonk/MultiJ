@@ -265,6 +265,26 @@ public final class SwingTools {
 	 * <br>Not null
 	 * <br>Shared
 	 */
+	public static final <W extends Window> W packAndCenter(final W window) {
+		checkAWT();
+
+        window.pack();
+
+		return center(window);
+	}
+
+	/**
+	 * Centers {@code window} on the screen.
+	 *
+	 * @param <W> the actual type of {@code window}
+	 * @param window
+	 * <br>Not null
+	 * <br>input-output
+	 * <br>Shared
+	 * @return {@code window}
+	 * <br>Not null
+	 * <br>Shared
+	 */
 	public static final <W extends Window> W center(final W window) {
 		checkAWT();
 
