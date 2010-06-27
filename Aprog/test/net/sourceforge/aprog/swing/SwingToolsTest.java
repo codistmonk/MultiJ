@@ -31,7 +31,6 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 
 import javax.swing.JButton;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
@@ -88,6 +87,13 @@ public final class SwingToolsTest {
             assertNotNull(button.getIcon());
             assertNotNull(button.getRolloverIcon());
             assertFalse(button.isBorderPainted());
+        }
+    }
+
+    @Test
+    public final void testPackAndCenter() throws Exception {
+        if (SwingTools.canInvokeThisMethodInAWT(this)) {
+            fail("TODO");
         }
     }
 
