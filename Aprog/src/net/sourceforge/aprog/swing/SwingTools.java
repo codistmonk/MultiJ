@@ -417,8 +417,10 @@ public final class SwingTools {
      *
      * @param object The caller object or {@code null} if the caller is static
      * <br>Maybe null
+     * <br>Shared
      * @param arguments
      * <br>Not null
+     * <br>Shared
      * @return {@code true} if and only if the method is called in the AWT Event Dispatching Thread
      * @throws RuntimeException if an error occurs
      */
