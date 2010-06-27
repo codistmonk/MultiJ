@@ -24,16 +24,18 @@
 
 package net.sourceforge.aprog.subtitlesadjuster;
 
-import java.awt.event.WindowEvent;
+import static javax.swing.KeyStroke.getKeyStroke;
+
 import static net.sourceforge.aprog.i18n.Messages.*;
 import static net.sourceforge.aprog.swing.SwingTools.*;
 import static net.sourceforge.aprog.tools.Tools.*;
 
 import java.awt.Component;
-import java.awt.event.ActionEvent;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
 import java.awt.Window;
+import java.awt.event.WindowEvent;
+import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 
@@ -42,12 +44,11 @@ import java.util.Date;
 import java.util.Locale;
 
 import javax.swing.AbstractAction;
-import javax.swing.Action;
+import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenuBar;
@@ -55,8 +56,12 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
+import javax.swing.KeyStroke;
 import javax.swing.SpinnerDateModel;
 import javax.swing.SwingUtilities;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.filechooser.FileFilter;
 
 import net.sourceforge.aprog.context.Context;
 import net.sourceforge.aprog.events.Variable;
@@ -239,16 +244,16 @@ public final class SubtitlesAdjuster {
                 translate(menu("Application",
                         item("About", "showAboutDialog", context),
                         null,
-                        item("Preferences...", "showPreferencesDialog", context),
+                        item("Preferences...", getKeyStroke("meta P"), "showPreferencesDialog", context),
                         null,
-                        item("Quit", "quit", context)
+                        item("Quit", getKeyStroke("meta Q"), "quit", context)
                 )),
                 translate(menu("File",
-                        item("Open...", "open", context),
-                        item("Save", "save", context)
+                        item("Open...", getKeyStroke("meta O"), "open", context),
+                        item("Save", getKeyStroke("meta S"), "save", context)
                 )),
                 translate(menu("Help",
-                        item("Manual", "showManual", context)
+                        item("Manual", getKeyStroke("F1"), "showManual", context)
                 )));
     }
 
@@ -268,7 +273,34 @@ public final class SubtitlesAdjuster {
      * <br>New
      */
     public static final JMenuItem item(final String translationKey, final String methodName, final Object... arguments) {
-        return translate(new JMenuItem(action(translationKey, SubtitlesAdjuster.class, methodName, arguments)));
+        return translate(new JMenuItem(
+                action(SubtitlesAdjuster.class, methodName, arguments)
+                .setName(translationKey)));
+    }
+
+    /**
+     *
+     * @param translationKey
+     * <br>Not null
+     * <br>Shared
+     * @param shortcut
+     * <br>Not null
+     * <br>Shared
+     * @param methodName
+     * <br>Not null
+     * <br>Shared
+     * @param arguments
+     * <br>Not null
+     * <br>Shared
+     * @return
+     * <br>Not null
+     * <br>New
+     */
+    public static final JMenuItem item(final String translationKey, final KeyStroke shortcut, final String methodName, final Object... arguments) {
+        return translate(new JMenuItem(
+                action(SubtitlesAdjuster.class, methodName, arguments)
+                .setName(translationKey)
+                .setShortcut(shortcut)));
     }
 
     /**
@@ -387,7 +419,28 @@ public final class SubtitlesAdjuster {
      * <br>Input-output
      */
     public static final void open(final Context context) {
-        showTODOMessage(context);
+        final JFileChooser fileChooser = new JFileChooser();
+
+        fileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+        fileChooser.setMultiSelectionEnabled(false);
+        fileChooser.setFileFilter(new FileFilter() {
+
+            @Override
+            public final boolean accept(final File file) {
+                return file.getName().endsWith(".srt");
+            }
+
+            @Override
+            public final String getDescription() {
+                return translate("Subtitles file $0", "(*.srt)");
+            }
+
+        });
+
+        if (JFileChooser.APPROVE_OPTION == fileChooser.showOpenDialog((Component) context.get(MAIN_FRAME)) &&
+                fileChooser.getSelectedFile() != null) {
+            context.set(FILE, fileChooser.getSelectedFile());
+        }
     }
 
     /**
@@ -426,9 +479,6 @@ public final class SubtitlesAdjuster {
     /**
      * Creates an action that will invoke the specified method with the specified arguments when it is performed.
      *
-     * @param name
-     * <br>Not null
-     * <br>Shared
      * @param objectOrClass
      * <br>Not null
      * <br>Shared
@@ -442,19 +492,103 @@ public final class SubtitlesAdjuster {
      * <br>Not null
      * <br>New
      */
-    public static final Action action(final String name, final Object objectOrClass, final String methodName, final Object... arguments) {
-        // TODO scan objectOrClass and throw an exception if there are no candidate methods
+    public static final CustomizableAction action(final Object objectOrClass, final String methodName, final Object... arguments) {
+        return new CustomizableAction(objectOrClass, methodName, arguments);
+    }
 
-        return new AbstractAction(name) {
+    /**
+     *
+     * @author codistmonk (creation 2010-06-27)
+     */
+    public static final class CustomizableAction extends AbstractAction {
 
-            @Override
-            public final void actionPerformed(final ActionEvent event) {
-                invoke(objectOrClass, methodName, arguments);
-            }
+        private final Object objectOrClass;
 
-            private static final long serialVersionUID = -7021271248658829634L;
+        private final String methodName;
 
-        };
+        private final Object[] arguments;
+
+        /**
+         *
+         * @param objectOrClass
+         * <br>Not null
+         * <br>Shared
+         * @param methodName
+         * <br>Not null
+         * <br>Shared
+         * @param arguments
+         * <br>Not null
+         * <br>Shared
+         */
+        public CustomizableAction(final Object objectOrClass, final String methodName, final Object... arguments) {
+            this.objectOrClass = objectOrClass;
+            this.methodName = methodName;
+            this.arguments = arguments;
+        }
+
+        /**
+         *
+         * @param name
+         * <br>Maybe null
+         * <br>Shared
+         * @return {@code this}
+         * <br>Not null
+         */
+        public final CustomizableAction setName(final String name) {
+            this.putValue(NAME, name);
+
+            return this;
+        }
+
+        @Override
+        public final void actionPerformed(final ActionEvent event) {
+            invoke(this.objectOrClass, this.methodName, this.arguments);
+        }
+
+        /**
+         *
+         * @param icon
+         * <br>Maybe null
+         * <br>Shared
+         * @return {@code this}
+         * <br>Not null
+         */
+        public final CustomizableAction setSmallIcon(final Icon icon) {
+            this.putValue(SMALL_ICON, icon);
+
+            return this;
+        }
+
+        /**
+         *
+         * @param icon
+         * <br>Maybe null
+         * <br>Shared
+         * @return {@code this}
+         * <br>Not null
+         */
+        public final CustomizableAction setLargeIcon(final Icon icon) {
+            this.putValue(LARGE_ICON_KEY, icon);
+
+            return this;
+        }
+
+        /**
+         *
+         * @param shortcut
+         * <br>Maybe null
+         * <br>Shared
+         * @return {@code this}
+         * <br>Not null
+         */
+        public final CustomizableAction setShortcut(final KeyStroke shortcut) {
+            this.putValue(ACCELERATOR_KEY, shortcut);
+
+            return this;
+        }
+
+        private static final long serialVersionUID = -2429711084032575051L;
+
     }
 
     /**
