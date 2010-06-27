@@ -29,7 +29,6 @@ import static net.sourceforge.aprog.swing.SwingTools.*;
 import static net.sourceforge.aprog.tools.Tools.*;
 
 import java.awt.Component;
-import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
@@ -54,7 +53,6 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
-import javax.swing.JWindow;
 import javax.swing.SpinnerDateModel;
 import javax.swing.SwingUtilities;
 
@@ -85,6 +83,21 @@ public final class SubtitlesAdjuster {
     /**
      * {@value}.
      */
+    public static final String APPLICATION_NAME = "SubtitlesAdjuster";
+
+    /**
+     * {@value}.
+     */
+    public static final String APPLICATION_VERSION = "1.0.0-M3";
+
+    /**
+     * {@value}.
+     */
+    public static final String APPLICATION_COPYRIGHT = "© 2010 Codist Monk";
+
+    /**
+     * {@value}.
+     */
     public static final String MAIN_FRAME = "mainFrame";
 
     /**
@@ -100,12 +113,12 @@ public final class SubtitlesAdjuster {
     /**
      * {@value}.
      */
-    public static final String START_TIME = "startTime";
+    public static final String FIRST_TIME = "firstTime";
 
     /**
      * {@value}.
      */
-    public static final String END_TIME = "endTime";
+    public static final String LAST_TIME = "lastTime";
 
     static {
         useSystemLookAndFeel();
@@ -177,7 +190,7 @@ public final class SubtitlesAdjuster {
         final File file = context.get(FILE);
         final Boolean fileModified = context.get(FILE_MODIFIED);
 
-        return file == null ? "SubtitlesAdjuster" : file.getName() + (fileModified ? "*" : "");
+        return file == null ? APPLICATION_NAME : file.getName() + (fileModified ? "*" : "");
     }
 
     /**
@@ -192,19 +205,38 @@ public final class SubtitlesAdjuster {
     public static final JMenuBar createMenuBar(final Context context) {
         return menuBar(
                 translate(menu("Application",
-                        translate(new JMenuItem(action("About", SubtitlesAdjuster.class, "showAboutDialog", context))),
+                        item("About", "showAboutDialog", context),
                         null,
-                        translate(new JMenuItem(action("Preferences...", SubtitlesAdjuster.class, "showPreferencesDialog", context))),
+                        item("Preferences...", "showPreferencesDialog", context),
                         null,
-                        translate(new JMenuItem(action("Quit", SubtitlesAdjuster.class, "quit", context)))
+                        item("Quit", "quit", context)
                 )),
                 translate(menu("File",
-                        translate(new JMenuItem("Open...")),
-                        translate(new JMenuItem("Save"))
+                        item("Open...", "open", context),
+                        item("Save", "save", context)
                 )),
                 translate(menu("Help",
-                        translate(new JMenuItem("Manual"))
+                        item("Manual", "showManual", context)
                 )));
+    }
+
+    /**
+     *
+     * @param translationKey
+     * <br>Not null
+     * <br>Shared
+     * @param methodName
+     * <br>Not null
+     * <br>Shared
+     * @param arguments
+     * <br>Not null
+     * <br>Shared
+     * @return
+     * <br>Not null
+     * <br>New
+     */
+    public static final JMenuItem item(final String translationKey, final String methodName, final Object... arguments) {
+        return translate(new JMenuItem(action(translationKey, SubtitlesAdjuster.class, methodName, arguments)));
     }
 
     /**
@@ -215,8 +247,8 @@ public final class SubtitlesAdjuster {
     public static final void showAboutDialog(final Context context) {
         JOptionPane.showMessageDialog(
                 (Component) context.get(MAIN_FRAME),
-                "SubtitlesAdjuster\n1.0.0-M3\n© 2010 Codist Monk",
-                translate("About SubtitlesAdjuster"),
+                APPLICATION_NAME + "\n" + APPLICATION_VERSION + "\n" + APPLICATION_COPYRIGHT,
+                translate("About $0", APPLICATION_NAME),
                 JOptionPane.INFORMATION_MESSAGE);
     }
 
@@ -245,6 +277,14 @@ public final class SubtitlesAdjuster {
         return center(packAndUpdateMinimumSize(result));
     }
 
+    /**
+     *
+     * @param context
+     * <br>Not null
+     * @return
+     * <br>Not null
+     * <br>New
+     */
     public static final JPanel createPreferencesPanel(final Context context) {
         final JPanel result = new JPanel();
         final GridBagConstraints constraints = new GridBagConstraints();
@@ -309,16 +349,63 @@ public final class SubtitlesAdjuster {
     }
 
     /**
+     *
+     * @param context
+     * <br>Not null
+     * <br>Input-output
+     */
+    public static final void open(final Context context) {
+        showTODOMessage(context);
+    }
+
+    /**
+     *
+     * @param context
+     * <br>Not null
+     * <br>Input-output
+     */
+    public static final void save(final Context context) {
+        showTODOMessage(context);
+    }
+
+    /**
+     *
+     * @param context
+     * <br>Not null
+     */
+    public static final void showManual(final Context context) {
+        showTODOMessage(context);
+    }
+
+    /**
+     *
+     * @param context
+     * <br>Not null
+     */
+    public static final void showTODOMessage(final Context context) {
+        System.out.println(debug(3, "TODO"));
+        JOptionPane.showMessageDialog(
+                (Component) context.get(MAIN_FRAME),
+                "Not implemented",
+                APPLICATION_NAME,
+                JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    /**
      * Creates an action that will invoke the specified method with the specified arguments when it is performed.
      *
      * @param name
      * <br>Not null
+     * <br>Shared
      * @param objectOrClass
      * <br>Not null
+     * <br>Shared
      * @param methodName
      * <br>Not null
+     * <br>Shared
      * @param arguments
      * <br>Not null
+     * <br>Shared
      * @return
      * <br>Not null
      * <br>New
@@ -359,26 +446,26 @@ public final class SubtitlesAdjuster {
             constraints.anchor = GridBagConstraints.LINE_START;
             constraints.insets = new Insets(INSET, INSET, INSET, INSET);
 
-            add(result, translate(new JLabel("Start time")), constraints);
+            add(result, translate(new JLabel("First message time")), constraints);
         }
         {
             ++constraints.gridx;
             constraints.weightx = 0.0;
 
-            add(result, createTimeSpinner(context, START_TIME), constraints);
+            add(result, createTimeSpinner(context, FIRST_TIME), constraints);
         }
         {
             constraints.gridx = 0;
             ++constraints.gridy;
             constraints.weightx = 1.0;
 
-            add(result, translate(new JLabel("End time")), constraints);
+            add(result, translate(new JLabel("Last message time")), constraints);
         }
         {
             ++constraints.gridx;
             constraints.weightx = 0.0;
 
-            add(result, createTimeSpinner(context, END_TIME), constraints);
+            add(result, createTimeSpinner(context, LAST_TIME), constraints);
         }
         {
             ++constraints.gridy;
@@ -484,8 +571,8 @@ public final class SubtitlesAdjuster {
 
         result.set(FILE, null);
         result.set(FILE_MODIFIED, false);
-        result.set(START_TIME, new Date(0L));
-        result.set(END_TIME, new Date(0L));
+        result.set(FIRST_TIME, new Date(0L));
+        result.set(LAST_TIME, new Date(0L));
 
         final Variable<File> fileVariable = result.getVariable(FILE);
 
@@ -498,7 +585,7 @@ public final class SubtitlesAdjuster {
 
         });
 
-        for (final String timeVariableName : array(START_TIME, END_TIME)) {
+        for (final String timeVariableName : array(FIRST_TIME, LAST_TIME)) {
             final Variable<Date> timeVariable = result.getVariable(timeVariableName);
 
             timeVariable.addListener(new Listener<Date>() {
