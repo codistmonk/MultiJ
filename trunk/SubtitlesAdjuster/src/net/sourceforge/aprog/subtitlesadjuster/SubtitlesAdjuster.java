@@ -26,18 +26,26 @@ package net.sourceforge.aprog.subtitlesadjuster;
 
 import static net.sourceforge.aprog.i18n.Messages.*;
 import static net.sourceforge.aprog.swing.SwingTools.*;
+import static net.sourceforge.aprog.tools.Tools.*;
 
+import java.awt.Component;
+import java.awt.event.ActionEvent;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
+
 import java.io.File;
 import java.util.Date;
 
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.JButton;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerDateModel;
@@ -46,8 +54,6 @@ import net.sourceforge.aprog.context.Context;
 import net.sourceforge.aprog.events.Variable;
 import net.sourceforge.aprog.events.Variable.Listener;
 import net.sourceforge.aprog.events.Variable.ValueChangedEvent;
-import net.sourceforge.aprog.i18n.Messages;
-import net.sourceforge.aprog.tools.Tools;
 
 /**
  *
@@ -70,7 +76,17 @@ public final class SubtitlesAdjuster {
     /**
      * {@value}.
      */
+    public static final String MAIN_FRAME = "mainFrame";
+
+    /**
+     * {@value}.
+     */
     public static final String FILE = "file";
+
+    /**
+     * {@value}.
+     */
+    public static final String FILE_MODIFIED = "file.modified";
 
     /**
      * {@value}.
@@ -84,7 +100,7 @@ public final class SubtitlesAdjuster {
 
     static {
         useSystemLookAndFeel();
-        setMessagesBase(Tools.getCallerPackagePath() + "Messages");
+        setMessagesBase(getCallerPackagePath() + "Messages");
     }
 
     /**
@@ -122,26 +138,67 @@ public final class SubtitlesAdjuster {
         };
 
         result.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        result.setJMenuBar(createMenuBar());
+        result.setJMenuBar(createMenuBar(context));
         result.add(createMainPanel(context));
+
+        final Variable<File> fileVariable = context.getVariable(FILE);
+
+        fileVariable.addListener(new Listener<File>() {
+
+            @Override
+            public final void valueChanged(final ValueChangedEvent<File, ?> event) {
+                result.setTitle(createMainFrameTitle(context));
+            }
+
+        });
+
+        final Variable<Boolean> fileModifiedVariable = context.getVariable(FILE_MODIFIED);
+
+        fileModifiedVariable.addListener(new Listener<Boolean>() {
+
+            @Override
+            public final void valueChanged(final ValueChangedEvent<Boolean, ?> event) {
+                result.setTitle(createMainFrameTitle(context));
+            }
+
+        });
+
+        result.setTitle(createMainFrameTitle(context));
 
         return packAndCenter(result);
     }
 
     /**
      *
+     * @param context
+     * <br>Not null
+     * @return
+     * <br>Not null
+     */
+    public static final String createMainFrameTitle(final Context context) {
+        final File file = context.get(FILE);
+        final Boolean fileModified = context.get(FILE_MODIFIED);
+
+        return file == null ? "SubtitlesAdjuster" : file.getName() + (fileModified ? "*" : "");
+    }
+
+    /**
+     *
+     * @param context
+     * <br>Not null
+     * <br>Shared
      * @return
      * <br>Not null
      * <br>New
      */
-    public static final JMenuBar createMenuBar() {
+    public static final JMenuBar createMenuBar(final Context context) {
         return menuBar(
                 translate(menu("Application",
-                        translate(new JMenuItem("About")),
+                        translate(new JMenuItem(action("About", SubtitlesAdjuster.class, "showAboutDialog", context))),
                         null,
-                        translate(new JMenuItem("Preferences...")),
+                        translate(new JMenuItem(action("Preferences...", SubtitlesAdjuster.class, "showPreferencesDialog", context))),
                         null,
-                        translate(new JMenuItem("Quit"))
+                        translate(new JMenuItem(action("Quit", SubtitlesAdjuster.class, "quit", context)))
                 )),
                 translate(menu("File",
                         translate(new JMenuItem("Open...")),
@@ -150,6 +207,63 @@ public final class SubtitlesAdjuster {
                 translate(menu("Help",
                         translate(new JMenuItem("Manual"))
                 )));
+    }
+
+    /**
+     *
+     * @param context
+     * <br>Not null
+     */
+    public static final void showAboutDialog(final Context context) {
+        JOptionPane.showMessageDialog(
+                (Component) context.get(MAIN_FRAME),
+                "SubtitlesAdjuster\n1.0.0-M3\n© 2010 Codist Monk",
+                translate("About SubtitlesAdjuster"),
+                JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    public static final void showPreferencesDialog(final Context context) {
+        debugPrint();
+        // TODO
+    }
+
+    /**
+     *
+     * @param context
+     * <br>Not null
+     */
+    public static final void quit(final Context context) {
+        System.exit(0);
+    }
+
+    /**
+     * Creates an action that will invoke the specified method with the specified arguments when it is performed.
+     *
+     * @param name
+     * <br>Not null
+     * @param objectOrClass
+     * <br>Not null
+     * @param methodName
+     * <br>Not null
+     * @param arguments
+     * <br>Not null
+     * @return
+     * <br>Not null
+     * <br>New
+     */
+    public static final Action action(final String name, final Object objectOrClass, final String methodName, final Object... arguments) {
+        // TODO scan objectOrClass and throw an exception if there are no candidate methods
+
+        return new AbstractAction(name) {
+
+            @Override
+            public final void actionPerformed(final ActionEvent event) {
+                invoke(objectOrClass, methodName, arguments);
+            }
+
+            private static final long serialVersionUID = -7021271248658829634L;
+
+        };
     }
 
     /**
@@ -194,6 +308,27 @@ public final class SubtitlesAdjuster {
 
             add(result, createTimeSpinner(context, END_TIME), constraints);
         }
+        {
+            ++constraints.gridy;
+
+            add(result, createSaveButton(context), constraints);
+        }
+
+        return result;
+    }
+
+    /**
+     *
+     * @param context
+     * <br>Not null
+     * @return
+     * <br>Not null
+     * <br>New
+     */
+    public static final JButton createSaveButton(final Context context) {
+        final JButton result = translate(new JButton("Save"));
+
+        synchronizeComponentEnabledWithFileVariableNullity(result, context);
 
         return result;
     }
@@ -235,21 +370,35 @@ public final class SubtitlesAdjuster {
 
         });
 
+        result.setValue(context.get(variableName));
+
+        synchronizeComponentEnabledWithFileVariableNullity(result, context);
+
+        return result;
+    }
+
+    /**
+     *
+     * @param component
+     * <br>Not null
+     * <br>Shared
+     * @param context
+     * <br>Not null
+     */
+    private static final void synchronizeComponentEnabledWithFileVariableNullity(
+            final Component component, final Context context) {
         final Variable<File> fileVariable = context.getVariable(FILE);
 
         fileVariable.addListener(new Listener<File>() {
 
             @Override
             public final void valueChanged(final ValueChangedEvent<File, ?> event) {
-                result.setEnabled(event.getNewValue() != null);
+                component.setEnabled(event.getNewValue() != null);
             }
 
         });
 
-        result.setValue(context.get(variableName));
-        result.setEnabled(context.get(FILE) != null);
-
-        return result;
+        component.setEnabled(context.get(FILE) != null);
     }
 
     /**
@@ -262,8 +411,33 @@ public final class SubtitlesAdjuster {
         final Context result = new Context();
 
         result.set(FILE, null);
+        result.set(FILE_MODIFIED, false);
         result.set(START_TIME, new Date(0L));
         result.set(END_TIME, new Date(0L));
+
+        final Variable<File> fileVariable = result.getVariable(FILE);
+
+        fileVariable.addListener(new Listener<File>() {
+
+            @Override
+            public final void valueChanged(final ValueChangedEvent<File, ?> event) {
+                result.set(FILE_MODIFIED, false);
+            }
+
+        });
+
+        for (final String timeVariableName : array(START_TIME, END_TIME)) {
+            final Variable<Date> timeVariable = result.getVariable(timeVariableName);
+
+            timeVariable.addListener(new Listener<Date>() {
+
+                @Override
+                public final void valueChanged(final ValueChangedEvent<Date, ?> event) {
+                    result.set(FILE_MODIFIED, true);
+                }
+
+            });
+        }
 
         return result;
     }
