@@ -432,19 +432,36 @@ public final class SwingTools {
         final String callerMethodName = getCallerMethodName();
 
         try {
-            SwingUtilities.invokeAndWait(new Runnable() {
-
-                @Override
-                public final void run() {
-                    invoke(object == null ? callerClass : object, callerMethodName, arguments);
-                }
-
-            });
+            SwingUtilities.invokeAndWait(createInvoker(object, callerClass, callerMethodName, arguments));
         } catch (final InterruptedException exception) {
             getLoggerForThisMethod().log(Level.WARNING, null, exception);
         } catch (final InvocationTargetException exception) {
-            throw unchecked(exception);
+            throw unchecked(exception.getCause());
         }
+
+        return false;
+    }
+
+    /**
+     * Non-blocking version of {@link #canInvokeThisMethodInAWT(java.lang.Object, java.lang.Object[])}.
+     *
+     * @param object
+     * <br>Maybe null
+     * <br>Shared
+     * @param arguments
+     * <br>Not null
+     * <br>Shared
+     * @return {@code true} if and only if the method is called in the AWT Event Dispatching Thread
+     */
+    public static final boolean canInvokeLaterThisMethodInAWT(final Object object, final Object... arguments) {
+        if (SwingUtilities.isEventDispatchThread()) {
+            return true;
+        }
+
+        final Class<?> callerClass = getCallerClass();
+        final String callerMethodName = getCallerMethodName();
+
+        SwingUtilities.invokeLater(createInvoker(object, callerClass, callerMethodName, arguments));
 
         return false;
     }
@@ -467,6 +484,35 @@ public final class SwingTools {
         if (SwingUtilities.isEventDispatchThread()) {
             throw new IllegalStateException("This section must not be executed in the AWT Event Dispatching Thread");
         }
+    }
+
+    /**
+     *
+     * @param object
+     * <br>Maybe null
+     * <br>Shared
+     * @param callerClass
+     * <br>Not null
+     * <br>Shared
+     * @param callerMethodName
+     * <br>Not null
+     * <br>Shared
+     * @param arguments
+     * <br>Not null
+     * <br>Shared
+     * @return
+     * <br>Not null
+     * <br>New
+     */
+    private static final Runnable createInvoker(final Object object, final Class<?> callerClass, final String callerMethodName, final Object... arguments) {
+        return new Runnable() {
+
+            @Override
+            public final void run() {
+                invoke(object == null ? callerClass : object, callerMethodName, arguments);
+            }
+
+        };
     }
 
 }
