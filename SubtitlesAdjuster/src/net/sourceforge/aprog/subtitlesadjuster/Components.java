@@ -24,10 +24,6 @@
 
 package net.sourceforge.aprog.subtitlesadjuster;
 
-import java.awt.Color;
-import java.awt.dnd.DropTargetDragEvent;
-import java.awt.dnd.DropTargetDropEvent;
-import java.awt.dnd.DropTargetEvent;
 import static javax.swing.KeyStroke.getKeyStroke;
 
 import static net.sourceforge.aprog.i18n.Messages.*;
@@ -37,12 +33,16 @@ import static net.sourceforge.aprog.subtitlesadjuster.SubtitlesAdjusterTools.*;
 import static net.sourceforge.aprog.swing.SwingTools.*;
 import static net.sourceforge.aprog.tools.Tools.*;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
 import java.awt.Window;
 import java.awt.dnd.DropTarget;
 import java.awt.dnd.DropTargetAdapter;
+import java.awt.dnd.DropTargetDragEvent;
+import java.awt.dnd.DropTargetDropEvent;
+import java.awt.dnd.DropTargetEvent;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -51,6 +51,7 @@ import java.io.File;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
@@ -58,8 +59,8 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
-
 import javax.swing.JSpinner;
 import javax.swing.SpinnerDateModel;
 import javax.swing.SwingUtilities;
@@ -94,6 +95,8 @@ public final class Components {
      * {@value}.
      */
     private static final int INSET = 8;
+
+    public static final String META = MacAdapterTools.isMacOSX() ? "meta" : "control";
 
     /**
      *
@@ -254,16 +257,20 @@ public final class Components {
                 translate(menu("Application",
                     item("About", "showAboutDialog", context),
                     null,
-                    item("Preferences...", getKeyStroke("meta P"), "showPreferencesDialog", context),
+                    item("Preferences...", getKeyStroke(META + " R"), "showPreferencesDialog", context),
                     null,
-                    item("Quit", getKeyStroke("meta Q"), "quit", context))
+                    item("Quit", getKeyStroke(META + " Q"), "quit", context))
                     ));
         }
 
+        final JMenuItem saveMenuItem = item("Save", getKeyStroke(META + " S"), "save", context);
+
+        synchronizeComponentEnabledWithFileVariableNullity(saveMenuItem, context);
+
         return menuBar(append(optionalApplicationMenu,
                 translate(menu("File",
-                        item("Open...", getKeyStroke("meta O"), "open", context),
-                        item("Save", getKeyStroke("meta S"), "save", context)
+                        item("Open...", getKeyStroke(META + " O"), "open", context),
+                        saveMenuItem
                 )),
                 translate(menu("Help",
                         item("Manual", getKeyStroke("F1"), "showManual", context)
