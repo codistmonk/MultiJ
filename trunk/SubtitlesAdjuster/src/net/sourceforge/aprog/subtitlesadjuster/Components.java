@@ -24,6 +24,10 @@
 
 package net.sourceforge.aprog.subtitlesadjuster;
 
+import java.awt.Color;
+import java.awt.dnd.DropTargetDragEvent;
+import java.awt.dnd.DropTargetDropEvent;
+import java.awt.dnd.DropTargetEvent;
 import static javax.swing.KeyStroke.getKeyStroke;
 
 import static net.sourceforge.aprog.i18n.Messages.*;
@@ -37,12 +41,15 @@ import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
 import java.awt.Window;
+import java.awt.dnd.DropTarget;
+import java.awt.dnd.DropTargetAdapter;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -51,7 +58,6 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 
 import javax.swing.JSpinner;
@@ -311,6 +317,41 @@ public final class Components {
             add(result, createSaveButton(context), constraints);
         }
 
+        final Color defaultBackground = result.getBackground();
+
+        new DropTarget(result, new DropTargetAdapter() {
+
+            @Override
+            public final void dragEnter(final DropTargetDragEvent event) {
+                this.highlighBackground();
+            }
+
+            @Override
+            public final void dragExit(final DropTargetEvent event) {
+                this.resetBackground();
+            }
+
+            @Override
+            public final void drop(final DropTargetDropEvent event) {
+                this.resetBackground();
+
+                final List<File> files = getFiles(event);
+
+                if (files.size() == 1) {
+                    ((Subtitles) context.get(SUBTITLES)).load(files.get(0));
+                }
+            }
+
+            private final void highlighBackground() {
+                result.setBackground(Color.GREEN);
+            }
+
+            private final void resetBackground() {
+                result.setBackground(defaultBackground);
+            }
+
+        });
+
         return result;
     }
 
@@ -323,7 +364,7 @@ public final class Components {
      * <br>New
      */
     public static final JButton createSaveButton(final Context context) {
-        final JButton result = translate(new JButton("Save"));
+        final JButton result = translate(new JButton(action(Actions.class, "save", context).setName("Save")));
 
         synchronizeComponentEnabledWithFileVariableNullity(result, context);
 
