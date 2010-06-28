@@ -24,9 +24,6 @@
 
 package net.sourceforge.aprog.subtitlesadjuster;
 
-import java.io.FileNotFoundException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import static net.sourceforge.aprog.subtitlesadjuster.Constants.Variables.*;
 import static net.sourceforge.aprog.tools.Tools.*;
 
@@ -44,6 +41,7 @@ import java.util.Scanner;
 import net.sourceforge.aprog.context.Context;
 
 /**
+ * Instances of this class manipulate the SRT file and update the context correspondingly.
  *
  * @author codistmonk (creation 2010-06-28)
  */

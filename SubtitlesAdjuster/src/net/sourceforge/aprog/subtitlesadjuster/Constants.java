@@ -53,7 +53,8 @@ public final class Constants {
     public static final String APPLICATION_COPYRIGHT = "© 2010 Codist Monk";
 
     /**
-     *
+     * This class defines constants used to identify the application context variables.
+     * 
      * @author codistmonk (creation 2010-06-27)
      */
     public static final class Variables {

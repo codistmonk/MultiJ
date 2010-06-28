@@ -37,6 +37,9 @@ import net.sourceforge.aprog.swing.InvokerAction;
 import net.sourceforge.aprog.tools.Tools;
 
 /**
+ * Utility class.
+ * <br>If it turns out that some methods defined here are reused in other projects,
+ * then they could be moved directly into Aprog.
  *
  * @author codistmonk (creation 2010-06-27)
  */
@@ -65,7 +68,8 @@ public final class SubtitlesAdjusterTools {
      * <br>Not null
      * <br>Shared
      */
-    public static final void invokeOnVariableChanged(final Context context, final String variableName, final Object objectOrClass, final String methodName, final Object... arguments) {
+    public static final void invokeOnVariableChanged(final Context context, final String variableName,
+            final Object objectOrClass, final String methodName, final Object... arguments) {
         final Variable<Object> variable = context.getVariable(variableName);
 
         variable.addListener(new Listener<Object>() {
@@ -95,7 +99,8 @@ public final class SubtitlesAdjusterTools {
      * <br>Not null
      * <br>New
      */
-    public static final JMenuItem item(final String translationKey, final String methodName, final Object... arguments) {
+    public static final JMenuItem item(final String translationKey,
+            final String methodName, final Object... arguments) {
         return translate(new JMenuItem(
                 action(Actions.class, methodName, arguments)
                 .setName(translationKey)));
@@ -119,7 +124,8 @@ public final class SubtitlesAdjusterTools {
      * <br>Not null
      * <br>New
      */
-    public static final JMenuItem item(final String translationKey, final KeyStroke shortcut, final String methodName, final Object... arguments) {
+    public static final JMenuItem item(final String translationKey, final KeyStroke shortcut,
+            final String methodName, final Object... arguments) {
         return translate(new JMenuItem(
                 action(Actions.class, methodName, arguments)
                 .setName(translationKey)
@@ -127,7 +133,8 @@ public final class SubtitlesAdjusterTools {
     }
 
     /**
-     * Creates an action that will invoke the specified method with the specified arguments when it is performed.
+     * Creates an action that will invoke the specified method with
+     * the specified arguments when it is performed.
      *
      * @param objectOrClass
      * <br>Not null
@@ -142,7 +149,8 @@ public final class SubtitlesAdjusterTools {
      * <br>Not null
      * <br>New
      */
-    public static final InvokerAction action(final Object objectOrClass, final String methodName, final Object... arguments) {
+    public static final InvokerAction action(final Object objectOrClass,
+            final String methodName, final Object... arguments) {
         return new InvokerAction(objectOrClass, methodName, arguments);
     }
 

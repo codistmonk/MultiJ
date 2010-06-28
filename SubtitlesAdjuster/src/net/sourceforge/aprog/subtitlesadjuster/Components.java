@@ -77,6 +77,7 @@ import net.sourceforge.jmacadapter.eawtwrappers.ApplicationAdapter;
 import net.sourceforge.jmacadapter.eawtwrappers.ApplicationEvent;
 
 /**
+ * This class defines all the Swing components needed to build the GUI.
  *
  * @author codistmonk (creation 2010-06-27)
  */
