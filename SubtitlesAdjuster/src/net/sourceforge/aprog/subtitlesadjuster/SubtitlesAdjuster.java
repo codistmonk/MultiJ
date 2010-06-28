@@ -63,7 +63,8 @@ public final class SubtitlesAdjuster {
      * <br>Unused
      */
     public static final void main(final String[] arguments) {
-        if (canInvokeThisMethodInAWT(null, (Object) arguments)) {
+        if (canInvokeLaterThisMethodInAWT(null, (Object) arguments)) {
+            // FIXME The following doesn't seem to work well on Windows XP
             Thread.currentThread().setUncaughtExceptionHandler(new UncaughtExceptionHandler());
 
             Components.createMainFrame(createContext()).setVisible(true);
@@ -120,9 +121,9 @@ public final class SubtitlesAdjuster {
 
         @Override
         public final void uncaughtException(final Thread thread, final Throwable throwable) {
-            Actions.showErrorMessage(throwable);
-
             this.defaultUncaughtExceptionHandler.uncaughtException(thread, throwable);
+
+            Actions.showErrorMessage(throwable);
         }
 
     }
