@@ -313,7 +313,7 @@ public final class Tools {
      * @throws NullPointerException if the caller class cannot be retrieved
      */
     public static final Logger getLoggerForThisMethod() {
-        return Logger.getLogger(getCallerClass().getCanonicalName() + "." + getCallerMethodName());
+        return Logger.getLogger(getCallerClass().getName() + "." + getCallerMethodName());
     }
 
     /**
