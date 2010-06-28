@@ -41,7 +41,8 @@ import net.sourceforge.aprog.context.Context;
 import net.sourceforge.aprog.tools.Tools;
 
 /**
- *
+ * This class defines all the operations that can be executed on the application context object.
+ * 
  * @author codistmonk (creation 2010-06-27)
  */
 public final class Actions {

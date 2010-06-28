@@ -37,6 +37,7 @@ import net.sourceforge.aprog.context.Context;
 import net.sourceforge.jmacadapter.MacAdapterTools;
 
 /**
+ * Main class.
  *
  * @author codistmonk (creation 2010-06-26)
  */
