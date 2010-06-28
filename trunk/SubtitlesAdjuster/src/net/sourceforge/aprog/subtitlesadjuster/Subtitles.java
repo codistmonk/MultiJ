@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.Scanner;
 
 import net.sourceforge.aprog.context.Context;
+import net.sourceforge.aprog.i18n.Messages;
 
 /**
  * Instances of this class manipulate the SRT file and update the context correspondingly.
@@ -167,12 +168,14 @@ public final class Subtitles {
      * <br>Shared
      */
     private void updateContext(final File srtFile) {
-        if (!this.subtitles.isEmpty()) {
-            this.context.set(FILE, srtFile);
-            this.context.set(FIRST_TIME, this.subtitles.get(0).getBegin());
-            this.context.set(LAST_TIME, this.subtitles.get(this.subtitles.size() - 1).getBegin());
-            this.context.set(FILE_MODIFIED, false);
+        if (this.subtitles.isEmpty()) {
+            throw Messages.createLocalizedException("Invalid file $0", srtFile);
         }
+
+        this.context.set(FILE, srtFile);
+        this.context.set(FIRST_TIME, this.subtitles.get(0).getBegin());
+        this.context.set(LAST_TIME, this.subtitles.get(this.subtitles.size() - 1).getBegin());
+        this.context.set(FILE_MODIFIED, false);
     }
 
     /**

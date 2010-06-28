@@ -143,9 +143,22 @@ public final class Actions {
         System.out.println(Tools.debug(3, "TODO"));
         JOptionPane.showMessageDialog(
                 (Component) context.get(MAIN_FRAME),
-                "Not implemented",
+                translate("Not implemented"),
                 APPLICATION_NAME,
                 JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    /**
+     *
+     * @param throwable
+     * <br>Not null
+     */
+    public static final void showErrorMessage(final Throwable throwable) {
+        JOptionPane.showMessageDialog(
+                null,
+                createErrorMessagePanel(throwable),
+                APPLICATION_NAME,
+                JOptionPane.ERROR_MESSAGE);
     }
 
     /**

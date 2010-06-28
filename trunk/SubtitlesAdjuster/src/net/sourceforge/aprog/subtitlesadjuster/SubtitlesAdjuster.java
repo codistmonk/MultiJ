@@ -64,6 +64,8 @@ public final class SubtitlesAdjuster {
      */
     public static final void main(final String[] arguments) {
         if (canInvokeThisMethodInAWT(null, (Object) arguments)) {
+            Thread.currentThread().setUncaughtExceptionHandler(new UncaughtExceptionHandler());
+
             Components.createMainFrame(createContext()).setVisible(true);
         }
     }
@@ -102,6 +104,27 @@ public final class SubtitlesAdjuster {
     private static final void setFileModifiedOnVariableChanged(
             final Context context, final String variableName, final boolean value) {
         invokeOnVariableChanged(context, variableName, context.getVariable(FILE_MODIFIED), "setValue", value);
+    }
+
+    /**
+     *
+     * @author codistmonk (creation 2010-06-28)
+     */
+    private static final class UncaughtExceptionHandler implements Thread.UncaughtExceptionHandler {
+
+        private final Thread.UncaughtExceptionHandler defaultUncaughtExceptionHandler;
+
+        UncaughtExceptionHandler() {
+            this.defaultUncaughtExceptionHandler = Thread.currentThread().getUncaughtExceptionHandler();
+        }
+
+        @Override
+        public final void uncaughtException(final Thread thread, final Throwable throwable) {
+            Actions.showErrorMessage(throwable);
+
+            this.defaultUncaughtExceptionHandler.uncaughtException(thread, throwable);
+        }
+
     }
 
 }

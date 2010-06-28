@@ -24,6 +24,7 @@
 
 package net.sourceforge.aprog.subtitlesadjuster;
 
+
 import static javax.swing.KeyStroke.getKeyStroke;
 
 import static net.sourceforge.aprog.i18n.Messages.*;
@@ -33,6 +34,7 @@ import static net.sourceforge.aprog.subtitlesadjuster.SubtitlesAdjusterTools.*;
 import static net.sourceforge.aprog.swing.SwingTools.*;
 import static net.sourceforge.aprog.tools.Tools.*;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.GridBagConstraints;
@@ -47,11 +49,14 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.PrintStream;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
@@ -61,7 +66,10 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
+import javax.swing.JTextArea;
+import javax.swing.JToggleButton;
 import javax.swing.SpinnerDateModel;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
@@ -72,6 +80,7 @@ import net.sourceforge.aprog.events.Variable;
 import net.sourceforge.aprog.events.Variable.Listener;
 import net.sourceforge.aprog.events.Variable.ValueChangedEvent;
 import net.sourceforge.aprog.i18n.Translator;
+import net.sourceforge.aprog.swing.SwingTools;
 import net.sourceforge.jmacadapter.MacAdapterTools;
 import net.sourceforge.jmacadapter.eawtwrappers.Application;
 import net.sourceforge.jmacadapter.eawtwrappers.ApplicationAdapter;
@@ -422,6 +431,67 @@ public final class Components {
 
         return result;
     }
+
+    /**
+     *
+     * @param throwable
+     * <br>Not null
+     * @return
+     * <br>Not null
+     * <br>New
+     */
+    public static final JPanel createErrorMessagePanel(final Throwable throwable) {
+        final JPanel result = new JPanel(new BorderLayout());
+        final JToggleButton detailsToggle = new JToggleButton(translate("Details"));
+        final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+
+        throwable.printStackTrace(new PrintStream(buffer));
+
+        final JTextArea stackTrace = new JTextArea(buffer.toString());
+        final JScrollPane stackTraceContainer = scrollable(stackTrace);
+
+        result.add(new JLabel(throwable.getLocalizedMessage()), BorderLayout.CENTER);
+        result.add(verticalBox(detailsToggle, stackTraceContainer), BorderLayout.SOUTH);
+
+        stackTrace.setEditable(false);
+        stackTraceContainer.setVisible(false);
+        detailsToggle.addActionListener(new ActionListener() {
+
+            @Override
+            public final void actionPerformed(final ActionEvent event) {
+                stackTraceContainer.setVisible(detailsToggle.isSelected());
+
+                final Component root = SwingUtilities.getRoot(result);
+
+                if (root instanceof Window) {
+                    SwingTools.packAndUpdateMinimumSize((Window) root);
+                }
+            }
+
+        });
+
+        return result;
+    }
+
+	/**
+	 *
+	 * @param components
+     * <br>Not null
+	 * @return
+     * <br>Not null
+     * <br>New
+	 */
+	private static final Box verticalBox(final Component... components) {
+		checkAWT();
+
+		final Box verticalBox = Box.createVerticalBox();
+
+		for (final Component component : components) {
+			verticalBox.add(component);
+		}
+
+		return verticalBox;
+	}
 
     /**
      *
