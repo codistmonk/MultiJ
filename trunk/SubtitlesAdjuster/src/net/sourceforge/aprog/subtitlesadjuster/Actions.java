@@ -38,6 +38,7 @@ import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileFilter;
 
 import net.sourceforge.aprog.context.Context;
+import net.sourceforge.aprog.swing.SwingTools;
 import net.sourceforge.aprog.tools.Tools;
 
 /**
@@ -149,16 +150,18 @@ public final class Actions {
     }
 
     /**
-     *
+     * 
      * @param throwable
      * <br>Not null
      */
     public static final void showErrorMessage(final Throwable throwable) {
-        JOptionPane.showMessageDialog(
-                null,
-                createErrorMessagePanel(throwable),
-                APPLICATION_NAME,
-                JOptionPane.ERROR_MESSAGE);
+        if (SwingTools.canInvokeLaterThisMethodInAWT(null, throwable)) {
+            JOptionPane.showMessageDialog(
+                    null,
+                    createErrorMessagePanel(throwable),
+                    APPLICATION_NAME,
+                    JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     /**
