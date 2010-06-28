@@ -70,7 +70,7 @@ public final class SubtitlesTest {
         ((Subtitles) context.get(SUBTITLES)).load(file);
 
         assertSame(file, context.get(FILE));
-        assertEquals("00:00:10,040", TIME_FORMAT.format(context.get(FIRST_TIME)));
+        assertEquals("00:00:10,000", TIME_FORMAT.format(context.get(FIRST_TIME)));
         assertEquals("01:10:40,000", TIME_FORMAT.format(context.get(LAST_TIME)));
     }
 
