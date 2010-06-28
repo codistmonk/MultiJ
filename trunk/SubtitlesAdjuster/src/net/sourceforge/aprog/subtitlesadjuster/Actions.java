@@ -111,7 +111,7 @@ public final class Actions {
 
         if (JFileChooser.APPROVE_OPTION == fileChooser.showOpenDialog((Component) context.get(MAIN_FRAME)) &&
                 fileChooser.getSelectedFile() != null) {
-            context.set(FILE, fileChooser.getSelectedFile());
+            ((Subtitles) context.get(SUBTITLES)).load(fileChooser.getSelectedFile());
         }
     }
 

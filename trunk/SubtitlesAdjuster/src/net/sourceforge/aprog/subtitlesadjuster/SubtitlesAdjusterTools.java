@@ -28,11 +28,11 @@ import static net.sourceforge.aprog.i18n.Messages.*;
 
 import javax.swing.JMenuItem;
 import javax.swing.KeyStroke;
+
 import net.sourceforge.aprog.context.Context;
 import net.sourceforge.aprog.events.Variable;
 import net.sourceforge.aprog.events.Variable.Listener;
 import net.sourceforge.aprog.events.Variable.ValueChangedEvent;
-
 import net.sourceforge.aprog.swing.InvokerAction;
 import net.sourceforge.aprog.tools.Tools;
 
