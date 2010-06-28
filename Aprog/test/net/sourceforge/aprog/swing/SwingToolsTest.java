@@ -198,6 +198,7 @@ public final class SwingToolsTest {
     }
 
     /**
+     * XXX this method should be private, but Tools.invoke() doesn't seem to work as expected.
      *
      * @param semaphore
      * <br>Not null
