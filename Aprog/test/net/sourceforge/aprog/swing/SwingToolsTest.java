@@ -24,20 +24,24 @@
 
 package net.sourceforge.aprog.swing;
 
-import java.awt.Component;
+import static net.sourceforge.aprog.tools.Tools.*;
+
 import static org.junit.Assert.*;
 
+import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.util.concurrent.Semaphore;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
-
-import net.sourceforge.aprog.tools.Tools;
 
 import org.junit.Test;
 
@@ -51,7 +55,7 @@ public final class SwingToolsTest {
 
     @Test
     public final void testGetIcon() {
-        SwingTools.setImagesBase(Tools.getCallerPackagePath());
+        SwingTools.setImagesBase(getCallerPackagePath());
 
         assertNotNull(SwingTools.getIcon("start.png"));
     }
@@ -60,7 +64,7 @@ public final class SwingToolsTest {
     public final void testGetIconOrNull() {
         assertNull(SwingTools.getIconOrNull("inexisting_icon"));
 
-        SwingTools.setImagesBase(Tools.getCallerPackagePath());
+        SwingTools.setImagesBase(getCallerPackagePath());
 
         assertNotNull(SwingTools.getIconOrNull("start.png"));
     }
@@ -84,7 +88,7 @@ public final class SwingToolsTest {
     @Test
     public final void testRollover() throws Exception {
         if (SwingTools.canInvokeThisMethodInAWT(this)) {
-            SwingTools.setImagesBase(Tools.getCallerPackagePath());
+            SwingTools.setImagesBase(getCallerPackagePath());
 
             final JButton button = SwingTools.rollover(new JButton(), "start", false);
 
@@ -107,14 +111,35 @@ public final class SwingToolsTest {
     @Test
     public final void testMenuBar() throws Exception {
         if (SwingTools.canInvokeThisMethodInAWT(this)) {
-            fail("TODO");
+            final JMenuBar menuBar = SwingTools.menuBar(
+                    SwingTools.menu("menu1",
+                            new JMenuItem("item1"),
+                            new JMenuItem("item2")),
+                    SwingTools.menu("menu2",
+                            new JMenuItem("item3"),
+                            new JMenuItem("item4"),
+                            new JMenuItem("item5")));
+
+            assertEquals("menu1", menuBar.getMenu(0).getText());
+            assertEquals(2, menuBar.getMenu(0).getItemCount());
+            assertEquals("menu2", menuBar.getMenu(1).getText());
+            assertEquals(3, menuBar.getMenu(1).getItemCount());
         }
     }
 
     @Test
     public final void testMenu() throws Exception {
         if (SwingTools.canInvokeThisMethodInAWT(this)) {
-            fail("TODO");
+            final JMenu menu = SwingTools.menu("menu",
+                    new JMenuItem("item1"),
+                    null,
+                    new JMenuItem("item2"));
+
+            assertEquals("menu", menu.getText());
+            assertEquals(3, menu.getItemCount());
+            assertEquals("item1", menu.getItem(0).getText());
+            assertNull(menu.getItem(1));
+            assertEquals("item2", menu.getItem(2).getText());
         }
     }
 
@@ -123,6 +148,15 @@ public final class SwingToolsTest {
         if (SwingTools.canInvokeThisMethodInAWT(this)) {
             SwingTools.checkAWT();
         }
+    }
+
+    @Test(timeout=2000L)
+    public final void testCanInvokeLaterThisMethodInAWT() throws InterruptedException {
+        final Semaphore semaphore = new Semaphore(0);
+
+        releaseInAWT(semaphore);
+
+        semaphore.acquire();
     }
 
     @Test(expected=IllegalStateException.class)
@@ -161,6 +195,21 @@ public final class SwingToolsTest {
             }
 
         });
+    }
+
+    /**
+     *
+     * @param semaphore
+     * <br>Not null
+     * <br>Input-output
+     * <br>Shared
+     */
+    public static final void releaseInAWT(final Semaphore semaphore) {
+        if (SwingTools.canInvokeLaterThisMethodInAWT(null, semaphore)) {
+            SwingTools.checkAWT();
+
+            semaphore.release();
+        }
     }
 
 }
