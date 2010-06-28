@@ -90,6 +90,11 @@ public final class Constants {
          */
         public static final String LAST_TIME = "lastTime";
 
+        /**
+         * {@value}.
+         */
+        public static final String SUBTITLES = "subtitles";
+
     }
 
 }

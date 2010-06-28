@@ -35,9 +35,6 @@ import java.util.Date;
 
 import net.sourceforge.aprog.context.Context;
 import net.sourceforge.jmacadapter.MacAdapterTools;
-import net.sourceforge.jmacadapter.eawtwrappers.Application;
-import net.sourceforge.jmacadapter.eawtwrappers.ApplicationAdapter;
-import net.sourceforge.jmacadapter.eawtwrappers.ApplicationEvent;
 
 /**
  *
@@ -83,6 +80,8 @@ public final class SubtitlesAdjuster {
         result.set(FILE_MODIFIED, false);
         result.set(FIRST_TIME, new Date(0L));
         result.set(LAST_TIME, new Date(0L));
+
+        new Subtitles(result);
 
         setFileModifiedOnVariableChanged(result, FIRST_TIME, true);
         setFileModifiedOnVariableChanged(result, LAST_TIME, true);
