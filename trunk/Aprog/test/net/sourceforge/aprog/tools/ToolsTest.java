@@ -280,6 +280,30 @@ public final class ToolsTest {
     }
 
     @Test
+    public final void testUnchecked() {
+        {
+            final Throwable cause = new Throwable();
+
+            assertSame(cause, Tools.unchecked(cause).getCause());
+        }
+        {
+            final Throwable cause = new Error();
+
+            assertSame(cause, Tools.unchecked(cause).getCause());
+        }
+        {
+            final Throwable cause = new Exception();
+
+            assertSame(cause, Tools.unchecked(cause).getCause());
+        }
+        {
+            final Throwable cause = new RuntimeException();
+
+            assertSame(cause, Tools.unchecked(cause));
+        }
+    }
+
+    @Test
     public final void testCast() {
         final Object object = "42";
         final String that = Tools.cast(String.class, object);
