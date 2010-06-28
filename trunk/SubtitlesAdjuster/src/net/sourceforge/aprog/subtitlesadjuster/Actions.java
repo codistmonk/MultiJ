@@ -94,13 +94,12 @@ public final class Actions {
     public static final void open(final Context context) {
         final JFileChooser fileChooser = new JFileChooser();
 
-        fileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
         fileChooser.setMultiSelectionEnabled(false);
         fileChooser.setFileFilter(new FileFilter() {
 
             @Override
             public final boolean accept(final File file) {
-                return file.getName().endsWith(".srt");
+                return file.isDirectory() || file.getName().endsWith(".srt");
             }
 
             @Override
