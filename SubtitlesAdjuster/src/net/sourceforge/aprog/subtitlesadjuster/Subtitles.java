@@ -24,11 +24,15 @@
 
 package net.sourceforge.aprog.subtitlesadjuster;
 
+import java.io.FileNotFoundException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import static net.sourceforge.aprog.subtitlesadjuster.Constants.Variables.*;
 import static net.sourceforge.aprog.tools.Tools.*;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.PrintStream;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -49,6 +53,12 @@ public final class Subtitles {
 
     private final List<Subtitle> subtitles;
 
+    private long offset;
+
+    private long newOffset;
+
+    private double timeWarp;
+
     /**
      *
      * @param context
@@ -63,7 +73,48 @@ public final class Subtitles {
     }
 
     public final void save() {
-        // TODO
+        this.offset = this.subtitles.get(0).getBeginTime();
+
+        final long duration = this.subtitles.get(this.subtitles.size() - 1).getBeginTime() - offset;
+
+        this.newOffset = ((Date) this.context.get(FIRST_TIME)).getTime();
+
+        final long newDuration = ((Date) this.context.get(LAST_TIME)).getTime() - newOffset;
+
+        this.timeWarp = (double) newDuration / duration;
+
+        this.writeWithTimeWarp();
+    }
+
+    private final void writeWithTimeWarp() {
+        PrintStream output = null;
+
+        try {
+            output = new PrintStream((File) this.context.get(FILE));
+
+            for (final Subtitle subtitle : this.subtitles) {
+                this.writeWithTimeWarp(subtitle, output);
+            }
+        } catch (final Exception exception) {
+            throw unchecked(exception);
+        } finally {
+            output.close();
+        }
+    }
+
+    /**
+     *
+     * @param subtitle
+     * <br>Not null
+     * @param output
+     * <br>Not null
+     * <br>Input-output
+     */
+    private final void writeWithTimeWarp(final Subtitle subtitle, PrintStream output) {
+        final long newBeginTime = this.newOffset + Math.round((subtitle.getBeginTime() - this.offset) * this.timeWarp);
+
+        output.println(subtitle.getIndex());
+        output.println(format(new Date(newBeginTime), new Date(newBeginTime + subtitle.getDuration()), subtitle.getLines()));
     }
 
     /**
@@ -105,9 +156,7 @@ public final class Subtitles {
         this.subtitles.clear();
 
         while (scanner.hasNextInt()) {
-            scanner.nextInt();
-
-            this.subtitles.add(new Subtitle(scanner));
+            this.subtitles.add(new Subtitle(scanner.nextInt(), scanner));
         }
     }
 
@@ -132,6 +181,8 @@ public final class Subtitles {
      */
     private static final class Subtitle {
 
+        private final int index;
+
         private Date begin;
 
         private Date end;
@@ -139,13 +190,15 @@ public final class Subtitles {
         private String lines;
 
         /**
-         *
+         * @param index
+         * <br>Range: {@code [1 .. Integer.MAX_VALUE]}
          * @param scanner
          * <br>Not null
          * <br>Input-output
          * @throws ParseException If the input is malformed
          */
-        Subtitle(final Scanner scanner) throws ParseException {
+        Subtitle(final int index, final Scanner scanner) throws ParseException {
+            this.index = index;
             this.lines = "";
 
             // Parse: begin --> end
@@ -172,6 +225,15 @@ public final class Subtitles {
         /**
          *
          * @return
+         * <br>Range: {@code [1 .. Integer.MAX_VALUE]}
+         */
+        public final int getIndex() {
+            return this.index;
+        }
+
+        /**
+         *
+         * @return
          * <br>Not null
          * <br>Shared
          */
@@ -181,32 +243,30 @@ public final class Subtitles {
 
         /**
          *
-         * @param begin
-         * <br>Not null
-         * <br>Shared
-         */
-        public final void setBegin(final Date begin) {
-            this.begin = begin;
-        }
-
-        /**
-         *
          * @return
          * <br>Not null
          * <br>Shared
          */
         public final Date getEnd() {
-            return end;
+            return this.end;
         }
 
         /**
          *
-         * @param end
-         * <br>Not null
-         * <br>Shared
+         * @return Time in milliseconds
+         * <br>Range: {@code [0L .. Long.MAX_VALUE]}
          */
-        public final void setEnd(final Date end) {
-            this.end = end;
+        public final long getBeginTime() {
+            return this.getBegin().getTime();
+        }
+
+        /**
+         *
+         * @return Time in milliseconds
+         * <br>Range: {@code [0L .. Long.MAX_VALUE]}
+         */
+        public final long getDuration() {
+            return this.getEnd().getTime() - this.getBeginTime();
         }
 
         /**
@@ -219,12 +279,44 @@ public final class Subtitles {
             return this.lines;
         }
 
+        @Override
+        public final String toString() {
+            return format(this.getBegin(), this.getEnd(), this.getLines());
+        }
+
     }
 
+    /**
+     * {@value}.
+     */
     public static final String TIME_PATTERN = "\\d\\d:\\d\\d:\\d\\d,\\d\\d\\d";
 
+    /**
+     * {@value}.
+     */
     public static final String ARROW_PATTERN = "\\-\\->";
 
+    /**
+     * Simple date format "HH:mm:ss,SSS".
+     */
     public static final DateFormat TIME_FORMAT = new SimpleDateFormat("HH:mm:ss,SSS");
+
+    /**
+     *
+     * @param begin
+     * <br>Not null
+     * @param end
+     * <br>Not null
+     * @param lines
+     * <br>Not null
+     * @return
+     * <br>Not null
+     * <br>New
+     */
+    public static final String format(final Date begin, final Date end, final String lines) {
+        return
+                TIME_FORMAT.format(begin) + " --> " + TIME_FORMAT.format(end) + "\n" +
+                lines;
+    }
 
 }
