@@ -75,46 +75,15 @@ public final class Subtitles {
     public final void save() {
         this.offset = this.subtitles.get(0).getBeginTime();
 
-        final long duration = this.subtitles.get(this.subtitles.size() - 1).getBeginTime() - offset;
+        final long duration = this.subtitles.get(this.subtitles.size() - 1).getBeginTime() - this.offset;
 
         this.newOffset = ((Date) this.context.get(FIRST_TIME)).getTime();
 
-        final long newDuration = ((Date) this.context.get(LAST_TIME)).getTime() - newOffset;
+        final long newDuration = ((Date) this.context.get(LAST_TIME)).getTime() - this.newOffset;
 
         this.timeWarp = (double) newDuration / duration;
 
         this.writeWithTimeWarp();
-    }
-
-    private final void writeWithTimeWarp() {
-        PrintStream output = null;
-
-        try {
-            output = new PrintStream((File) this.context.get(FILE));
-
-            for (final Subtitle subtitle : this.subtitles) {
-                this.writeWithTimeWarp(subtitle, output);
-            }
-        } catch (final Exception exception) {
-            throw unchecked(exception);
-        } finally {
-            output.close();
-        }
-    }
-
-    /**
-     *
-     * @param subtitle
-     * <br>Not null
-     * @param output
-     * <br>Not null
-     * <br>Input-output
-     */
-    private final void writeWithTimeWarp(final Subtitle subtitle, PrintStream output) {
-        final long newBeginTime = this.newOffset + Math.round((subtitle.getBeginTime() - this.offset) * this.timeWarp);
-
-        output.println(subtitle.getIndex());
-        output.println(format(new Date(newBeginTime), new Date(newBeginTime + subtitle.getDuration()), subtitle.getLines()));
     }
 
     /**
@@ -158,6 +127,39 @@ public final class Subtitles {
         while (scanner.hasNextInt()) {
             this.subtitles.add(new Subtitle(scanner.nextInt(), scanner));
         }
+    }
+
+    private final void writeWithTimeWarp() {
+        PrintStream output = null;
+
+        try {
+            output = new PrintStream((File) this.context.get(FILE));
+
+            for (final Subtitle subtitle : this.subtitles) {
+                this.writeWithTimeWarp(subtitle, output);
+            }
+
+            this.context.set(FILE_MODIFIED, false);
+        } catch (final Exception exception) {
+            throw unchecked(exception);
+        } finally {
+            output.close();
+        }
+    }
+
+    /**
+     *
+     * @param subtitle
+     * <br>Not null
+     * @param output
+     * <br>Not null
+     * <br>Input-output
+     */
+    private final void writeWithTimeWarp(final Subtitle subtitle, final PrintStream output) {
+        final long newBeginTime = this.newOffset + Math.round((subtitle.getBeginTime() - this.offset) * this.timeWarp);
+
+        output.println(subtitle.getIndex());
+        output.println(format(new Date(newBeginTime), new Date(newBeginTime + subtitle.getDuration()), subtitle.getLines()));
     }
 
     /**

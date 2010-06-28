@@ -60,16 +60,23 @@ public final class SubtitlesTest {
         ((Subtitles) context.get(SUBTITLES)).load(file);
 
         assertSame(file, context.get(FILE));
+        assertFalse((Boolean) context.get(FILE_MODIFIED));
         assertEquals("00:00:08,040", TIME_FORMAT.format(context.get(FIRST_TIME)));
         assertEquals("01:10:27,760", TIME_FORMAT.format(context.get(LAST_TIME)));
 
         context.set(FIRST_TIME, TIME_FORMAT.parse("00:00:10,000"));
         context.set(LAST_TIME, TIME_FORMAT.parse("01:10:40,000"));
 
+        assertTrue((Boolean) context.get(FILE_MODIFIED));
+
         ((Subtitles) context.get(SUBTITLES)).save();
+
+        assertFalse((Boolean) context.get(FILE_MODIFIED));
+
         ((Subtitles) context.get(SUBTITLES)).load(file);
 
         assertSame(file, context.get(FILE));
+        assertFalse((Boolean) context.get(FILE_MODIFIED));
         assertEquals("00:00:10,000", TIME_FORMAT.format(context.get(FIRST_TIME)));
         assertEquals("01:10:40,000", TIME_FORMAT.format(context.get(LAST_TIME)));
     }
