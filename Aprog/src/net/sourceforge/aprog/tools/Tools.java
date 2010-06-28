@@ -330,13 +330,32 @@ public final class Tools {
      * otherwise {@code cause} is re-thrown
      */
     public static final <T> T throwUnchecked(final Throwable cause) {
-        if (cause instanceof RuntimeException) {
-            throw (RuntimeException) cause;
-        } else if (cause instanceof Error) {
+        if (cause instanceof Error) {
             throw (Error) cause;
         }
 
-        throw new RuntimeException(cause);
+        throw unchecked(cause);
+    }
+
+    /**
+     * Returns an instance of {@link RuntimeException} which is either {@code cause} itself,
+     * if it is already a runtime exception, or a new runtime exception wrapping {@code cause}.
+     * <br>This method can be used as an alternative to {@link #throwUnchecked(java.lang.Throwable)},
+     * <br>with the difference that error types are wrapped.
+     * <br>It is up to the caller to decide what to do with the returned exception.
+     *
+     * @param cause
+     * <br>Not null
+     * @return
+     * <br>Not null
+     * <br>Maybe new
+     */
+    public static final RuntimeException unchecked(final Throwable cause) {
+        if (cause instanceof RuntimeException) {
+            return (RuntimeException) cause;
+        }
+
+        return new RuntimeException(cause);
     }
 
     /**

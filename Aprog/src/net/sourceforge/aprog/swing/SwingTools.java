@@ -24,6 +24,8 @@
 
 package net.sourceforge.aprog.swing;
 
+import static net.sourceforge.aprog.tools.Tools.*;
+
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
@@ -36,7 +38,6 @@ import java.awt.dnd.DropTargetDropEvent;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -53,8 +54,6 @@ import javax.swing.JMenuItem;
 import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
-
-import net.sourceforge.aprog.tools.Tools;
 
 /**
  * This class provides utility static methods to help build Swing GUIs.
@@ -157,7 +156,7 @@ public final class SwingTools {
 
             return icon;
         } catch (final IOException exception) {
-            return Tools.throwUnchecked(exception);
+            throw unchecked(exception);
         }
     }
 
@@ -382,7 +381,7 @@ public final class SwingTools {
 
 			return Collections.emptyList();
 		} catch (final Exception exception) {
-			return Tools.throwUnchecked(exception);
+            throw unchecked(exception);
 		}
 	}
     
@@ -390,7 +389,7 @@ public final class SwingTools {
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch (final Exception exception) {
-            Tools.getLoggerForThisMethod().log(Level.WARNING, "", exception);
+            getLoggerForThisMethod().log(Level.WARNING, "", exception);
 		}
 	}
 
@@ -429,22 +428,22 @@ public final class SwingTools {
             return true;
         }
 
-        final Class<?> callerClass = Tools.getCallerClass();
-        final String callerMethodName = Tools.getCallerMethodName();
+        final Class<?> callerClass = getCallerClass();
+        final String callerMethodName = getCallerMethodName();
 
         try {
             SwingUtilities.invokeAndWait(new Runnable() {
 
                 @Override
                 public final void run() {
-                    Tools.invoke(object == null ? callerClass : object, callerMethodName, arguments);
+                    invoke(object == null ? callerClass : object, callerMethodName, arguments);
                 }
 
             });
         } catch (final InterruptedException exception) {
-            Tools.getLoggerForThisMethod().log(Level.WARNING, null, exception);
+            getLoggerForThisMethod().log(Level.WARNING, null, exception);
         } catch (final InvocationTargetException exception) {
-            Tools.throwUnchecked(exception.getCause());
+            throw unchecked(exception);
         }
 
         return false;
