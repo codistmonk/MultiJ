@@ -48,14 +48,13 @@ public final class Context extends AbstractObservable<Context.Listener> implemen
 
     /**
      *
-     * @param <T> the type of the variable value
+     * @param <T> The type of the variable value
      * @param variableName
      * <br>Not null
      * @return
      * <br>Maybe null
      * <br>Shared
      */
-    @SuppressWarnings("unchecked")
     public final <T> T get(final String variableName) {
         final Variable<T> variable = this.getVariable(variableName);
 
@@ -64,13 +63,13 @@ public final class Context extends AbstractObservable<Context.Listener> implemen
 
     /**
      *
-     * @param <T> the type of the variable value
+     * @param <T> The type of the variable value
      * @param variableName
      * <br>Not null
      * @param value
      * <br>Maybe null
      * <br>Shared
-     * @return the old value
+     * @return The old value
      * <br>Maybe null
      */
     @SuppressWarnings("unchecked")
@@ -92,10 +91,10 @@ public final class Context extends AbstractObservable<Context.Listener> implemen
 
     /**
      *
-     * @param <T>
+     * @param <T> The type of the variable value
      * @param variableName
      * <br>Maybe null
-     * @return the removed variable
+     * @return The removed variable
      * <br>Maybe null
      */
     public final <T> Variable<T> remove(final String variableName) {
@@ -111,7 +110,7 @@ public final class Context extends AbstractObservable<Context.Listener> implemen
 
     /**
      *
-     * @param <T> the type of the variable value
+     * @param <T> The type of the variable value
      * @param variableName
      * <br>Not null
      * @return
@@ -125,8 +124,8 @@ public final class Context extends AbstractObservable<Context.Listener> implemen
 
     /**
      *
-     * @param <T> the type of the new variable value
-     * @param <U> the type of the old variable value
+     * @param <T> The type of the new variable value
+     * @param <U> The type of the old variable value
      * @param variable
      * <br>Not null
      * <br>Shared
@@ -203,7 +202,7 @@ public final class Context extends AbstractObservable<Context.Listener> implemen
 
     /**
      *
-     * @param <T>
+     * @param <T> The type of the variable value
      * @author codistmonk (creation 2010-06-20)
      */
     public final class VariableAddedEvent<T> extends AbstractEvent<T> {
@@ -227,7 +226,7 @@ public final class Context extends AbstractObservable<Context.Listener> implemen
 
     /**
      *
-     * @param <T>
+     * @param <T> The type of the variable value
      * @author codistmonk (creation 2010-06-20)
      */
     public final class VariableRemovedEvent<T> extends AbstractEvent<T> {
