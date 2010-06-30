@@ -29,7 +29,6 @@ import static net.sourceforge.aprog.i18n.Messages.*;
 import static org.junit.Assert.*;
 
 import java.util.Locale;
-import net.sourceforge.aprog.tools.Tools;
 
 import org.junit.Test;
 

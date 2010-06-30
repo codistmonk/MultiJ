@@ -55,12 +55,13 @@ public final class ToolsTest {
     }
 
     @Test
-    @SuppressWarnings("unchecked")
     public final void testAppend() {
+        final Object[] empty = new Object[0];
+
         assertArrayEquals(Tools.array(42, 33, 42), Tools.append(Tools.array(42), Tools.array(33, 42)));
-        assertArrayEquals(Tools.array(42), Tools.append(Tools.array(42), Tools.array()));
-        assertArrayEquals(Tools.array(42), Tools.append(Tools.array(), Tools.array((Object) 42)));
-        assertArrayEquals(Tools.array(), Tools.append(Tools.array(), Tools.array()));
+        assertArrayEquals(Tools.array(42), Tools.append(Tools.array(42), empty));
+        assertArrayEquals(Tools.array(42), Tools.append(empty, Tools.array((Object) 42)));
+        assertArrayEquals(empty, Tools.append(empty, empty));
     }
 
     @Test
