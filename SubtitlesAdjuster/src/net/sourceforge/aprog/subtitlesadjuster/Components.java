@@ -28,6 +28,7 @@ package net.sourceforge.aprog.subtitlesadjuster;
 import static javax.swing.KeyStroke.getKeyStroke;
 
 import static net.sourceforge.aprog.i18n.Messages.*;
+import net.sourceforge.aprog.i18n.Translator.LocaleChangedEvent;
 import static net.sourceforge.aprog.subtitlesadjuster.Actions.*;
 import static net.sourceforge.aprog.subtitlesadjuster.Constants.Variables.*;
 import static net.sourceforge.aprog.subtitlesadjuster.SubtitlesAdjusterTools.*;
@@ -214,6 +215,15 @@ public final class Components {
         invokeOnVariableChanged(context, FILE, Actions.class, "updateMainFrameTitle", context);
         invokeOnVariableChanged(context, FILE_MODIFIED, Actions.class, "updateMainFrameTitle", context);
 
+        Translator.getDefaultTranslator().addListener(new Translator.Listener() {
+
+            @Override
+            public final void localeChanged(final LocaleChangedEvent event) {
+                packAndUpdateMinimumSize(result);
+            }
+
+        });
+
         return center(packAndUpdateMinimumSize(result));
     }
 
@@ -307,7 +317,7 @@ public final class Components {
             constraints.anchor = GridBagConstraints.LINE_START;
             constraints.insets = new Insets(INSET, INSET, INSET, INSET);
 
-            add(result, translate(new JLabel("First message time")), constraints);
+            add(result, translate(new JLabel("First subtitle time")), constraints);
         }
         {
             ++constraints.gridx;
@@ -320,7 +330,7 @@ public final class Components {
             ++constraints.gridy;
             constraints.weightx = 1.0;
 
-            add(result, translate(new JLabel("Last message time")), constraints);
+            add(result, translate(new JLabel("Last subtitle time")), constraints);
         }
         {
             ++constraints.gridx;
