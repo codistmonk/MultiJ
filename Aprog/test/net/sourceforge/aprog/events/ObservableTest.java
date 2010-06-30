@@ -26,7 +26,6 @@ package net.sourceforge.aprog.events;
 
 import static org.junit.Assert.*;
 
-import java.lang.reflect.Array;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -170,6 +169,13 @@ public final class ObservableTest {
      * @author codistmonk (creation 2010-06-23)
      */
     private static final class DummyObservable extends AbstractObservable<DummyObservable.Listener> {
+
+        /**
+         * Package-private default constructor to suppress visibility warnings.
+         */
+        DummyObservable() {
+            // Do nothing
+        }
 
         public final void fireNewEvent() {
             new EventFiredEvent().fire();

@@ -91,13 +91,13 @@ public interface Observable<L> {
 
         /**
          *
-         * @return
+         * @return {@code true} if and only if the event should not be dispatched to the remaining listeners
          */
         public abstract boolean isInterrupted();
 
         /**
          *
-         * @param interrupted
+         * @param interrupted Boolean indicating whether or not the event should be dispatched to the remaining listeners
          */
         public abstract void setInterrupted(boolean interrupted);
 
