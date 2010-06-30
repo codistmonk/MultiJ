@@ -100,7 +100,7 @@ public final class SubtitlesAdjuster {
      * <br>Not null
      * @param variableName
      * <br>Not null
-     * @param value
+     * @param value The value to which the {@link Constants.Variables#FILE_MODIFIED} variable will be set
      */
     private static final void setFileModifiedOnVariableChanged(
             final Context context, final String variableName, final boolean value) {
