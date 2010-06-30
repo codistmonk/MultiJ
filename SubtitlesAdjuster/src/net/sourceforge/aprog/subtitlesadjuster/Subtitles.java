@@ -142,7 +142,9 @@ public final class Subtitles {
         } catch (final Exception exception) {
             throw unchecked(exception);
         } finally {
-            output.close();
+            if (output != null) {
+                output.close();
+            }
         }
     }
 
