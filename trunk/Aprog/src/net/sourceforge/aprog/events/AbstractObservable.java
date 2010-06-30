@@ -34,7 +34,7 @@ import java.util.Collection;
  * <br>The use of {@link AbstractEvent} is recommended but not mandatory;
  * you can define your own event hierarchy and dispatching mechanism.
  *
- * @param <L> the event listener type
+ * @param <L> The event listener type
  * @author codistmonk (creation 2010-06-14)
  */
 public abstract class AbstractObservable<L> implements Observable<L> {
@@ -64,11 +64,16 @@ public abstract class AbstractObservable<L> implements Observable<L> {
      * This abstract event class provides simpler constructors than {@link Observable.AbstractEvent}, but
      * derived concrete classes need to be instantiated from a subclass of {@link AbstractObservable}.
      *
-     * @param <S> the event source type
-     * @param <L> the event listener type
+     * @param <S> The event source type
+     * @param <L2> The event listener type
+     * <br>XXX
+     * <br>Specifying {@code L2} seems redundant and even wrong because it should be {@code L}.
+     * <br>This additional parameter is needed in NetBeans
+     * to avoid compilation errors of the form: "type parameter ... is not within its bound".
+     * <br>Hopefully someday this will be fixed and {@code L2} will no longer be needed.
      * @author codistmonk (creation 2010-06-15)
      */
-    public abstract class AbstractEvent<S extends AbstractObservable<L>, L> extends Observable.AbstractEvent<S, L> {
+    public abstract class AbstractEvent<S extends AbstractObservable<L2>, L2> extends Observable.AbstractEvent<S, L2> {
 
         /**
          * @param time in milliseconds
