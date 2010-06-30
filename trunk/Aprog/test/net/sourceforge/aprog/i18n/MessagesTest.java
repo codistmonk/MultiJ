@@ -81,7 +81,7 @@ public final class MessagesTest {
      *
      * @author codistmonk (creation 2010-06-26)
      */
-    private static final class Translatable {
+    static final class Translatable {
 
         private String text;
 

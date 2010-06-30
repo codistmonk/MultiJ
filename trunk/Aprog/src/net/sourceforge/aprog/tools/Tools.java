@@ -46,7 +46,7 @@ public final class Tools {
 
     /**
      *
-     * @param <T>
+     * @param <T> The common type of the elements
      * @param array
      * <br>Maybe null
      * @return
@@ -59,7 +59,7 @@ public final class Tools {
 
     /**
      *
-     * @param <T> the common type of the elements
+     * @param <T> The common type of the elements
      * @param elements
      * <br>Not null
      * @return
@@ -78,7 +78,7 @@ public final class Tools {
 
     /**
      *
-     * @param <T>
+     * @param <T> The common type of the elements
      * @param array
      * <br>Not null
      * @param moreElements
