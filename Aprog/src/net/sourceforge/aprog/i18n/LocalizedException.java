@@ -174,17 +174,21 @@ public final class LocalizedException extends RuntimeException {
     /**
      *
      * @param cause
-     * <br>Not null
+     * <br>Maybe null
      * @return
      * <br>Not null
      * <br>Maybe new
      */
     private static final String getTranslationKey(final Throwable cause) {
+        if (cause == null) {
+            return "Unknown error";
+        }
+
         if (cause instanceof LocalizedException) {
             return ((LocalizedException) cause).getTranslationKey();
         }
 
-        if (cause == null || cause.getMessage() == null || cause.getMessage().length() == 0) {
+        if (cause.getMessage() == null || cause.getMessage().length() == 0) {
             return cause.getClass().getName();
         }
 
