@@ -34,6 +34,7 @@ import net.sourceforge.aprog.events.Variable;
 import net.sourceforge.aprog.events.Variable.Listener;
 import net.sourceforge.aprog.events.Variable.ValueChangedEvent;
 import net.sourceforge.aprog.swing.InvokerAction;
+import net.sourceforge.aprog.swing.SwingTools;
 import net.sourceforge.aprog.tools.Tools;
 
 /**
@@ -102,7 +103,7 @@ public final class SubtitlesAdjusterTools {
     public static final JMenuItem item(final String translationKey,
             final String methodName, final Object... arguments) {
         return translate(new JMenuItem(
-                action(Actions.class, methodName, arguments)
+                SwingTools.action(Actions.class, methodName, arguments)
                 .setName(translationKey)));
     }
 
@@ -127,31 +128,9 @@ public final class SubtitlesAdjusterTools {
     public static final JMenuItem item(final String translationKey, final KeyStroke shortcut,
             final String methodName, final Object... arguments) {
         return translate(new JMenuItem(
-                action(Actions.class, methodName, arguments)
+                SwingTools.action(Actions.class, methodName, arguments)
                 .setName(translationKey)
                 .setShortcut(shortcut)));
-    }
-
-    /**
-     * Creates an action that will invoke the specified method with
-     * the specified arguments when it is performed.
-     *
-     * @param objectOrClass
-     * <br>Not null
-     * <br>Shared
-     * @param methodName
-     * <br>Not null
-     * <br>Shared
-     * @param arguments
-     * <br>Not null
-     * <br>Shared
-     * @return
-     * <br>Not null
-     * <br>New
-     */
-    public static final InvokerAction action(final Object objectOrClass,
-            final String methodName, final Object... arguments) {
-        return new InvokerAction(objectOrClass, methodName, arguments);
     }
 
 }
