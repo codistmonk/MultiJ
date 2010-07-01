@@ -250,7 +250,7 @@ public final class TranslatorTest {
         }
     }
 
-    static final String MESSAGES_BASE = Tools.getCallerPackagePath() + "Messages";
+    public static final String MESSAGES_BASE = Tools.getCallerPackagePath() + "Messages";
 
     /**
      *
