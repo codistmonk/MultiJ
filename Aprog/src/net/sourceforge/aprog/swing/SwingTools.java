@@ -467,6 +467,28 @@ public final class SwingTools {
     }
 
     /**
+     * Creates an action that will invoke the specified method with
+     * the specified arguments when it is performed.
+     *
+     * @param objectOrClass
+     * <br>Not null
+     * <br>Shared
+     * @param methodName
+     * <br>Not null
+     * <br>Shared
+     * @param arguments
+     * <br>Not null
+     * <br>Shared
+     * @return
+     * <br>Not null
+     * <br>New
+     */
+    public static final InvokerAction action(final Object objectOrClass,
+            final String methodName, final Object... arguments) {
+        return new InvokerAction(objectOrClass, methodName, arguments);
+    }
+
+    /**
      *
      * @throws IllegalStateException if the current thread is not the AWT Event Dispatching Thread
      */

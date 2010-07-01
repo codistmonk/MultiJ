@@ -32,6 +32,11 @@ import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.dnd.DropTargetContext;
+import java.awt.dnd.DropTargetDragEvent;
+import java.awt.dnd.DropTargetEvent;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.concurrent.Semaphore;
 
 import javax.swing.JButton;
@@ -144,17 +149,40 @@ public final class SwingToolsTest {
     }
 
     @Test
+    public final void testGetFiles() {
+        fail("TODO");
+    }
+
+    @Test
     public final void testCanInvokeThisMethodInAWT() {
         if (SwingTools.canInvokeThisMethodInAWT(this)) {
             SwingTools.checkAWT();
         }
     }
 
-    @Test(timeout=2000L)
+    @Test(timeout=TEST_TIMEOUT)
     public final void testCanInvokeLaterThisMethodInAWT() throws InterruptedException {
         final Semaphore semaphore = new Semaphore(0);
 
         releaseInAWT(semaphore);
+
+        semaphore.acquire();
+    }
+
+    @Test(timeout=TEST_TIMEOUT)
+    public final void testAction() throws InterruptedException {
+        final Semaphore semaphore = new Semaphore(0);
+
+        final ActionListener actionListener = SwingTools.action(this.getClass(), "releaseInAWT", semaphore);
+
+        SwingUtilities.invokeLater(new Runnable() {
+
+            @Override
+            public void run() {
+                actionListener.actionPerformed(new ActionEvent(this, 0, ""));
+            }
+
+        });
 
         semaphore.acquire();
     }
@@ -196,6 +224,11 @@ public final class SwingToolsTest {
 
         });
     }
+
+    /**
+     * {@value} milliseconds.
+     */
+    public static final long TEST_TIMEOUT = 2000L;
 
     /**
      * XXX this method should be private, but Tools.invoke() doesn't seem to work as expected.
