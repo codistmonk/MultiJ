@@ -28,7 +28,6 @@ package net.sourceforge.aprog.subtitlesadjuster;
 import static javax.swing.KeyStroke.getKeyStroke;
 
 import static net.sourceforge.aprog.i18n.Messages.*;
-import net.sourceforge.aprog.i18n.Translator.LocaleChangedEvent;
 import static net.sourceforge.aprog.subtitlesadjuster.Actions.*;
 import static net.sourceforge.aprog.subtitlesadjuster.Constants.Variables.*;
 import static net.sourceforge.aprog.subtitlesadjuster.SubtitlesAdjusterTools.*;
@@ -81,6 +80,8 @@ import net.sourceforge.aprog.events.Variable;
 import net.sourceforge.aprog.events.Variable.Listener;
 import net.sourceforge.aprog.events.Variable.ValueChangedEvent;
 import net.sourceforge.aprog.i18n.Translator;
+import net.sourceforge.aprog.i18n.Translator.LocaleChangedEvent;
+import net.sourceforge.aprog.swing.LanguageComboBox;
 import net.sourceforge.aprog.swing.SwingTools;
 import net.sourceforge.jmacadapter.MacAdapterTools;
 import net.sourceforge.jmacadapter.eawtwrappers.Application;
@@ -163,17 +164,12 @@ public final class Components {
      * <br>New
      */
     public static final JComboBox createLanguageComboBox() {
-        final Translator translator = Translator.getDefaultTranslator();
-        final JComboBox result = new JComboBox(translator.getAvailableLocales());
-
-        result.setSelectedItem(translator.getBestAvailableLocale());
+        final JComboBox result = new LanguageComboBox(Translator.getDefaultTranslator());
 
         result.addActionListener(new ActionListener() {
 
             @Override
             public final void actionPerformed(final ActionEvent event) {
-                translator.setLocale((Locale) result.getSelectedItem());
-
                 final Component root = SwingUtilities.getRoot(result);
 
                 if (root instanceof Window) {
