@@ -53,7 +53,7 @@ public final class SubtitlesTest {
     @Test
     public final void testSave() throws ParseException {
         final File file = createTemporaryFile("tmp", ".srt", getInputStream(SRT_RESOURCE_PATH));
-        final Context context = SubtitlesAdjuster.createContext();
+        final Context context = SubtitlesAdjuster.newContext();
 
         assertNull(context.get(FILE));
 
@@ -83,7 +83,7 @@ public final class SubtitlesTest {
 
     @Test
     public final void testLoad() {
-        final Context context = SubtitlesAdjuster.createContext();
+        final Context context = SubtitlesAdjuster.newContext();
 
         assertNull(context.get(FILE));
 

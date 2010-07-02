@@ -67,7 +67,7 @@ public final class SubtitlesAdjuster {
             // FIXME The following doesn't seem to work well on Windows XP
             Thread.currentThread().setUncaughtExceptionHandler(new UncaughtExceptionHandler());
 
-            Components.createMainFrame(createContext()).setVisible(true);
+            Components.newMainFrame(newContext()).setVisible(true);
         }
     }
 
@@ -77,7 +77,7 @@ public final class SubtitlesAdjuster {
      * <br>Not null
      * <br>New
      */
-    public static final Context createContext() {
+    public static final Context newContext() {
         final Context result = new Context();
 
         result.set(FILE, null);
