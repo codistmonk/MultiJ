@@ -24,11 +24,14 @@
 
 package net.sourceforge.aprog.xml;
 
+import static net.sourceforge.aprog.tools.Tools.*;
 import static net.sourceforge.aprog.xml.XMLTools.*;
 
 import static org.junit.Assert.*;
 
 import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
+import java.util.logging.Level;
 
 import org.junit.Test;
 import org.w3c.dom.Document;
@@ -115,6 +118,33 @@ public final class XMLToolsTest {
         );
 
         assertEquals("d", getNode(document, "a/b/@c").getNodeValue());
+    }
+
+    @Test
+    public final void testValidate() throws Exception {
+        final String path = getCallerPackagePath();
+
+        // DTD validation
+        assertEquals(0, validate(getResourceAsStream(path + "test.xml"), getResourceAsSource(path + "test.dtd")).size());
+
+        // XSD validation
+        assertEquals(0, validate(getResourceAsStream(path + "test.xml"), getResourceAsSource(path + "test.xsd")).size());
+
+        // Relax-NG validation, if available
+        try {
+            assertEquals(0, validate(getResourceAsStream(path + "test.xml"), getResourceAsSource(path + "test.rng")).size());
+        } catch (final IllegalArgumentException exception) {
+            System.err.println(debug(2, exception.getMessage()));
+            assertTrue(exception.getMessage().startsWith("No SchemaFactory that implements the schema language specified"));
+        }
+
+        // Compact Relax-NG validation, if available
+        try {
+            assertEquals(0, validate(getResourceAsStream(path + "test.xml"), getResourceAsSource(path + "test.rnc")).size());
+        } catch (final IllegalArgumentException exception) {
+            System.err.println(debug(2, exception.getMessage()));
+            assertTrue(exception.getMessage().startsWith("No SchemaFactory that implements the schema language specified"));
+        }
     }
 
 }

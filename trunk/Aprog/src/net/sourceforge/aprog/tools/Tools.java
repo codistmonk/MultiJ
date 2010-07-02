@@ -24,6 +24,7 @@
 
 package net.sourceforge.aprog.tools;
 
+import java.io.InputStream;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -96,6 +97,18 @@ public final class Tools {
         System.arraycopy(moreElements, 0, result, array.length, moreElements.length);
 
         return result;
+    }
+
+    /**
+     *
+     * @param resourcePath
+     * <br>Not null
+     * @return
+     * <br>Maybe null
+     * <br>New
+     */
+    public static final InputStream getResourceAsStream(final String resourcePath) {
+        return getCallerClass().getClassLoader().getResourceAsStream(resourcePath);
     }
 
     /**
