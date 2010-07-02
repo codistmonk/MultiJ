@@ -121,30 +121,44 @@ public final class XMLToolsTest {
     }
 
     @Test
-    public final void testValidate() throws Exception {
-        final String path = getCallerPackagePath();
-
+    public final void testValidate() {
         // DTD validation
-        assertEquals(0, validate(getResourceAsStream(path + "test.xml"), getResourceAsSource(path + "test.dtd")).size());
+        testValidate("test.xml", "test.dtd", false);
 
         // XSD validation
-        assertEquals(0, validate(getResourceAsStream(path + "test.xml"), getResourceAsSource(path + "test.xsd")).size());
+        testValidate("test.xml", "test.xsd", false);
 
         // Relax-NG validation, if available
-        try {
-            assertEquals(0, validate(getResourceAsStream(path + "test.xml"), getResourceAsSource(path + "test.rng")).size());
-        } catch (final IllegalArgumentException exception) {
-            System.err.println(debug(2, exception.getMessage()));
-            assertTrue(exception.getMessage().startsWith("No SchemaFactory that implements the schema language specified"));
-        }
+        testValidate("test.xml", "test.rng", true);
 
         // Compact Relax-NG validation, if available
+        testValidate("test.xml", "test.rnc", true);
+    }
+
+    /**
+     *
+     * @param xmlFileName
+     * <br>Not null
+     * @param dtdOrSchemaFileName
+     * <br>Not null
+     * @param canBeUnavailable {@code true} if the validation can fail because the schema language is not available
+     */
+    private static final void testValidate(final String xmlFileName, final String dtdOrSchemaFileName,
+            final boolean canBeUnavailable) {
         try {
-            assertEquals(0, validate(getResourceAsStream(path + "test.xml"), getResourceAsSource(path + "test.rnc")).size());
+            assertEquals(0, validate(
+                    getResourceAsStream(PATH + xmlFileName),
+                    getResourceAsSource(PATH + dtdOrSchemaFileName)).size());
         } catch (final IllegalArgumentException exception) {
-            System.err.println(debug(2, exception.getMessage()));
-            assertTrue(exception.getMessage().startsWith("No SchemaFactory that implements the schema language specified"));
+            if (canBeUnavailable &&
+                    exception.getMessage().startsWith("No SchemaFactory that implements the schema language specified")) {
+                getLoggerForThisMethod().log(Level.INFO, debug(3, exception.getMessage()));
+            } else {
+                throw exception;
+            }
         }
     }
+
+    private static final String PATH = getCallerPackagePath();
 
 }
