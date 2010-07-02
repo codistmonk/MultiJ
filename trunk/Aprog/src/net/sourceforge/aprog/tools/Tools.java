@@ -38,10 +38,10 @@ import java.util.logging.Logger;
 public final class Tools {
 
     /**
-     * Private default constructor to prevent instantiation.
+     * @throws IllegalInstantiationException To prevent instantiation
      */
     private Tools() {
-        // Do nothing
+        throw new IllegalInstantiationException();
     }
 
     /**

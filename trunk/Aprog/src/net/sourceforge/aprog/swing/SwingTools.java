@@ -55,6 +55,8 @@ import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
+import net.sourceforge.aprog.tools.IllegalInstantiationException;
+
 /**
  * This class provides utility static methods to help build Swing GUIs.
  * <br>According to the JDK, accessing and modifying AWT components should only be done
@@ -67,10 +69,10 @@ import javax.swing.UIManager;
 public final class SwingTools {
 
     /**
-     * Private default constructor to prevent instantiation.
+     * @throws IllegalInstantiationException To prevent instantiation
      */
     private SwingTools() {
-        // Do nothing
+        throw new IllegalInstantiationException();
     }
 
     /**
