@@ -234,7 +234,8 @@ public final class XMLTools {
 
             transformer.setOutputProperty(OutputKeys.METHOD, "xml");
             transformer.setOutputProperty(OutputKeys.INDENT, indent != 0 ? "yes" : "no");
-            transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, node instanceof Document ? "no" : "yes");
+            transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION,
+                    node instanceof Document ? "no" : "yes");
             transformer.setOutputProperty(OutputKeys.STANDALONE, "yes");
 
             transformer.transform(new DOMSource(node), output);
@@ -268,7 +269,7 @@ public final class XMLTools {
      * <br>Not null
      * <br>New
      */
-    public static final List<Node> newList(final NodeList nodeList) {
+    public static final List<Node> toList(final NodeList nodeList) {
         final List<Node> result = new ArrayList<Node>();
 
         for (int i = 0; i < nodeList.getLength(); ++i) {
@@ -279,12 +280,13 @@ public final class XMLTools {
     }
 
     /**
+     * Validates the XML input against the specified DTD or schema.
      *
      * @param xmlInputStream
      * <br>Not null
      * @param dtdOrSchema
      * <br>Not null
-     * @return
+     * @return An empty list if validation succeeds
      * <br>Not null
      * <br>New
      */
@@ -294,7 +296,8 @@ public final class XMLTools {
 
         try {
             if (schemaLanguage != null) {
-                final Validator validator = SchemaFactory.newInstance(schemaLanguage).newSchema(dtdOrSchema).newValidator();
+                final Validator validator = SchemaFactory.newInstance(schemaLanguage)
+                        .newSchema(dtdOrSchema).newValidator();
 
                 validator.validate(new StreamSource(xmlInputStream));
             } else {
@@ -349,13 +352,16 @@ public final class XMLTools {
     }
 
     /**
+     * Determines the schema language from the argument's system id.
      *
      * @param dtdOrSchema
      * <br>Not null
      * @return {@code null} for a DTD
      * <br>Maybe null
-     * <br>Range: { {@code null}, {@link XMLConstants#W3C_XML_SCHEMA_NS_URI}, {@link XMLConstants#RELAXNG_NS_URI} }
-     * @throws IllegalArgumentException If {@code dtdOrSchema}'s system id does not indicate a DTD or a schema (XSD or RNG)
+     * <br>Range: { {@code null},
+     * {@link XMLConstants#W3C_XML_SCHEMA_NS_URI}, {@link XMLConstants#RELAXNG_NS_URI} }
+     * @throws IllegalArgumentException If {@code dtdOrSchema}'s system id does not indicate
+     * a DTD or a schema (XSD or RNG)
      */
     public static final String getSchemaLanguage(final Source dtdOrSchema) {
         final String dtdOrSchemaId = dtdOrSchema.getSystemId().toLowerCase();
@@ -373,6 +379,7 @@ public final class XMLTools {
     }
 
     /**
+     * Calls {@link #getNode(java.lang.Object, java.lang.String)}.
      *
      * @param context
      * <br>Maybe null
@@ -387,6 +394,7 @@ public final class XMLTools {
     }
 
     /**
+     * Calls {@link #getNodes(java.lang.Object, java.lang.String)}.
      *
      * @param context
      * <br>Maybe null
@@ -401,6 +409,8 @@ public final class XMLTools {
     }
 
     /**
+     * Calls {@link #get(java.lang.Object, java.lang.String, javax.xml.namespace.QName)}
+     * with {@code returnType == XPathConstants.NODE}.
      *
      * @param <N> The expected node type
      * @param context
@@ -417,6 +427,8 @@ public final class XMLTools {
     }
 
     /**
+     * Calls {@link #get(java.lang.Object, java.lang.String, javax.xml.namespace.QName)}
+     * with {@code returnType == XPathConstants.NODESET}.
      *
      * @param <S> The expected node set type
      * @param context
@@ -433,6 +445,8 @@ public final class XMLTools {
     }
 
     /**
+     * Calls {@link #get(java.lang.Object, java.lang.String, javax.xml.namespace.QName)}
+     * with {@code returnType == XPathConstants.BOOLEAN}.
      *
      * @param context
      * <br>Maybe null
@@ -447,6 +461,8 @@ public final class XMLTools {
     }
 
     /**
+     * Calls {@link #get(java.lang.Object, java.lang.String, javax.xml.namespace.QName)}
+     * with {@code returnType == XPathConstants.NUMBER}.
      *
      * @param context
      * <br>Maybe null
@@ -461,6 +477,8 @@ public final class XMLTools {
     }
 
     /**
+     * Calls {@link #get(java.lang.Object, java.lang.String, javax.xml.namespace.QName)}
+     * with {@code returnType == XPathConstants.STRING}.
      *
      * @param context
      * <br>Maybe null
@@ -475,6 +493,8 @@ public final class XMLTools {
     }
 
     /**
+     * Evaluates the compiled XPath expression in the specified context
+     * and returns the result as the specified type.
      *
      * @param <T> The expected return type
      * @param context
@@ -505,33 +525,51 @@ public final class XMLTools {
     }
 
     /**
+     * Evaluates the quasi-XPath expression in the specified context, and returns the corresponding node,
+     * creating it if necessary.
+     * <br>The second argument is called "quasi-XPath" because it allows non-XPath expressions
+     * like {@code "a/b[]"} which means "add an element b at the end of a".
+     * <br>If {@code quasiXPath} is a standard XPath expression and the corresponding node exists,
+     * then that node is returned.
+     * <br>When the node does not exist,
+     * {@code quasiXPath} is broken down into path elements separated by slashes ("/").
+     * <br>A path element can be created if it is of the form "name[]" or "name[attributes]" where
+     * "atributes" must be a sequence of "@attribute=value" separated by "and".
+     * <br>Example of a valid quasi-XPath expression where each path element can be created if necessary:<ul>
+     *  <li>{@code "a/b[]/c[@d='e' and @f=42]"}
+     * </ul>
+     * <br>Example of a valid quasi-XPath expression where
+     * the path elements cannot be created if they don't exist:<ul>
+     *  <li>{@code "a[last()]/b[@c<42]/d[position()=33]/e['f'=@g]"}
+     * </ul>
+     *
      *
      * @param context
      * <br>Not null
-     * @param xPath
+     * @param quasiXPath
      * <br>Not null
      * @return
      * <br>Maybe null
      * <br>Maybe new
      */
-    public static final Node getOrCreateNode(final Node context, final String xPath) {
-        final String[] xPathElements = xPath.split("/");
+    public static final Node getOrCreateNode(final Node context, final String quasiXPath) {
+        final String[] pathElements = quasiXPath.split("/");
         Node result = context;
 
         try {
-            for (int index = 0; index < xPathElements.length && result != null; ++index) {
-                final String xPathElement = xPathElements[index];
+            for (int index = 0; index < pathElements.length && result != null; ++index) {
+                final String pathElement = pathElements[index];
 
-                if (xPathElement.matches("\\w+\\[\\]")) {
-                    result = addChild(result, xPathElement);
+                if (pathElement.matches("\\w+\\[\\]")) {
+                    result = addChild(result, pathElement);
                 } else {
                     final Node parent = result;
-                    result = getNode(result, xPathElement);
+                    result = getNode(result, pathElement);
 
                     if (result == null) {
-                        final Map<String, String> attributes = getEqualityPredicates(xPathElement);
-                        final Integer nameEnd = xPathElement.indexOf("[");
-                        final String childName = nameEnd < 0 ? xPathElement : xPathElement.substring(0, nameEnd);
+                        final Map<String, String> attributes = getEqualityPredicates(pathElement);
+                        final Integer nameEnd = pathElement.indexOf("[");
+                        final String childName = nameEnd < 0 ? pathElement : pathElement.substring(0, nameEnd);
 
                         result = addChild(parent, childName);
 
@@ -549,6 +587,9 @@ public final class XMLTools {
     }
 
     /**
+     * Creates and adds a new node to {@code parent}.
+     * <br>If {@code xPathElement} starts with "@",
+     * then the new node is an attribute, otherwise it is an element.
      *
      * @param parent
      * <br>Not null
