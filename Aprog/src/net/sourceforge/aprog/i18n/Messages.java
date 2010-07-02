@@ -193,7 +193,7 @@ public final class Messages {
      * <br>Not null
      * <br>New
      */
-    public static final LocalizedException createLocalizedException(
+    public static final LocalizedException newLocalizedException(
             final String translationKey, final Object... messageParameters) {
         return new LocalizedException(Translator.getDefaultTranslator(), translationKey, getMessagesBase(), messageParameters);
     }

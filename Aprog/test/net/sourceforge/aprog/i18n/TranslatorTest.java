@@ -177,19 +177,19 @@ public final class TranslatorTest {
     @Test
     public final void testCreateLocale() {
         {
-            final Locale result = Translator.createLocale("fr");
+            final Locale result = Translator.newLocale("fr");
 
             assertNotNull(result);
             assertEquals(Locale.FRENCH, result);
         }
         {
-            final Locale result = Translator.createLocale("fr_CA");
+            final Locale result = Translator.newLocale("fr_CA");
 
             assertNotNull(result);
             assertEquals(Locale.CANADA_FRENCH, result);
         }
         {
-            final Locale result = Translator.createLocale("fr_FR_parisien");
+            final Locale result = Translator.newLocale("fr_FR_parisien");
 
             assertNotNull(result);
             assertEquals(new Locale("fr", "FR", "parisien"), result);

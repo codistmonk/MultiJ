@@ -473,10 +473,10 @@ public class Translator extends AbstractObservable<Translator.Listener> {
      * @param languageCountryVariant
      * <br>Not null
      * @return
-     * <br>A possibly new value
      * <br>Not null
+     * <br>Maybe new
      */
-    public static final Locale createLocale(final String languageCountryVariant) {
+    public static final Locale newLocale(final String languageCountryVariant) {
         final String[] tmp = languageCountryVariant.split("_");
         final String language = tmp[0];
         final String country = tmp.length > 1 ? tmp[1] : "";
@@ -493,7 +493,7 @@ public class Translator extends AbstractObservable<Translator.Listener> {
     }
 
     /**
-     * This method does the opposite of {@link #createLocale(String)}.
+     * This method does the opposite of {@link #newLocale(String)}.
      *
      * @param locale
      * <br>Not null
