@@ -1,0 +1,10 @@
+<?xml encoding="UTF-8"?>
+
+<!ELEMENT a (b)>
+<!ATTLIST a
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT b EMPTY>
+<!ATTLIST b
+  xmlns CDATA #FIXED ''
+  c NMTOKEN #REQUIRED>

@@ -24,10 +24,6 @@
 
 package net.sourceforge.aprog.xml;
 
-import java.io.IOException;
-import java.util.logging.Logger;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
 import static net.sourceforge.aprog.tools.Tools.*;
 
 import java.io.ByteArrayInputStream;
@@ -38,9 +34,9 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
+
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
-
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParserFactory;
@@ -48,6 +44,8 @@ import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
@@ -80,9 +78,15 @@ public final class XMLTools {
         throw new IllegalInstantiationException();
     }
 
+    /**
+     * {@value}.
+     */
     public static final String XML_1_UTF8_NOT_STANDALONE =
             "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>";
 
+    /**
+     * {@value}.
+     */
     public static final String XML_1_UTF8_STANDALONE =
             "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>";
 
@@ -271,9 +275,13 @@ public final class XMLTools {
 
     /**
      *
-     * @param xmlInputStream IN NOT_NULL
-     * @param dtdOrSchema IN NOT_NULL
-     * @return NEW NOT_NULL
+     * @param xmlInputStream
+     * <br>Not null
+     * @param dtdOrSchema
+     * <br>Not null
+     * @return
+     * <br>Not null
+     * <br>New
      */
     public static final List<Throwable> validate(final InputStream xmlInputStream, final Source dtdOrSchema) {
         final List<Throwable> exceptions = new ArrayList<Throwable>();
@@ -296,7 +304,8 @@ public final class XMLTools {
                 final SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
 
                 saxParserFactory.setValidating(true);
-                saxParserFactory.newSAXParser().parse(new ByteArrayInputStream(buffer.toByteArray()), new DefaultHandler() {
+                saxParserFactory.newSAXParser().parse(
+                        new ByteArrayInputStream(buffer.toByteArray()), new DefaultHandler() {
 
                     @Override
                     public final void error(final SAXParseException exception) throws SAXException {
@@ -369,7 +378,7 @@ public final class XMLTools {
      * <br>Not New
      */
     public static final Node getNode(final Node context, final String xPath) {
-        return getNode(context, xPath);
+        return getNode((Object) context, xPath);
     }
 
     /**
@@ -383,7 +392,7 @@ public final class XMLTools {
      * <br>Maybe New
      */
     public static final Node getOrCreateNode(final Node context, final String xPath) {
-        return getOrCreateNode(context, xPath);
+        return getOrCreateNode((Object) context, xPath);
     }
 
     /**
@@ -397,7 +406,7 @@ public final class XMLTools {
      * <br>Not New
      */
     public static final NodeList getNodes(final Node context, final String xPath) {
-        return getNodes(context, xPath);
+        return getNodes((Object) context, xPath);
     }
 
     /**
