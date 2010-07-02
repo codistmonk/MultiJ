@@ -32,7 +32,9 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 
 import javax.xml.XMLConstants;
@@ -53,11 +55,14 @@ import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
 import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathFactory;
 
 import net.sourceforge.aprog.tools.IllegalInstantiationException;
 
+import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
@@ -384,20 +389,6 @@ public final class XMLTools {
     /**
      *
      * @param context
-     * <br>Not null
-     * @param xPath
-     * <br>Not null
-     * @return
-     * <br>Maybe null
-     * <br>Maybe New
-     */
-    public static final Node getOrCreateNode(final Node context, final String xPath) {
-        return getOrCreateNode((Object) context, xPath);
-    }
-
-    /**
-     *
-     * @param context
      * <br>Maybe null
      * @param xPath
      * <br>Not null
@@ -457,6 +448,34 @@ public final class XMLTools {
 
     /**
      *
+     * @param context
+     * <br>Maybe null
+     * @param xPath
+     * <br>Not null
+     * @return
+     * <br>Maybe null
+     * <br>Not New
+     */
+    public static final Number getNumber(final Object context, final String xPath) {
+        return (Number) get(context, xPath, XPathConstants.NUMBER);
+    }
+
+    /**
+     *
+     * @param context
+     * <br>Maybe null
+     * @param xPath
+     * <br>Not null
+     * @return
+     * <br>Maybe null
+     * <br>Not New
+     */
+    public static final String getString(final Object context, final String xPath) {
+        return (String) get(context, xPath, XPathConstants.STRING);
+    }
+
+    /**
+     *
      * @param <T> The expected return type
      * @param context
      * <br>Maybe null
@@ -487,7 +506,6 @@ public final class XMLTools {
 
     /**
      *
-     * @param <N> The expected node type
      * @param context
      * <br>Not null
      * @param xPath
@@ -496,8 +514,103 @@ public final class XMLTools {
      * <br>Maybe null
      * <br>Maybe new
      */
-    public static final <N> N getOrCreateNode(final Object context, final String xPath) {
-        return null; // TODO
+    public static final Node getOrCreateNode(final Node context, final String xPath) {
+        final String[] xPathElements = xPath.split("/");
+        Node result = context;
+
+        try {
+            for (int index = 0; index < xPathElements.length && result != null; ++index) {
+                final String xPathElement = xPathElements[index];
+
+                if (xPathElement.matches("\\w+\\[\\]")) {
+                    result = addChild(result, xPathElement);
+                } else {
+                    final Node parent = result;
+                    result = getNode(result, xPathElement);
+
+                    if (result == null) {
+                        final Map<String, String> attributes = getEqualityPredicates(xPathElement);
+                        final Integer nameEnd = xPathElement.indexOf("[");
+                        final String childName = nameEnd < 0 ? xPathElement : xPathElement.substring(0, nameEnd);
+
+                        result = addChild(parent, childName);
+
+                        for (final Map.Entry<String, String> entry : attributes.entrySet()) {
+                            addChild(result, entry.getKey()).setNodeValue(entry.getValue());
+                        }
+                    }
+                }
+            }
+        } catch (final Exception exception) {
+            throw unchecked(exception);
+        }
+
+        return result;
+    }
+
+    /**
+     *
+     * @param parent
+     * <br>Not null
+     * <br>Input-output
+     * @param xPathElement
+     * <br>Not null
+     * @return
+     * <br>Not null
+     * <br>New
+     */
+    public static final Node addChild(final Node parent, final String xPathElement) {
+        final Boolean isAttribute = xPathElement.startsWith("@");
+        final String name = isAttribute ? xPathElement.substring(1) : xPathElement.split("\\[")[0];
+        final Document document = getOwnerDocument(parent);
+        final Node result = isAttribute ? document.createAttribute(name) : document.createElement(name);
+
+        if (isAttribute) {
+            ((Element) parent).setAttributeNode((Attr) result);
+        } else {
+            parent.appendChild(result);
+        }
+
+        return result;
+    }
+
+    /**
+     *
+     * @param node
+     * <br>Not null
+     * @return
+     * <br>Maybe null
+     */
+    public static final Document getOwnerDocument(final Node node) {
+        if (node.getOwnerDocument() == null && node instanceof Document) {
+            return (Document) node;
+        }
+
+        return node.getOwnerDocument();
+    }
+
+    /**
+     *
+     * @param xPathElement
+     * <br>Not null
+     * @return
+     * <br>Not null
+     * <br>New
+     */
+    private static final Map<String, String> getEqualityPredicates(final String xPathElement) {
+        final LinkedHashMap<String, String> result = new LinkedHashMap<String, String>();
+
+        if (xPathElement.trim().endsWith("]")) {
+            final String[] keyValues = xPathElement
+                    .substring(xPathElement.indexOf("[") + 1, xPathElement.length() - 1)
+                    .split("=|and");
+
+            for (int i = 0; i < keyValues.length; i += 2) {
+                result.put(keyValues[i], getString(null, keyValues[i + 1]));
+            }
+        }
+
+        return result;
     }
 
 }

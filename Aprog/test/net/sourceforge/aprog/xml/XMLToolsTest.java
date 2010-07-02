@@ -30,8 +30,10 @@ import static net.sourceforge.aprog.xml.XMLTools.*;
 import static org.junit.Assert.*;
 
 import java.io.ByteArrayOutputStream;
-import java.io.FileInputStream;
+import java.io.OutputStreamWriter;
 import java.util.logging.Level;
+import javax.xml.transform.Result;
+import javax.xml.transform.stream.StreamResult;
 
 import org.junit.Test;
 import org.w3c.dom.Document;
@@ -118,6 +120,91 @@ public final class XMLToolsTest {
         );
 
         assertEquals("d", getNode(document, "a/b/@c").getNodeValue());
+        assertEquals("b", getNode(document, "a/b[@c='d']").getNodeName());
+        assertNull(getNode(document, "a/b[@c='e']"));
+    }
+
+    @Test
+    public final void testGetOrCreateNode() {
+        final Document document = newDocument();
+
+        getOrCreateNode(document, "aa[]");
+
+        {
+            final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+            final Result result = new StreamResult(new OutputStreamWriter(buffer));
+
+            write(normalize(document).getDocumentElement(), result, 0);
+
+            assertEquals(
+                    "<aa/>"
+                    , buffer.toString());
+        }
+
+        getOrCreateNode(document, "aa/b");
+
+        {
+            final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+            final Result result = new StreamResult(new OutputStreamWriter(buffer));
+
+            write(normalize(document).getDocumentElement(), result, 0);
+
+            assertEquals(
+                    "<aa>" +
+                        "<b/>" +
+                    "</aa>"
+                    , buffer.toString());
+        }
+
+        getOrCreateNode(document, "aa/b[@c='d']");
+
+        {
+            final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+            final Result result = new StreamResult(buffer);
+
+            write(normalize(document).getDocumentElement(), result, 0);
+
+            assertEquals(
+                    "<aa>" +
+                        "<b/>" +
+                        "<b c=\"d\"/>" +
+                    "</aa>"
+                    , buffer.toString());
+        }
+
+        getOrCreateNode(document, "aa/b[]");
+
+        {
+            final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+            final Result result = new StreamResult(buffer);
+
+            write(normalize(document).getDocumentElement(), result, 0);
+
+            assertEquals(
+                    "<aa>" +
+                        "<b/>" +
+                        "<b c=\"d\"/>" +
+                        "<b/>" +
+                    "</aa>"
+                    , buffer.toString());
+        }
+
+        getOrCreateNode(document, "aa/b[position()=2]/e");
+
+        {
+            final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+            final Result result = new StreamResult(buffer);
+
+            write(normalize(document).getDocumentElement(), result, 0);
+
+            assertEquals(
+                    "<aa>" +
+                        "<b/>" +
+                        "<b c=\"d\"><e/></b>" +
+                        "<b/>" +
+                    "</aa>"
+                    , buffer.toString());
+        }
     }
 
     @Test
