@@ -32,6 +32,7 @@ import static net.sourceforge.aprog.tools.Tools.*;
 import java.util.HashSet;
 import java.util.Set;
 
+import net.sourceforge.aprog.tools.IllegalInstantiationException;
 import net.sourceforge.aprog.tools.Tools;
 
 /**
@@ -47,10 +48,10 @@ import net.sourceforge.aprog.tools.Tools;
 public final class Messages {
 
     /**
-     * Private default constructor to prevent instantiation.
+     * @throws IllegalInstantiationException To prevent instantiation
      */
     private Messages() {
-        // Do nothing
+        throw new IllegalInstantiationException();
     }
 
     /**
