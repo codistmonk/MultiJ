@@ -130,81 +130,56 @@ public final class XMLToolsTest {
 
         getOrCreateNode(document, "aa[]");
 
-        {
-            final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-            final Result result = new StreamResult(new OutputStreamWriter(buffer));
-
-            write(normalize(document).getDocumentElement(), result, 0);
-
-            assertEquals(
-                    "<aa/>"
-                    , buffer.toString());
-        }
+        assertXMLEquals(
+                "<aa/>"
+                , document);
 
         getOrCreateNode(document, "aa/b");
 
-        {
-            final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-            final Result result = new StreamResult(new OutputStreamWriter(buffer));
-
-            write(normalize(document).getDocumentElement(), result, 0);
-
-            assertEquals(
-                    "<aa>" +
-                        "<b/>" +
-                    "</aa>"
-                    , buffer.toString());
-        }
+        assertXMLEquals(
+                "<aa>" +
+                    "<b/>" +
+                "</aa>"
+                , document);
 
         getOrCreateNode(document, "aa/b[@c='d']");
 
-        {
-            final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-            final Result result = new StreamResult(buffer);
-
-            write(normalize(document).getDocumentElement(), result, 0);
-
-            assertEquals(
-                    "<aa>" +
-                        "<b/>" +
-                        "<b c=\"d\"/>" +
-                    "</aa>"
-                    , buffer.toString());
-        }
+        assertXMLEquals(
+                "<aa>" +
+                    "<b/>" +
+                    "<b c=\"d\"/>" +
+                "</aa>"
+                , document);
 
         getOrCreateNode(document, "aa/b[]");
 
-        {
-            final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-            final Result result = new StreamResult(buffer);
-
-            write(normalize(document).getDocumentElement(), result, 0);
-
-            assertEquals(
-                    "<aa>" +
-                        "<b/>" +
-                        "<b c=\"d\"/>" +
-                        "<b/>" +
-                    "</aa>"
-                    , buffer.toString());
-        }
+        assertXMLEquals(
+                "<aa>" +
+                    "<b/>" +
+                    "<b c=\"d\"/>" +
+                    "<b/>" +
+                "</aa>"
+                , document);
 
         getOrCreateNode(document, "aa/b[position()=2]/e");
 
-        {
-            final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-            final Result result = new StreamResult(buffer);
+        assertXMLEquals(
+                "<aa>" +
+                    "<b/>" +
+                    "<b c=\"d\"><e/></b>" +
+                    "<b/>" +
+                "</aa>"
+                , document);
 
-            write(normalize(document).getDocumentElement(), result, 0);
+        getOrCreateNode(document, "aa/b[position()=2]/e/@f");
 
-            assertEquals(
-                    "<aa>" +
-                        "<b/>" +
-                        "<b c=\"d\"><e/></b>" +
-                        "<b/>" +
-                    "</aa>"
-                    , buffer.toString());
-        }
+        assertXMLEquals(
+                "<aa>" +
+                    "<b/>" +
+                    "<b c=\"d\"><e f=\"\"/></b>" +
+                    "<b/>" +
+                "</aa>"
+                , document);
     }
 
     @Test
@@ -221,6 +196,8 @@ public final class XMLToolsTest {
         // Compact Relax-NG validation, if available
         testValidate("test.xml", "test.rnc", true);
     }
+
+    private static final String PATH = getCallerPackagePath();
 
     /**
      *
@@ -246,6 +223,20 @@ public final class XMLToolsTest {
         }
     }
 
-    private static final String PATH = getCallerPackagePath();
+    /**
+     *
+     * @param expectedXML
+     * <br>Not null
+     * @param document
+     * <br>Not null
+     */
+    private static final void assertXMLEquals(final String expectedXML, final Document document) {
+        final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+        final Result result = new StreamResult(buffer);
+
+        write(normalize(document).getDocumentElement(), result, 0);
+
+        assertEquals(expectedXML, buffer.toString());
+    }
 
 }

@@ -533,7 +533,7 @@ public final class XMLTools {
      * then that node is returned.
      * <br>When the node does not exist,
      * {@code quasiXPath} is broken down into path elements separated by slashes ("/").
-     * <br>A path element can be created if it is of the form "name[]" or "name[attributes]" where
+     * <br>A path element can be created if it is of the form "@name", "name", "name[]" or "name[attributes]" where
      * "atributes" must be a sequence of "@attribute=value" separated by "and".
      * <br>Example of a valid quasi-XPath expression where each path element can be created if necessary:<ul>
      *  <li>{@code "a/b[]/c[@d='e' and @f=42]"}
