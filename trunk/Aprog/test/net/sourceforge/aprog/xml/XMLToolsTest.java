@@ -24,7 +24,7 @@
 
 package net.sourceforge.aprog.xml;
 
-import static net.sourceforge.aprog.xml.DOMTools.*;
+import static net.sourceforge.aprog.xml.XMLTools.*;
 
 import static org.junit.Assert.*;
 
@@ -35,11 +35,11 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 /**
- * Automated tests using JUnit 4 for {@link DOMTools}.
+ * Automated tests using JUnit 4 for {@link XMLTools}.
  *
  * @author codistmonk (creation 2010-07-01)
  */
-public final class DOMToolsTest {
+public final class XMLToolsTest {
 
     @Test
     public final void testParse() {
@@ -85,25 +85,36 @@ public final class DOMToolsTest {
         {
             final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
 
-            DOMTools.write(document, buffer, 0);
+            XMLTools.write(document, buffer, 0);
 
             assertEquals(XML_1_UTF8_NOT_STANDALONE + xmlInput, buffer.toString());
         }
         {
             final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
 
-            DOMTools.write(standalone(document), buffer, 0);
+            XMLTools.write(standalone(document), buffer, 0);
 
             assertEquals(XML_1_UTF8_STANDALONE + xmlInput, buffer.toString());
         }
         {
             final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
 
-            DOMTools.write(document.getDocumentElement(), buffer, 0);
+            XMLTools.write(document.getDocumentElement(), buffer, 0);
 
             assertEquals(xmlInput, buffer.toString());
         }
 
+    }
+
+    @Test
+    public final void testGetNode() throws Exception {
+        final Document document = parse(
+                "<a>" +
+                "   <b c='d'/>" +
+                "</a>"
+        );
+
+        assertEquals("d", getNode(document, "a/b/@c").getNodeValue());
     }
 
 }
