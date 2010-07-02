@@ -74,7 +74,7 @@ public final class Actions {
      * <br>Not null
      */
     public static final void showPreferencesDialog(final Context context) {
-        createPreferencesDialog(context).setVisible(true);
+        newPreferencesDialog(context).setVisible(true);
     }
 
     /**
@@ -158,7 +158,7 @@ public final class Actions {
         if (SwingTools.canInvokeLaterThisMethodInAWT(null, throwable)) {
             JOptionPane.showMessageDialog(
                     null,
-                    createErrorMessagePanel(throwable),
+                    newErrorMessagePanel(throwable),
                     APPLICATION_NAME,
                     JOptionPane.ERROR_MESSAGE);
         }
@@ -170,7 +170,7 @@ public final class Actions {
      * <br>Not null
      */
     public static final void updateMainFrameTitle(final Context context) {
-        ((JFrame) context.get(MAIN_FRAME)).setTitle(createMainFrameTitle(context));
+        ((JFrame) context.get(MAIN_FRAME)).setTitle(makeMainFrameTitle(context));
     }
 
     /**
@@ -180,7 +180,7 @@ public final class Actions {
      * @return
      * <br>Not null
      */
-    private static final String createMainFrameTitle(final Context context) {
+    private static final String makeMainFrameTitle(final Context context) {
         final File file = context.get(FILE);
         final Boolean fileModified = context.get(FILE_MODIFIED);
 

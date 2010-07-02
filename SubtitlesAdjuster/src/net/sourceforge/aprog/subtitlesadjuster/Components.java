@@ -117,10 +117,10 @@ public final class Components {
      * <br>Not null
      * <br>New
      */
-    public static final JDialog createPreferencesDialog(final Context context) {
+    public static final JDialog newPreferencesDialog(final Context context) {
         final JDialog result = translate(new JDialog((JFrame) context.get(MAIN_FRAME), "Preferences", true));
 
-        result.add(createPreferencesPanel(context));
+        result.add(newPreferencesPanel(context));
 
         return center(packAndUpdateMinimumSize(result));
     }
@@ -133,7 +133,7 @@ public final class Components {
      * <br>Not null
      * <br>New
      */
-    public static final JPanel createPreferencesPanel(final Context context) {
+    public static final JPanel newPreferencesPanel(final Context context) {
         final JPanel result = new JPanel();
         final GridBagConstraints constraints = new GridBagConstraints();
 
@@ -151,7 +151,7 @@ public final class Components {
             ++constraints.gridx;
             constraints.weightx = 0.0;
 
-            add(result, createLanguageComboBox(), constraints);
+            add(result, newLanguageComboBox(), constraints);
         }
 
         return result;
@@ -163,7 +163,7 @@ public final class Components {
      * <br>Not null
      * <br>New
      */
-    public static final JComboBox createLanguageComboBox() {
+    public static final JComboBox newLanguageComboBox() {
         final JComboBox result = new LanguageComboBox(Translator.getDefaultTranslator());
 
         result.addActionListener(new ActionListener() {
@@ -191,13 +191,13 @@ public final class Components {
      * <br>Not null
      * <br>New
      */
-    public static final JFrame createMainFrame(final Context context) {
+    public static final JFrame newMainFrame(final Context context) {
         final JFrame result = new JFrame();
 
         context.set(MAIN_FRAME, result);
 
-        result.setJMenuBar(createMenuBar(context));
-        result.add(createMainPanel(context));
+        result.setJMenuBar(newMenuBar(context));
+        result.add(newMainPanel(context));
 
         result.addWindowListener(new WindowAdapter() {
 
@@ -232,7 +232,7 @@ public final class Components {
      * <br>Not null
      * <br>New
      */
-    public static final JMenuBar createMenuBar(final Context context) {
+    public static final JMenuBar newMenuBar(final Context context) {
         final JMenu[] optionalApplicationMenu;
 
         if (MacAdapterTools.isMacOSX()) {
@@ -301,7 +301,7 @@ public final class Components {
      * <br>Not null
      * <br>New
      */
-    public static final JPanel createMainPanel(final Context context) {
+    public static final JPanel newMainPanel(final Context context) {
         final JPanel result = new JPanel();
         final GridBagConstraints constraints = new GridBagConstraints();
 
@@ -319,7 +319,7 @@ public final class Components {
             ++constraints.gridx;
             constraints.weightx = 0.0;
 
-            add(result, createTimeSpinner(context, FIRST_TIME), constraints);
+            add(result, newTimeSpinner(context, FIRST_TIME), constraints);
         }
         {
             constraints.gridx = 0;
@@ -332,12 +332,12 @@ public final class Components {
             ++constraints.gridx;
             constraints.weightx = 0.0;
 
-            add(result, createTimeSpinner(context, LAST_TIME), constraints);
+            add(result, newTimeSpinner(context, LAST_TIME), constraints);
         }
         {
             ++constraints.gridy;
 
-            add(result, createSaveButton(context), constraints);
+            add(result, newSaveButton(context), constraints);
         }
 
         final Color defaultBackground = result.getBackground();
@@ -386,7 +386,7 @@ public final class Components {
      * <br>Not null
      * <br>New
      */
-    public static final JButton createSaveButton(final Context context) {
+    public static final JButton newSaveButton(final Context context) {
         final JButton result = translate(new JButton(action(Actions.class, "save", context).setName("Save")));
 
         synchronizeComponentEnabledWithFileVariableNullity(result, context);
@@ -406,7 +406,7 @@ public final class Components {
      * <br>Not null
      * <br>New
      */
-    public static final JSpinner createTimeSpinner(final Context context, final String variableName) {
+    public static final JSpinner newTimeSpinner(final Context context, final String variableName) {
         final JSpinner result = new JSpinner(new SpinnerDateModel());
 
         result.setEditor(new JSpinner.DateEditor(result, "HH:mm:ss,SSS"));
@@ -446,7 +446,7 @@ public final class Components {
      * <br>Not null
      * <br>New
      */
-    public static final JPanel createErrorMessagePanel(final Throwable throwable) {
+    public static final JPanel newErrorMessagePanel(final Throwable throwable) {
         final JPanel result = new JPanel(new BorderLayout());
         final JToggleButton detailsToggle = new JToggleButton(translate("Details"));
         final ByteArrayOutputStream buffer = new ByteArrayOutputStream();

@@ -171,7 +171,7 @@ public final class Subtitles {
      */
     private void updateContext(final File srtFile) {
         if (this.subtitles.isEmpty()) {
-            throw Messages.createLocalizedException("Invalid file $0", srtFile);
+            throw Messages.newLocalizedException("Invalid file $0", srtFile);
         }
 
         this.context.set(FILE, srtFile);
