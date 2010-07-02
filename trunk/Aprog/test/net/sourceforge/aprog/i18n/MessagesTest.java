@@ -67,7 +67,7 @@ public final class MessagesTest {
         }
         {
             final Translatable translatable = Messages.translate(
-                    new Translatable("life_universe_everything"), createLocalizedException("What is the question?"));
+                    new Translatable("life_universe_everything"), newLocalizedException("What is the question?"));
 
             assertEquals("Answer: What is the question?", translatable.getText());
 
