@@ -89,7 +89,6 @@ public final class SubtitlesAdjuster {
 
         setFileModifiedOnVariableChanged(result, FIRST_TIME, true);
         setFileModifiedOnVariableChanged(result, LAST_TIME, true);
-        setFileModifiedOnVariableChanged(result, FILE, false);
 
         return result;
     }
