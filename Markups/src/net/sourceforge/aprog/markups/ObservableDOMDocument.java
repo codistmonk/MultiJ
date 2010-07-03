@@ -126,37 +126,40 @@ public final class ObservableDOMDocument extends AbstractObservable<ObservableDO
     }
 
     @Override
-    public final String lookupPrefix(String namespaceURI) {
+    public final String lookupPrefix(final String namespaceURI) {
         return this.document.lookupPrefix(namespaceURI);
     }
 
     @Override
-    public final String lookupNamespaceURI(String prefix) {
+    public final String lookupNamespaceURI(final String prefix) {
         return this.document.lookupNamespaceURI(prefix);
     }
 
     @Override
-    public final boolean isSupported(String feature, String version) {
+    public final boolean isSupported(final String feature, final String version) {
         return this.document.isSupported(feature, version);
     }
 
     @Override
-    public final boolean isSameNode(Node other) {
+    public final boolean isSameNode(final Node other) {
         return this.document.isSameNode(other);
     }
 
     @Override
-    public final boolean isEqualNode(Node arg) {
-        return this.document.isEqualNode(arg);
+    public final boolean isEqualNode(final Node other) {
+        return this.document.isEqualNode(other);
     }
 
     @Override
-    public final boolean isDefaultNamespace(String namespaceURI) {
+    public final boolean isDefaultNamespace(final String namespaceURI) {
         return this.document.isDefaultNamespace(namespaceURI);
     }
 
     @Override
-    public final Node insertBefore(Node newChild, Node refChild) throws DOMException {
+    public final Node insertBefore(final Node newChild, final Node refChild) throws DOMException {
+        // I'm not sure about this one,
+        // but I think the documentation says that
+        // this method shouldn't modify this object
         return this.document.insertBefore(newChild, refChild);
     }
 
@@ -171,7 +174,7 @@ public final class ObservableDOMDocument extends AbstractObservable<ObservableDO
     }
 
     @Override
-    public final Object getUserData(String key) {
+    public final Object getUserData(final String key) {
         return this.document.getUserData(key);
     }
 
@@ -241,7 +244,7 @@ public final class ObservableDOMDocument extends AbstractObservable<ObservableDO
     }
 
     @Override
-    public final Object getFeature(String feature, String version) {
+    public final Object getFeature(final String feature, final String version) {
         return this.document.getFeature(feature, version);
     }
 
@@ -261,18 +264,22 @@ public final class ObservableDOMDocument extends AbstractObservable<ObservableDO
     }
 
     @Override
-    public final short compareDocumentPosition(Node other) throws DOMException {
+    public final short compareDocumentPosition(final Node other) throws DOMException {
         return this.document.compareDocumentPosition(other);
     }
 
     @Override
-    public final Node cloneNode(boolean deep) {
-        return this.document.cloneNode(deep);
+    public final Node cloneNode(final boolean deep) {
+        return new ObservableDOMDocument((Document) this.document.cloneNode(deep));
     }
 
     @Override
-    public final Node appendChild(Node newChild) throws DOMException {
-        return this.document.appendChild(newChild);
+    public final Node appendChild(final Node newChild) throws DOMException {
+        this.document.appendChild(newChild);
+        
+        this.new ChildAppendedEvent(newChild).fire();
+
+        return newChild;
     }
 
     @Override
@@ -607,6 +614,37 @@ public final class ObservableDOMDocument extends AbstractObservable<ObservableDO
 
     }
 
+    public final class ChildAppendedEvent extends AbstractEvent {
+
+        private final Node appendedChild;
+
+        /**
+         *
+         * @param appendedChild
+         * <br>Not null
+         * <br>Shared
+         */
+        public ChildAppendedEvent(final Node appendedChild) {
+            this.appendedChild = appendedChild;
+        }
+
+        /**
+         *
+         * @return
+         * <br>Not null
+         * <br>Shared
+         */
+        public final Node getAppendedChild() {
+            return this.appendedChild;
+        }
+
+        @Override
+        protected final void notifyListener(final Listener listener) {
+            listener.childAppended(this);
+        }
+
+    }
+
     /**
      *
      * @author codistmonk (creation 2010-07-03)
@@ -633,6 +671,13 @@ public final class ObservableDOMDocument extends AbstractObservable<ObservableDO
          * <br>Not null
          */
         public abstract void nodeNormalized(NodeNormalizedEvent event);
+
+        /**
+         *
+         * @param event
+         * <br>Not null
+         */
+        public abstract void childAppended(ChildAppendedEvent event);
 
     }
 
