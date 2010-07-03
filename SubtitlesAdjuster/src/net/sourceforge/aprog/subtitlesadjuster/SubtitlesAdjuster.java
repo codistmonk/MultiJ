@@ -25,7 +25,6 @@
 package net.sourceforge.aprog.subtitlesadjuster;
 
 import static net.sourceforge.aprog.i18n.Messages.*;
-import static net.sourceforge.aprog.subtitlesadjuster.Constants.*;
 import static net.sourceforge.aprog.subtitlesadjuster.Constants.Variables.*;
 import static net.sourceforge.aprog.subtitlesadjuster.SubtitlesAdjusterTools.*;
 import static net.sourceforge.aprog.swing.SwingTools.*;
@@ -51,7 +50,7 @@ public final class SubtitlesAdjuster {
     }
 
     static {
-        MacAdapterTools.setApplicationName(APPLICATION_NAME);
+        MacAdapterTools.setApplicationName(Constants.APPLICATION_NAME);
         useSystemLookAndFeel();
         setMessagesBase(getCallerPackagePath() + "Messages");
     }
@@ -64,10 +63,12 @@ public final class SubtitlesAdjuster {
      */
     public static final void main(final String[] arguments) {
         if (canInvokeLaterThisMethodInAWT(null, (Object) arguments)) {
-            // FIXME The following doesn't seem to work well on Windows XP
-            Thread.currentThread().setUncaughtExceptionHandler(new UncaughtExceptionHandler());
+            final Context context = newContext();
 
-            Components.newMainFrame(newContext()).setVisible(true);
+            // FIXME The following doesn't seem to work well on Windows XP
+            Thread.currentThread().setUncaughtExceptionHandler(new UncaughtExceptionHandler(context));
+
+            Components.newMainFrame(context).setVisible(true);
         }
     }
 
@@ -80,6 +81,9 @@ public final class SubtitlesAdjuster {
     public static final Context newContext() {
         final Context result = new Context();
 
+        result.set(APPLICATION_NAME, Constants.APPLICATION_NAME);
+        result.set(APPLICATION_VERSION, Constants.APPLICATION_VERSION);
+        result.set(APPLICATION_COPYRIGHT, Constants.APPLICATION_COPYRIGHT);
         result.set(FILE, null);
         result.set(FILE_MODIFIED, false);
         result.set(FIRST_TIME, new Date(0L));
@@ -112,9 +116,18 @@ public final class SubtitlesAdjuster {
      */
     private static final class UncaughtExceptionHandler implements Thread.UncaughtExceptionHandler {
 
+        private final Context context;
+
         private final Thread.UncaughtExceptionHandler defaultUncaughtExceptionHandler;
 
-        UncaughtExceptionHandler() {
+        /**
+         *
+         * @param context
+         * <br>Not null
+         * <br>Shared
+         */
+        UncaughtExceptionHandler(final Context context) {
+            this.context = context;
             this.defaultUncaughtExceptionHandler = Thread.currentThread().getUncaughtExceptionHandler();
         }
 
@@ -122,7 +135,7 @@ public final class SubtitlesAdjuster {
         public final void uncaughtException(final Thread thread, final Throwable throwable) {
             this.defaultUncaughtExceptionHandler.uncaughtException(thread, throwable);
 
-            Actions.showErrorMessage(throwable);
+            Actions.showErrorMessage(context, throwable);
         }
 
     }

@@ -69,6 +69,21 @@ public final class Constants {
         /**
          * {@value}.
          */
+        public static final String APPLICATION_NAME = "application.name";
+
+        /**
+         * {@value}.
+         */
+        public static final String APPLICATION_VERSION = "application.version";
+
+        /**
+         * {@value}.
+         */
+        public static final String APPLICATION_COPYRIGHT = "application.copyright";
+
+        /**
+         * {@value}.
+         */
         public static final String MAIN_FRAME = "mainFrame";
 
         /**
