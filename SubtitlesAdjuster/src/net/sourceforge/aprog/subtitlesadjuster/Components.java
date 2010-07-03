@@ -255,26 +255,105 @@ public final class Components {
         } else {
             optionalApplicationMenu = array(
                 translate(menu("Application",
-                    item("About", "showAboutDialog", context),
+                    newAboutMenuItem(context),
                     null,
-                    item("Preferences...", getKeyStroke(META + " R"), "showPreferencesDialog", context),
+                    newPreferencesMenuItem(context),
                     null,
-                    item("Quit", getKeyStroke(META + " Q"), "quit", context))
+                    newQuitMenuItem(context))
                     ));
         }
 
-        final JMenuItem saveMenuItem = item("Save", getKeyStroke(META + " S"), "save", context);
-
-        synchronizeComponentEnabledWithFileVariableNullity(saveMenuItem, context);
-
         return menuBar(append(optionalApplicationMenu,
                 translate(menu("File",
-                        item("Open...", getKeyStroke(META + " O"), "open", context),
-                        saveMenuItem
+                        newOpenMenuItem(context),
+                        newSaveMenuItem(context)
                 )),
                 translate(menu("Help",
-                        item("Manual", getKeyStroke("F1"), "showManual", context)
+                        newManualMenuItem(context)
                 ))));
+    }
+
+    /**
+     *
+     * @param context
+     * <br>Not null
+     * <br>Shared
+     * @return
+     * <br>Not null
+     * <br>New
+     */
+    public static final JMenuItem newAboutMenuItem(final Context context) {
+        return net.sourceforge.aprog.subtitlesadjuster.Components.item("About", "showAboutDialog", context);
+    }
+
+    /**
+     *
+     * @param context
+     * <br>Not null
+     * <br>Shared
+     * @return
+     * <br>Not null
+     * <br>New
+     */
+    public static final JMenuItem newPreferencesMenuItem(final Context context) {
+        return item("Preferences...", getKeyStroke(META + " R"), "showPreferencesDialog", context);
+    }
+
+    /**
+     *
+     * @param context
+     * <br>Not null
+     * <br>Shared
+     * @return
+     * <br>Not null
+     * <br>New
+     */
+    public static final JMenuItem newQuitMenuItem(final Context context) {
+        return item("Quit", getKeyStroke(META + " Q"), "quit", context);
+    }
+
+    /**
+     *
+     * @param context
+     * <br>Not null
+     * <br>Shared
+     * @return
+     * <br>Not null
+     * <br>New
+     */
+    public static final JMenuItem newOpenMenuItem(final Context context) {
+        return item("Open...", getKeyStroke(META + " O"), "open", context);
+    }
+
+    /**
+     *
+     * @param context
+     * <br>Not null
+     * <br>Shared
+     * @return
+     * <br>Not null
+     * <br>New
+     */
+    public static final JMenuItem newSaveMenuItem(final Context context) {
+        final JMenuItem result = item("Save", getKeyStroke(META + " S"), "save", context);
+
+        net.sourceforge.aprog.subtitlesadjuster.Components
+                .synchronizeComponentEnabledWithFileVariableNullity(result, context);
+
+        return result;
+    }
+
+    /**
+     *
+     * @param context
+     * <br>Not null
+     * <br>Shared
+     * @return
+     * <br>Not null
+     * <br>New
+     */
+    public static final JMenuItem newManualMenuItem(final Context context) {
+        return item("Manual", getKeyStroke("F1"), "showManual", context);
     }
 
     /**
