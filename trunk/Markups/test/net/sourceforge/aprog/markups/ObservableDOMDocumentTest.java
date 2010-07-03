@@ -83,7 +83,6 @@ public final class ObservableDOMDocumentTest {
         final Node oldChild = document.createElement("root");
         final Node newChild = document.createElement("new-root");
 
-
         document.appendChild(oldChild);
 
         assertSame(oldChild, document.getDocumentElement());
@@ -92,11 +91,14 @@ public final class ObservableDOMDocumentTest {
 
         assertSame(newChild, document.getDocumentElement());
 
-        final ChildReplacedEvent event = recorder.getEvent(0);
+        {
+            final ChildReplacedEvent event = recorder.getEvent(1);
 
-        assertSame(oldChild, event.getOldChild());
-        assertSame(newChild, event.getNewChild());
-        assertEquals(1, recorder.getEvents().size());
+            assertSame(oldChild, event.getOldChild());
+            assertSame(newChild, event.getNewChild());
+        }
+
+        assertEquals(2, recorder.getEvents().size());
     }
 
     @Test
@@ -112,6 +114,33 @@ public final class ObservableDOMDocumentTest {
         final NodeNormalizedEvent event = recorder.getEvent(0);
 
         assertNotNull(event);
+        assertEquals(1, recorder.getEvents().size());
+    }
+
+    @Test
+    public final void testCloneNode() {
+        fail("TODO");
+    }
+
+    @Test
+    public final <R extends EventRecorder & Listener> void testAppendChild() {
+        final ObservableDOMDocument document = new ObservableDOMDocument();
+        @SuppressWarnings("unchecked")
+        final R recorder = (R) newEventRecorder(Listener.class);
+
+        document.addListener(recorder);
+
+        assertNull(document.getDocumentElement());
+
+        final Node child = document.createElement("root");
+
+        document.appendChild(child);
+
+        assertSame(child, document.getDocumentElement());
+
+        final ChildAppendedEvent event = recorder.getEvent(0);
+
+        assertSame(child, event.getAppendedChild());
         assertEquals(1, recorder.getEvents().size());
     }
 
