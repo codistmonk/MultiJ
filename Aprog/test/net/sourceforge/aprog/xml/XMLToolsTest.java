@@ -30,8 +30,8 @@ import static net.sourceforge.aprog.xml.XMLTools.*;
 import static org.junit.Assert.*;
 
 import java.io.ByteArrayOutputStream;
-import java.io.OutputStreamWriter;
 import java.util.logging.Level;
+
 import javax.xml.transform.Result;
 import javax.xml.transform.stream.StreamResult;
 
