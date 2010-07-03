@@ -37,7 +37,6 @@ import javax.swing.KeyStroke;
 import net.sourceforge.aprog.context.Context;
 import net.sourceforge.aprog.events.Variable;
 import net.sourceforge.aprog.events.Variable.Listener;
-import net.sourceforge.aprog.events.Variable.ValueChangedEvent;
 import net.sourceforge.aprog.swing.SwingTools;
 import net.sourceforge.aprog.tools.Tools;
 import net.sourceforge.jmacadapter.MacAdapterTools;
@@ -76,18 +75,13 @@ public final class SubtitlesAdjusterTools {
      * <br>Not null
      * <br>Shared
      */
+    @SuppressWarnings("unchecked")
     public static final void invokeOnVariableChanged(final Context context, final String variableName,
             final Object objectOrClass, final String methodName, final Object... arguments) {
         final Variable<Object> variable = context.getVariable(variableName);
 
-        variable.addListener(new Listener<Object>() {
-
-            @Override
-            public final void valueChanged(final ValueChangedEvent<Object, ?> event) {
-                Tools.invoke(objectOrClass, methodName, arguments);
-            }
-
-        });
+        variable.addListener(newListener(Listener.class, "valueChanged",
+                Tools.class, "invoke", objectOrClass, methodName, arguments));
 
         Tools.invoke(objectOrClass, methodName, arguments);
     }
@@ -203,10 +197,10 @@ public final class SubtitlesAdjusterTools {
 
         @Override
         public final Object invoke(final Object proxy, final Method method, final Object[] arguments) throws Throwable {
-            debugPrint(
-                    "\n", method,
-                    "\n", method.getDeclaringClass(),
-                    "\n", method.getDeclaringClass().isAssignableFrom(this.getClass()));
+//            debugPrint(
+//                    "\n", method,
+//                    "\n", method.getDeclaringClass(),
+//                    "\n", method.getDeclaringClass().isAssignableFrom(this.getClass()));
 
             if (method.getName().equals(this.listenerMethodName)) {
                 return Tools.invoke(this.objectOrClass, this.methodName, this.arguments);
