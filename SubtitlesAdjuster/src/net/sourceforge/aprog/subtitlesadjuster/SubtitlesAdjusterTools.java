@@ -91,6 +91,9 @@ public final class SubtitlesAdjusterTools {
      * @param translationKey
      * <br>Not null
      * <br>Shared
+     * @param objectOrClass
+     * <br>Not null
+     * <br>Shared
      * @param methodName
      * <br>Not null
      * <br>Shared
@@ -102,9 +105,9 @@ public final class SubtitlesAdjusterTools {
      * <br>New
      */
     public static final JMenuItem item(final String translationKey,
-            final String methodName, final Object... arguments) {
+            final Object objectOrClass, final String methodName, final Object... arguments) {
         return translate(new JMenuItem(
-                SwingTools.action(Actions.class, methodName, arguments)
+                SwingTools.action(objectOrClass, methodName, arguments)
                 .setName(translationKey)));
     }
 
@@ -114,6 +117,9 @@ public final class SubtitlesAdjusterTools {
      * <br>Not null
      * <br>Shared
      * @param shortcut
+     * <br>Not null
+     * <br>Shared
+     * @param objectOrClass
      * <br>Not null
      * <br>Shared
      * @param methodName
@@ -127,9 +133,9 @@ public final class SubtitlesAdjusterTools {
      * <br>New
      */
     public static final JMenuItem item(final String translationKey, final KeyStroke shortcut,
-            final String methodName, final Object... arguments) {
+            final Object objectOrClass, final String methodName, final Object... arguments) {
         return translate(new JMenuItem(
-                SwingTools.action(Actions.class, methodName, arguments)
+                SwingTools.action(objectOrClass, methodName, arguments)
                 .setName(translationKey)
                 .setShortcut(shortcut)));
     }

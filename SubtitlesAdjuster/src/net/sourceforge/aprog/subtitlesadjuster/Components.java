@@ -24,7 +24,6 @@
 
 package net.sourceforge.aprog.subtitlesadjuster;
 
-
 import static javax.swing.KeyStroke.getKeyStroke;
 
 import static net.sourceforge.aprog.i18n.Messages.*;
@@ -68,6 +67,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.JTextArea;
 import javax.swing.JToggleButton;
+import javax.swing.KeyStroke;
 import javax.swing.SpinnerDateModel;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
@@ -472,7 +472,7 @@ public final class Components {
      * <br>Not null
      * <br>New
 	 */
-	private static final Box verticalBox(final Component... components) {
+	public static final Box verticalBox(final Component... components) {
 		checkAWT();
 
 		final Box verticalBox = Box.createVerticalBox();
@@ -492,7 +492,7 @@ public final class Components {
      * @param context
      * <br>Not null
      */
-    private static final void synchronizeComponentEnabledWithFileVariableNullity(
+    public static final void synchronizeComponentEnabledWithFileVariableNullity(
             final Component component, final Context context) {
         final Variable<File> fileVariable = context.getVariable(FILE);
 
@@ -506,6 +506,49 @@ public final class Components {
         });
 
         component.setEnabled(context.get(FILE) != null);
+    }
+
+    /**
+     *
+     * @param translationKey
+     * <br>Not null
+     * <br>Shared
+     * @param methodName
+     * <br>Not null
+     * <br>Shared
+     * @param arguments
+     * <br>Not null
+     * <br>Shared
+     * @return
+     * <br>Not null
+     * <br>New
+     */
+    public static final JMenuItem item(final String translationKey,
+            final String methodName, final Object... arguments) {
+        return SubtitlesAdjusterTools.item(translationKey, Actions.class, methodName, arguments);
+    }
+
+    /**
+     *
+     * @param translationKey
+     * <br>Not null
+     * <br>Shared
+     * @param shortcut
+     * <br>Not null
+     * <br>Shared
+     * @param methodName
+     * <br>Not null
+     * <br>Shared
+     * @param arguments
+     * <br>Not null
+     * <br>Shared
+     * @return
+     * <br>Not null
+     * <br>New
+     */
+    public static final JMenuItem item(final String translationKey, final KeyStroke shortcut,
+            final String methodName, final Object... arguments) {
+        return SubtitlesAdjusterTools.item(translationKey, shortcut, Actions.class, methodName, arguments);
     }
 
 }
