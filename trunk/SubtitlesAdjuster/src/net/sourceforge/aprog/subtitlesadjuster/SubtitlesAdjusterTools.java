@@ -30,6 +30,7 @@ import static net.sourceforge.aprog.tools.Tools.*;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import javax.swing.JMenu;
 
 import javax.swing.JMenuItem;
 import javax.swing.KeyStroke;
@@ -37,6 +38,7 @@ import javax.swing.KeyStroke;
 import net.sourceforge.aprog.context.Context;
 import net.sourceforge.aprog.events.Variable;
 import net.sourceforge.aprog.events.Variable.Listener;
+import net.sourceforge.aprog.i18n.Messages;
 import net.sourceforge.aprog.swing.SwingTools;
 import net.sourceforge.aprog.tools.Tools;
 import net.sourceforge.jmacadapter.MacAdapterTools;
@@ -58,6 +60,24 @@ public final class SubtitlesAdjusterTools {
     }
 
     public static final String META = MacAdapterTools.isMacOSX() ? "meta" : "control";
+
+    /**
+     * Creates a localized menu from the elements in {@code items}.
+     * <br>Uses {@link Messages#translate(java.lang.Object, java.lang.Object[])}
+     * and {@link SwingTools#menu(java.lang.String, javax.swing.JMenuItem[])}.
+     *
+     * @param translationKey
+     * <br>Not null
+     * <br>Shared
+     * @param items
+     * <br>Not null
+     * @return
+     * <br>Not null
+     * <br>New
+     */
+    public static final JMenu menu(final String translationKey, final JMenuItem... items) {
+        return translate(SwingTools.menu(translationKey, items));
+    }
 
     /**
      *

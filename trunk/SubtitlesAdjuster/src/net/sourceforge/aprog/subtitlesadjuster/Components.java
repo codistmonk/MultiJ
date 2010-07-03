@@ -30,8 +30,14 @@ import static net.sourceforge.aprog.i18n.Messages.*;
 import static net.sourceforge.aprog.subtitlesadjuster.Actions.*;
 import static net.sourceforge.aprog.subtitlesadjuster.Constants.Variables.*;
 import static net.sourceforge.aprog.subtitlesadjuster.SubtitlesAdjusterTools.*;
-import static net.sourceforge.aprog.swing.SwingTools.*;
-import static net.sourceforge.aprog.tools.Tools.*;
+import static net.sourceforge.aprog.swing.SwingTools.action;
+import static net.sourceforge.aprog.swing.SwingTools.add;
+import static net.sourceforge.aprog.swing.SwingTools.center;
+import static net.sourceforge.aprog.swing.SwingTools.checkAWT;
+import static net.sourceforge.aprog.swing.SwingTools.getFiles;
+import static net.sourceforge.aprog.swing.SwingTools.menuBar;
+import static net.sourceforge.aprog.swing.SwingTools.packAndUpdateMinimumSize;
+import static net.sourceforge.aprog.swing.SwingTools.scrollable;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -59,7 +65,6 @@ import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
@@ -113,6 +118,8 @@ public final class Components {
      * <br>New
      */
     public static final JDialog newPreferencesDialog(final Context context) {
+		checkAWT();
+
         final JDialog result = translate(new JDialog((JFrame) context.get(MAIN_FRAME), "Preferences", true));
 
         result.add(newPreferencesPanel(context));
@@ -129,6 +136,8 @@ public final class Components {
      * <br>New
      */
     public static final JPanel newPreferencesPanel(final Context context) {
+		checkAWT();
+
         final JPanel result = new JPanel();
         final GridBagConstraints constraints = new GridBagConstraints();
 
@@ -159,6 +168,8 @@ public final class Components {
      * <br>New
      */
     public static final JComboBox newLanguageComboBox() {
+		checkAWT();
+
         final JComboBox result = new LanguageComboBox(Translator.getDefaultTranslator());
 
         result.addActionListener(new ActionListener() {
@@ -187,6 +198,8 @@ public final class Components {
      * <br>New
      */
     public static final JFrame newMainFrame(final Context context) {
+		checkAWT();
+
         final JFrame result = new JFrame();
 
         context.set(MAIN_FRAME, result);
@@ -218,13 +231,44 @@ public final class Components {
      * <br>New
      */
     public static final JMenuBar newMenuBar(final Context context) {
-        final JMenu[] optionalApplicationMenu;
+		checkAWT();
 
         if (MacAdapterTools.isMacOSX()) {
             MacAdapterTools.setUseScreenMenuBar(true);
+        }
 
+        return menuBar(
+                menu("Application",
+                    newAboutMenuItem(context),
+                    null,
+                    newPreferencesMenuItem(context),
+                    null,
+                    newQuitMenuItem(context)
+                ),
+                menu("File",
+                        newOpenMenuItem(context),
+                        null,
+                        newSaveMenuItem(context)
+                ),
+                menu("Help",
+                        newManualMenuItem(context)
+                ));
+    }
+
+    /**
+     *
+     * @param context
+     * <br>Not null
+     * <br>Shared
+     * @return
+     * <br>Maybe null
+     * <br>New
+     */
+    public static final JMenuItem newAboutMenuItem(final Context context) {
+		checkAWT();
+
+        if (MacAdapterTools.isMacOSX()) {
             Application.getApplication().setEnabledAboutMenu(true);
-            Application.getApplication().setEnabledPreferencesMenu(true);
 
             Application.getApplication().addApplicationListener(new ApplicationAdapter() {
 
@@ -235,12 +279,60 @@ public final class Components {
                     showAboutDialog(context);
                 }
 
+            });
+
+            return null;
+        }
+
+        return item("About", "showAboutDialog", context);
+    }
+
+    /**
+     *
+     * @param context
+     * <br>Not null
+     * <br>Shared
+     * @return
+     * <br>Maybe null
+     * <br>New
+     */
+    public static final JMenuItem newPreferencesMenuItem(final Context context) {
+		checkAWT();
+
+        if (MacAdapterTools.isMacOSX()) {
+            Application.getApplication().setEnabledPreferencesMenu(true);
+
+            Application.getApplication().addApplicationListener(new ApplicationAdapter() {
+
                 @Override
                 protected final void handlePreferences(final ApplicationEvent event) {
                     event.setHandled(true);
 
                     showPreferencesDialog(context);
                 }
+
+            });
+
+            return null;
+        }
+
+        return item("Preferences...", getKeyStroke(META + " R"), "showPreferencesDialog", context);
+    }
+
+    /**
+     *
+     * @param context
+     * <br>Not null
+     * <br>Shared
+     * @return
+     * <br>Maybe null
+     * <br>New
+     */
+    public static final JMenuItem newQuitMenuItem(final Context context) {
+		checkAWT();
+
+        if (MacAdapterTools.isMacOSX()) {
+            Application.getApplication().addApplicationListener(new ApplicationAdapter() {
 
                 @Override
                 protected final void handleQuit(final ApplicationEvent event) {
@@ -251,64 +343,9 @@ public final class Components {
 
             });
 
-            optionalApplicationMenu = new JMenu[0];
-        } else {
-            optionalApplicationMenu = array(
-                translate(menu("Application",
-                    newAboutMenuItem(context),
-                    null,
-                    newPreferencesMenuItem(context),
-                    null,
-                    newQuitMenuItem(context))
-                    ));
+            return null;
         }
 
-        return menuBar(append(optionalApplicationMenu,
-                translate(menu("File",
-                        newOpenMenuItem(context),
-                        newSaveMenuItem(context)
-                )),
-                translate(menu("Help",
-                        newManualMenuItem(context)
-                ))));
-    }
-
-    /**
-     *
-     * @param context
-     * <br>Not null
-     * <br>Shared
-     * @return
-     * <br>Not null
-     * <br>New
-     */
-    public static final JMenuItem newAboutMenuItem(final Context context) {
-        return net.sourceforge.aprog.subtitlesadjuster.Components.item("About", "showAboutDialog", context);
-    }
-
-    /**
-     *
-     * @param context
-     * <br>Not null
-     * <br>Shared
-     * @return
-     * <br>Not null
-     * <br>New
-     */
-    public static final JMenuItem newPreferencesMenuItem(final Context context) {
-        return item("Preferences...", getKeyStroke(META + " R"), "showPreferencesDialog", context);
-    }
-
-    /**
-     *
-     * @param context
-     * <br>Not null
-     * <br>Shared
-     * @return
-     * <br>Not null
-     * <br>New
-     */
-    public static final JMenuItem newQuitMenuItem(final Context context) {
         return item("Quit", getKeyStroke(META + " Q"), "quit", context);
     }
 
@@ -322,6 +359,8 @@ public final class Components {
      * <br>New
      */
     public static final JMenuItem newOpenMenuItem(final Context context) {
+		checkAWT();
+
         return item("Open...", getKeyStroke(META + " O"), "open", context);
     }
 
@@ -335,6 +374,8 @@ public final class Components {
      * <br>New
      */
     public static final JMenuItem newSaveMenuItem(final Context context) {
+		checkAWT();
+
         final JMenuItem result = item("Save", getKeyStroke(META + " S"), "save", context);
 
         net.sourceforge.aprog.subtitlesadjuster.Components
@@ -353,6 +394,8 @@ public final class Components {
      * <br>New
      */
     public static final JMenuItem newManualMenuItem(final Context context) {
+		checkAWT();
+
         return item("Manual", getKeyStroke("F1"), "showManual", context);
     }
 
@@ -366,6 +409,8 @@ public final class Components {
      * <br>New
      */
     public static final JPanel newMainPanel(final Context context) {
+		checkAWT();
+
         final JPanel result = new JPanel();
         final GridBagConstraints constraints = new GridBagConstraints();
 
@@ -451,6 +496,8 @@ public final class Components {
      * <br>New
      */
     public static final JButton newSaveButton(final Context context) {
+		checkAWT();
+
         final JButton result = translate(new JButton(action(Actions.class, "save", context).setName("Save")));
 
         synchronizeComponentEnabledWithFileVariableNullity(result, context);
@@ -471,6 +518,8 @@ public final class Components {
      * <br>New
      */
     public static final JSpinner newTimeSpinner(final Context context, final String variableName) {
+		checkAWT();
+
         final JSpinner result = new JSpinner(new SpinnerDateModel());
 
         result.setEditor(new JSpinner.DateEditor(result, "HH:mm:ss,SSS"));
@@ -511,6 +560,8 @@ public final class Components {
      * <br>New
      */
     public static final JPanel newErrorMessagePanel(final Throwable throwable) {
+		checkAWT();
+
         final JPanel result = new JPanel(new BorderLayout());
         final JToggleButton detailsToggle = new JToggleButton(translate("Details"));
         final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
