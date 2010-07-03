@@ -45,7 +45,7 @@ public final class Constants {
     /**
      * {@value}.
      */
-    public static final String APPLICATION_VERSION = "1.0.0-M3";
+    public static final String APPLICATION_VERSION = "1.0.0-M4";
 
     /**
      * {@value}.
