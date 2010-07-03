@@ -312,48 +312,68 @@ public final class SwingTools {
 		return window;
 	}
 
-	/**
-	 *
-	 * @param menus
-	 * <br>Not null
-	 * @return
-	 * <br>Not null
-	 * <br>New
-	 */
-	public static final JMenuBar menuBar(final JMenu... menus) {
-		checkAWT();
+    /**
+     * Creates a menu bar from the nonnull elements of {@code menus}.
+     *
+     * @param menus
+     * <br>Not null
+     * @return
+     * <br>Not null
+     * <br>New
+     */
+    public static final JMenuBar menuBar(final JMenu... menus) {
+        checkAWT();
 
-		final JMenuBar result = new JMenuBar();
+        final JMenuBar result = new JMenuBar();
 
-		for (final JMenu menu : menus) {
-			result.add(menu);
+        for (final JMenu menu : menus) {
+            if (menu != null) {
+                boolean menuHasNonnullItems = false;
+
+                for (int i = 0; i < menu.getItemCount(); ++i) {
+                    menuHasNonnullItems |= menu.getItem(i) != null;
+                }
+
+                if (menuHasNonnullItems) {
+                    result.add(menu);
+                }
+            }
         }
 
-		return result;
-	}
+        return result;
+    }
 
 	/**
+     * Creates a menu from the elements in {@code items}.
+     * <br>A null element generates a separator.
+     * <br>Consecutive null elements are coalesced into only one null element.
+     * <br>If all the elements are null, then the generated menu is empty
+     * (it doesn't even contain a separator).
 	 *
 	 * @param title
 	 * <br>Not null
-	 * @param subMenuItems
+	 * @param items
 	 * <br>Not null
 	 * @return
 	 * <br>Not null
 	 * <br>New
 	 */
-	public static final JMenu menu(final String title, final JMenuItem... subMenuItems) {
+	public static final JMenu menu(final String title, final JMenuItem... items) {
 		checkAWT();
 
 		final JMenu result = new JMenu(title);
 
-		for (final JMenuItem subMenu : subMenuItems) {
-			if (subMenu == null) {
-				result.addSeparator();
-            } else {
-				result.add(subMenu);
+        boolean lastItemWasNull = true;
+
+        for (final JMenuItem item : items) {
+            if (item != null) {
+                result.add(item);
+            } else if (!lastItemWasNull) {
+                result.addSeparator();
             }
-		}
+
+            lastItemWasNull = item == null;
+        }
 
 		return result;
 	}

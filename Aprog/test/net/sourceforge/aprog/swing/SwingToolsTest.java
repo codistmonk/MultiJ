@@ -117,6 +117,7 @@ public final class SwingToolsTest {
     public final void testMenuBar() throws Exception {
         if (SwingTools.canInvokeThisMethodInAWT(this)) {
             final JMenuBar menuBar = SwingTools.menuBar(
+                    null,
                     SwingTools.menu("menu1",
                             new JMenuItem("item1"),
                             new JMenuItem("item2")),
@@ -137,6 +138,7 @@ public final class SwingToolsTest {
         if (SwingTools.canInvokeThisMethodInAWT(this)) {
             final JMenu menu = SwingTools.menu("menu",
                     new JMenuItem("item1"),
+                    null,
                     null,
                     new JMenuItem("item2"));
 
