@@ -267,24 +267,17 @@ public final class Components {
     public static final JMenuItem newAboutMenuItem(final Context context) {
 		checkAWT();
 
-        if (MacAdapterTools.isMacOSX()) {
+        if (MacAdapterTools.isMacOSX() && MacAdapterTools.getUseScreenMenuBar()) {
             Application.getApplication().setEnabledAboutMenu(true);
 
-            Application.getApplication().addApplicationListener(new ApplicationAdapter() {
-
-                @Override
-                protected final void handleAbout(final ApplicationEvent event) {
-                    event.setHandled(true);
-
-                    showAboutDialog(context);
-                }
-
-            });
-
-            return null;
+            if (registerMacOSXApplicationListener("handleAbout",
+                    Actions.class, "showAboutDialog", context)) {
+                return null;
+            }
         }
 
-        return item("About", "showAboutDialog", context);
+        return item("About",
+                Actions.class, "showAboutDialog", context);
     }
 
     /**
@@ -299,24 +292,17 @@ public final class Components {
     public static final JMenuItem newPreferencesMenuItem(final Context context) {
 		checkAWT();
 
-        if (MacAdapterTools.isMacOSX()) {
+        if (MacAdapterTools.isMacOSX() && MacAdapterTools.getUseScreenMenuBar()) {
             Application.getApplication().setEnabledPreferencesMenu(true);
 
-            Application.getApplication().addApplicationListener(new ApplicationAdapter() {
-
-                @Override
-                protected final void handlePreferences(final ApplicationEvent event) {
-                    event.setHandled(true);
-
-                    showPreferencesDialog(context);
-                }
-
-            });
-
-            return null;
+            if (registerMacOSXApplicationListener("handlePreferences",
+                    Actions.class, "showPreferencesDialog", context)) {
+                return null;
+            }
         }
 
-        return item("Preferences...", getKeyStroke(META + " R"), "showPreferencesDialog", context);
+        return item("Preferences...", getKeyStroke(META + " R"),
+                Actions.class, "showPreferencesDialog", context);
     }
 
     /**
@@ -331,22 +317,15 @@ public final class Components {
     public static final JMenuItem newQuitMenuItem(final Context context) {
 		checkAWT();
 
-        if (MacAdapterTools.isMacOSX()) {
-            Application.getApplication().addApplicationListener(new ApplicationAdapter() {
-
-                @Override
-                protected final void handleQuit(final ApplicationEvent event) {
-                    event.setHandled(true);
-
-                    quit(context);
-                }
-
-            });
-
-            return null;
+        if (MacAdapterTools.isMacOSX() && MacAdapterTools.getUseScreenMenuBar()) {
+            if (registerMacOSXApplicationListener("handleQuit",
+                    Actions.class, "quit", context)) {
+                return null;
+            }
         }
 
-        return item("Quit", getKeyStroke(META + " Q"), "quit", context);
+        return item("Quit", getKeyStroke(META + " Q"),
+                Actions.class, "quit", context);
     }
 
     /**
@@ -361,7 +340,8 @@ public final class Components {
     public static final JMenuItem newOpenMenuItem(final Context context) {
 		checkAWT();
 
-        return item("Open...", getKeyStroke(META + " O"), "open", context);
+        return item("Open...", getKeyStroke(META + " O"),
+                Actions.class, "open", context);
     }
 
     /**
@@ -376,7 +356,8 @@ public final class Components {
     public static final JMenuItem newSaveMenuItem(final Context context) {
 		checkAWT();
 
-        final JMenuItem result = item("Save", getKeyStroke(META + " S"), "save", context);
+        final JMenuItem result = item("Save", getKeyStroke(META + " S"),
+                Actions.class, "save", context);
 
         net.sourceforge.aprog.subtitlesadjuster.Components
                 .synchronizeComponentEnabledWithFileVariableNullity(result, context);
@@ -396,7 +377,8 @@ public final class Components {
     public static final JMenuItem newManualMenuItem(final Context context) {
 		checkAWT();
 
-        return item("Manual", getKeyStroke("F1"), "showManual", context);
+        return item("Manual", getKeyStroke("F1"),
+                Actions.class, "showManual", context);
     }
 
     /**
@@ -636,49 +618,6 @@ public final class Components {
         });
 
         component.setEnabled(context.get(FILE) != null);
-    }
-
-    /**
-     *
-     * @param translationKey
-     * <br>Not null
-     * <br>Shared
-     * @param methodName
-     * <br>Not null
-     * <br>Shared
-     * @param arguments
-     * <br>Not null
-     * <br>Shared
-     * @return
-     * <br>Not null
-     * <br>New
-     */
-    public static final JMenuItem item(final String translationKey,
-            final String methodName, final Object... arguments) {
-        return SubtitlesAdjusterTools.item(translationKey, Actions.class, methodName, arguments);
-    }
-
-    /**
-     *
-     * @param translationKey
-     * <br>Not null
-     * <br>Shared
-     * @param shortcut
-     * <br>Not null
-     * <br>Shared
-     * @param methodName
-     * <br>Not null
-     * <br>Shared
-     * @param arguments
-     * <br>Not null
-     * <br>Shared
-     * @return
-     * <br>Not null
-     * <br>New
-     */
-    public static final JMenuItem item(final String translationKey, final KeyStroke shortcut,
-            final String methodName, final Object... arguments) {
-        return SubtitlesAdjusterTools.item(translationKey, shortcut, Actions.class, methodName, arguments);
     }
 
 }
