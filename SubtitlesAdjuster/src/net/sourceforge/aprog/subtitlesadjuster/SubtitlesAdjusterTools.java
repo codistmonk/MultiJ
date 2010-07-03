@@ -25,6 +25,11 @@
 package net.sourceforge.aprog.subtitlesadjuster;
 
 import static net.sourceforge.aprog.i18n.Messages.*;
+import static net.sourceforge.aprog.tools.Tools.*;
+
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 
 import javax.swing.JMenuItem;
 import javax.swing.KeyStroke;
@@ -133,6 +138,85 @@ public final class SubtitlesAdjusterTools {
                 SwingTools.action(Actions.class, methodName, arguments)
                 .setName(translationKey)
                 .setShortcut(shortcut)));
+    }
+
+    /**
+     *
+     * @param <L> The listener type
+     * @param listenerClass
+     * <br>Not null
+     * @param listenerMethodName
+     * <br>Not null
+     * @param objectOrClass
+     * <br>Not null
+     * @param methodName
+     * <br>Not null
+     * @param arguments
+     * <br>Not null
+     * @return
+     * <br>Not null
+     * <br>New
+     */
+    @SuppressWarnings("unchecked")
+    public static final <L> L newListener(final Class<L> listenerClass, final String listenerMethodName,
+            final Object objectOrClass, final String methodName, final Object... arguments) {
+        return (L) Proxy.newProxyInstance(getCallerClass().getClassLoader(), array(listenerClass),
+                new ListenerInvocationHandler(listenerMethodName, objectOrClass, methodName, arguments));
+    }
+
+    /**
+     *
+     * @author codistmonk (creation 2010-07-03)
+     */
+    public static final class ListenerInvocationHandler implements InvocationHandler {
+
+        private final String listenerMethodName;
+
+        private final Object objectOrClass;
+
+        private final String methodName;
+
+        private final Object[] arguments;
+
+        /**
+         *
+         * @param listenerMethodName
+         * <br>Not null
+         * <br>Shared
+         * @param objectOrClass
+         * <br>Not null
+         * <br>Shared
+         * @param methodName
+         * <br>Not null
+         * <br>Shared
+         * @param arguments
+         * <br>Not null
+         * <br>Shared
+         */
+        public ListenerInvocationHandler(final String listenerMethodName,
+                final Object objectOrClass, final String methodName, final Object... arguments) {
+            this.listenerMethodName = listenerMethodName;
+            this.objectOrClass = objectOrClass;
+            this.methodName = methodName;
+            this.arguments = arguments;
+        }
+
+        @Override
+        public final Object invoke(final Object proxy, final Method method, final Object[] arguments) throws Throwable {
+            debugPrint(
+                    "\n", method,
+                    "\n", method.getDeclaringClass(),
+                    "\n", method.getDeclaringClass().isAssignableFrom(this.getClass()));
+
+            if (method.getName().equals(this.listenerMethodName)) {
+                return Tools.invoke(this.objectOrClass, this.methodName, this.arguments);
+            } else if (method.getDeclaringClass().isAssignableFrom(this.getClass())) {
+                return method.invoke(this, arguments);
+            }
+
+            return null;
+        }
+
     }
 
 }
