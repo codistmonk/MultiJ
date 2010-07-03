@@ -30,8 +30,9 @@ import static net.sourceforge.aprog.tools.Tools.*;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import javax.swing.JMenu;
+import java.util.logging.Level;
 
+import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.KeyStroke;
 
@@ -60,6 +61,60 @@ public final class SubtitlesAdjusterTools {
     }
 
     public static final String META = MacAdapterTools.isMacOSX() ? "meta" : "control";
+
+    /**
+     *
+     * @param listenerMethodName
+     * <br>Not null
+     * <br>Shared
+     * <br>Range: { {@code "handleAbout"}, {@code "handlePreferences"}, {@code "handleQuit"} }
+     * @param objectOrClass
+     * <br>Not null
+     * <br>Shared
+     * @param methodName
+     * <br>Not null
+     * <br>Shared
+     * @param arguments
+     * <br>Not null
+     * <br>Shared
+     * @return {@code true} if a listener was successfully created and registered
+     */
+    @SuppressWarnings("unchecked")
+    public static final boolean registerMacOSXApplicationListener(final String listenerMethodName,
+            final Object objectOrClass, final String methodName, final Object... arguments) {
+        try {
+            final Class<?> applicationClass = Class.forName("com.apple.eawt.Application");
+            final Class<?> listenerClass = Class.forName("com.apple.eawt.ApplicationListener");
+            final Class<?> eventClass = Class.forName("com.apple.eawt.ApplicationEvent");
+            final Object application = invoke(applicationClass, "getApplication");
+
+            invoke(application, "addApplicationListener", Proxy.newProxyInstance(
+                getCallerClass().getClassLoader(),
+                array(listenerClass),
+                new AbstractInvocationHandler() {
+
+                    @Override
+                    public final Object invoke(final Object proxy,
+                            final Method method, final Object[] proxyMethodArguments) throws Throwable {
+                        if (method.getName().equals(listenerMethodName) &&
+                                proxyMethodArguments.length == 1 && null != cast(eventClass, proxyMethodArguments[0])) {
+                            Tools.invoke(proxyMethodArguments[0], "setHandled", true);
+
+                            return Tools.invoke(objectOrClass, methodName, arguments);
+                        }
+
+                        return this.defaultInvoke(proxy, method, proxyMethodArguments);
+                    }
+
+            }));
+
+            return true;
+        } catch (final Exception exception) {
+            getLoggerForThisMethod().log(Level.SEVERE, null, exception);
+
+            return false;
+        }
+    }
 
     /**
      * Creates a localized menu from the elements in {@code items}.
@@ -188,7 +243,50 @@ public final class SubtitlesAdjusterTools {
      *
      * @author codistmonk (creation 2010-07-03)
      */
-    public static final class ListenerInvocationHandler implements InvocationHandler {
+    public static abstract class AbstractInvocationHandler implements InvocationHandler {
+
+        @Override
+        public final boolean equals(final Object object) {
+            return this == object ||
+                    object != null &&
+                    Proxy.isProxyClass(object.getClass()) &&
+                    this == Proxy.getInvocationHandler(object);
+        }
+
+        @Override
+        public final int hashCode() {
+            return super.hashCode();
+        }
+
+        /**
+         * Invokes {@link #equals(java.lang.Object)} or {@link #hashCode()} or returns {@code null}.
+         *
+         * @param proxy
+         * <br>Unused
+         * @param method
+         * <br>Not null
+         * @param arguments
+         * <br>Not null
+         * @return
+         * <br>Maybe null
+         * @throws Throwable If an error occurs
+         */
+        protected final Object defaultInvoke(final Object proxy,
+                final Method method, final Object[] arguments) throws Throwable {
+            if (method.getDeclaringClass().isAssignableFrom(this.getClass())) {
+                return method.invoke(this, arguments);
+            }
+
+            return null;
+        }
+
+    }
+
+    /**
+     *
+     * @author codistmonk (creation 2010-07-03)
+     */
+    public static final class ListenerInvocationHandler extends AbstractInvocationHandler {
 
         private final String listenerMethodName;
 
@@ -222,32 +320,13 @@ public final class SubtitlesAdjusterTools {
         }
 
         @Override
-        public final Object invoke(final Object proxy, final Method method, final Object[] arguments) throws Throwable {
-//            debugPrint(
-//                    "\n", method,
-//                    "\n", method.getDeclaringClass(),
-//                    "\n", method.getDeclaringClass().isAssignableFrom(this.getClass()));
-
+        public final Object invoke(final Object proxy,
+                final Method method, final Object[] arguments) throws Throwable {
             if (method.getName().equals(this.listenerMethodName)) {
                 return Tools.invoke(this.objectOrClass, this.methodName, this.arguments);
-            } else if (method.getDeclaringClass().isAssignableFrom(this.getClass())) {
-                return method.invoke(this, arguments);
             }
 
-            return null;
-        }
-
-        @Override
-        public final boolean equals(final Object object) {
-            return this == object ||
-                    object != null &&
-                    Proxy.isProxyClass(object.getClass()) &&
-                    this == Proxy.getInvocationHandler(object);
-        }
-
-        @Override
-        public final int hashCode() {
-            return super.hashCode();
+            return this.defaultInvoke(proxy, method, arguments);
         }
 
     }
