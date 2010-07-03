@@ -1,7 +1,7 @@
 /*
  *  The MIT License
  * 
- *  Copyright 2010 greg.
+ *  Copyright 2010 Codist Monk.
  * 
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -25,6 +25,7 @@
 package net.sourceforge.aprog.markups;
 
 import static net.sourceforge.aprog.events.ObservableTest.*;
+import static net.sourceforge.aprog.tools.Tools.*;
 
 import static org.junit.Assert.*;
 
@@ -32,6 +33,7 @@ import net.sourceforge.aprog.events.ObservableTest.*;
 import net.sourceforge.aprog.markups.ObservableDOMDocument.*;
 
 import org.junit.Test;
+import org.w3c.dom.Node;
 
 /**
  * Automated tests using JUnit 4 for {@link ObservableDOMDocument}.
@@ -60,7 +62,40 @@ public final class ObservableDOMDocumentTest {
 
         assertEquals(33, document.getUserData(USER_DATA_KEY));
 
-        assertTrue(recorder.getEvent(0) instanceof UserDataChangedEvent);
+        final UserDataChangedEvent event = recorder.getEvent(0);
+
+        assertEquals(USER_DATA_KEY, event.getKey());
+        assertEquals(null, event.getOldUserData());
+        assertEquals(42, event.getNewUserData());
+        assertEquals(1, recorder.getEvents().size());
+    }
+
+    @Test
+    public final <R extends EventRecorder & Listener> void testReplaceChild() {
+        final ObservableDOMDocument document = new ObservableDOMDocument();
+        @SuppressWarnings("unchecked")
+        final R recorder = (R) newEventRecorder(Listener.class);
+
+        document.addListener(recorder);
+
+        assertNull(document.getDocumentElement());
+
+        final Node oldChild = document.createElement("root");
+        final Node newChild = document.createElement("new-root");
+
+
+        document.appendChild(oldChild);
+
+        assertSame(oldChild, document.getDocumentElement());
+
+        document.replaceChild(newChild, oldChild);
+
+        assertSame(newChild, document.getDocumentElement());
+
+        final ChildReplacedEvent event = recorder.getEvent(0);
+
+        assertSame(oldChild, event.getOldChild());
+        assertSame(newChild, event.getNewChild());
         assertEquals(1, recorder.getEvents().size());
     }
 
