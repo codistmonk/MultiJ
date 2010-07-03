@@ -99,6 +99,22 @@ public final class ObservableDOMDocumentTest {
         assertEquals(1, recorder.getEvents().size());
     }
 
+    @Test
+    public final <R extends EventRecorder & Listener> void testNormalize() {
+        final ObservableDOMDocument document = new ObservableDOMDocument();
+        @SuppressWarnings("unchecked")
+        final R recorder = (R) newEventRecorder(Listener.class);
+
+        document.addListener(recorder);
+
+        document.normalize();
+
+        final NodeNormalizedEvent event = recorder.getEvent(0);
+
+        assertNotNull(event);
+        assertEquals(1, recorder.getEvents().size());
+    }
+
     private static final String USER_DATA_KEY = "key";
 
 }

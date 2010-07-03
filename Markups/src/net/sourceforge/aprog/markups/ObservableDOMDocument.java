@@ -113,13 +113,16 @@ public final class ObservableDOMDocument extends AbstractObservable<ObservableDO
     }
 
     @Override
-    public final Node removeChild(Node oldChild) throws DOMException {
+    public final Node removeChild(final Node oldChild) throws DOMException {
+        // According to the documentation, this method shouldn't modify this object
         return this.document.removeChild(oldChild);
     }
 
     @Override
     public final void normalize() {
         this.document.normalize();
+
+        this.new NodeNormalizedEvent().fire();
     }
 
     @Override
@@ -428,6 +431,7 @@ public final class ObservableDOMDocument extends AbstractObservable<ObservableDO
     }
 
     /**
+     *
      * @author codistmonk (creation 2010-07-03)
      */
     public abstract class AbstractEvent extends AbstractObservable<Listener>.AbstractEvent<ObservableDOMDocument, Listener> {
@@ -544,6 +548,10 @@ public final class ObservableDOMDocument extends AbstractObservable<ObservableDO
 
     }
 
+    /**
+     *
+     * @author codistmonk (creation 2010-07-03)
+     */
     public final class ChildReplacedEvent extends AbstractThingChangedEvent<Node> {
 
         /**
@@ -590,6 +598,19 @@ public final class ObservableDOMDocument extends AbstractObservable<ObservableDO
      *
      * @author codistmonk (creation 2010-07-03)
      */
+    public final class NodeNormalizedEvent extends AbstractEvent {
+
+        @Override
+        protected final void notifyListener(final Listener listener) {
+            listener.nodeNormalized(this);
+        }
+
+    }
+
+    /**
+     *
+     * @author codistmonk (creation 2010-07-03)
+     */
     public static interface Listener {
 
         /**
@@ -605,6 +626,13 @@ public final class ObservableDOMDocument extends AbstractObservable<ObservableDO
          * <br>Not null
          */
         public abstract void childReplaced(ChildReplacedEvent event);
+
+        /**
+         *
+         * @param event
+         * <br>Not null
+         */
+        public abstract void nodeNormalized(NodeNormalizedEvent event);
 
     }
 
