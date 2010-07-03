@@ -26,7 +26,6 @@ package net.sourceforge.aprog.subtitlesadjuster;
 
 import static net.sourceforge.aprog.i18n.Messages.*;
 import static net.sourceforge.aprog.subtitlesadjuster.Components.*;
-import static net.sourceforge.aprog.subtitlesadjuster.Constants.*;
 import static net.sourceforge.aprog.subtitlesadjuster.Constants.Variables.*;
 
 import java.awt.Component;
@@ -63,8 +62,10 @@ public final class Actions {
     public static final void showAboutDialog(final Context context) {
         JOptionPane.showMessageDialog(
                 (Component) context.get(MAIN_FRAME),
-                APPLICATION_NAME + "\n" + APPLICATION_VERSION + "\n" + APPLICATION_COPYRIGHT,
-                translate("About $0", APPLICATION_NAME),
+                context.get(APPLICATION_NAME) + "\n" +
+                        context.get(APPLICATION_VERSION) + "\n" +
+                        context.get(APPLICATION_COPYRIGHT),
+                translate("About $0", context.get(APPLICATION_NAME)),
                 JOptionPane.INFORMATION_MESSAGE);
     }
 
@@ -145,21 +146,23 @@ public final class Actions {
         JOptionPane.showMessageDialog(
                 (Component) context.get(MAIN_FRAME),
                 translate("Not implemented"),
-                APPLICATION_NAME,
+                context.get(APPLICATION_NAME).toString(),
                 JOptionPane.INFORMATION_MESSAGE);
     }
 
     /**
      * 
+     * @param context
+     * <br>Not null
      * @param throwable
      * <br>Not null
      */
-    public static final void showErrorMessage(final Throwable throwable) {
+    public static final void showErrorMessage(final Context context, final Throwable throwable) {
         if (SwingTools.canInvokeLaterThisMethodInAWT(null, throwable)) {
             JOptionPane.showMessageDialog(
                     null,
                     newErrorMessagePanel(throwable),
-                    APPLICATION_NAME,
+                    context.get(APPLICATION_NAME).toString(),
                     JOptionPane.ERROR_MESSAGE);
         }
     }
@@ -184,7 +187,7 @@ public final class Actions {
         final File file = context.get(FILE);
         final Boolean fileModified = context.get(FILE_MODIFIED);
 
-        return file == null ? APPLICATION_NAME : file.getName() + (fileModified ? "*" : "");
+        return file == null ? context.get(APPLICATION_NAME).toString() : file.getName() + (fileModified ? "*" : "");
     }
 
 }
