@@ -47,8 +47,6 @@ import java.awt.dnd.DropTargetDropEvent;
 import java.awt.dnd.DropTargetEvent;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -80,7 +78,6 @@ import net.sourceforge.aprog.events.Variable;
 import net.sourceforge.aprog.events.Variable.Listener;
 import net.sourceforge.aprog.events.Variable.ValueChangedEvent;
 import net.sourceforge.aprog.i18n.Translator;
-import net.sourceforge.aprog.i18n.Translator.LocaleChangedEvent;
 import net.sourceforge.aprog.swing.LanguageComboBox;
 import net.sourceforge.aprog.swing.SwingTools;
 import net.sourceforge.jmacadapter.MacAdapterTools;
@@ -200,8 +197,10 @@ public final class Components {
         result.addWindowListener(newListener(WindowListener.class, "windowClosing",
                 Actions.class, "quit", context));
 
-        invokeOnVariableChanged(context, FILE, Actions.class, "updateMainFrameTitle", context);
-        invokeOnVariableChanged(context, FILE_MODIFIED, Actions.class, "updateMainFrameTitle", context);
+        invokeOnVariableChanged(context, FILE,
+                Actions.class, "updateMainFrameTitle", context);
+        invokeOnVariableChanged(context, FILE_MODIFIED,
+                Actions.class, "updateMainFrameTitle", context);
 
         Translator.getDefaultTranslator().addListener(newListener(Translator.Listener.class, "localeChanged",
                 SwingTools.class, "packAndUpdateMinimumSize", result));
