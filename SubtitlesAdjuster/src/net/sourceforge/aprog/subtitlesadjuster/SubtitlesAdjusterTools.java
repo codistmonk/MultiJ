@@ -33,7 +33,6 @@ import net.sourceforge.aprog.context.Context;
 import net.sourceforge.aprog.events.Variable;
 import net.sourceforge.aprog.events.Variable.Listener;
 import net.sourceforge.aprog.events.Variable.ValueChangedEvent;
-import net.sourceforge.aprog.swing.InvokerAction;
 import net.sourceforge.aprog.swing.SwingTools;
 import net.sourceforge.aprog.tools.Tools;
 
