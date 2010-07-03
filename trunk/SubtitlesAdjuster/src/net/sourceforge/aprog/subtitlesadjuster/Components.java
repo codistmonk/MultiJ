@@ -54,7 +54,6 @@ import java.io.File;
 import java.io.PrintStream;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 import javax.swing.Box;
 import javax.swing.JButton;
@@ -106,8 +105,6 @@ public final class Components {
      * {@value}.
      */
     private static final int INSET = 8;
-
-    public static final String META = MacAdapterTools.isMacOSX() ? "meta" : "control";
 
     /**
      *

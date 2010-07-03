@@ -35,6 +35,7 @@ import net.sourceforge.aprog.events.Variable.Listener;
 import net.sourceforge.aprog.events.Variable.ValueChangedEvent;
 import net.sourceforge.aprog.swing.SwingTools;
 import net.sourceforge.aprog.tools.Tools;
+import net.sourceforge.jmacadapter.MacAdapterTools;
 
 /**
  * Utility class.
@@ -51,6 +52,8 @@ public final class SubtitlesAdjusterTools {
     private SubtitlesAdjusterTools() {
         // Do nothing
     }
+
+    public static final String META = MacAdapterTools.isMacOSX() ? "meta" : "control";
 
     /**
      *
