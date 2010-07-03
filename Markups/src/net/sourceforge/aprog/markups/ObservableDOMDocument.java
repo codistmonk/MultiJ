@@ -25,6 +25,7 @@
 package net.sourceforge.aprog.markups;
 
 import net.sourceforge.aprog.events.AbstractObservable;
+import net.sourceforge.aprog.tools.Tools;
 import net.sourceforge.aprog.xml.XMLTools;
 
 import org.w3c.dom.Attr;
@@ -72,30 +73,43 @@ public final class ObservableDOMDocument extends AbstractObservable<ObservableDO
         final Object oldData = this.document.setUserData(key, data, handler);
 
         if (oldData != data) {
-            new UserDataChangedEvent(oldData, data).fire();
+            this.new UserDataChangedEvent(key, oldData, data).fire();
         }
 
         return oldData;
     }
 
     @Override
-    public final void setTextContent(String textContent) throws DOMException {
+    public final void setTextContent(final String textContent) throws DOMException {
         this.document.setTextContent(textContent);
+
+        // According to the documentation, this method shouldn't have any effect
+        assert this.getTextContent() == null;
     }
 
     @Override
-    public final void setPrefix(String prefix) throws DOMException {
+    public final void setPrefix(final String prefix) throws DOMException {
         this.document.setPrefix(prefix);
+
+        // According to the documentation, this method shouldn't have any effect
+        assert this.getPrefix() == null;
     }
 
     @Override
-    public final void setNodeValue(String nodeValue) throws DOMException {
+    public final void setNodeValue(final String nodeValue) throws DOMException {
         this.document.setNodeValue(nodeValue);
+
+        // According to the documentation, this method shouldn't have any effect
+        assert this.getNodeValue() == null;
     }
 
     @Override
-    public final Node replaceChild(Node newChild, Node oldChild) throws DOMException {
-        return this.document.replaceChild(newChild, oldChild);
+    public final Node replaceChild(final Node newChild, final Node oldChild) throws DOMException {
+        this.document.replaceChild(newChild, oldChild);
+
+        this.new ChildReplacedEvent(oldChild, newChild).fire();
+
+        return oldChild;
     }
 
     @Override
@@ -414,17 +428,73 @@ public final class ObservableDOMDocument extends AbstractObservable<ObservableDO
     }
 
     /**
-     *
      * @author codistmonk (creation 2010-07-03)
      */
-    public final class UserDataChangedEvent extends AbstractEvent<ObservableDOMDocument, Listener> {
+    public abstract class AbstractEvent extends AbstractObservable<Listener>.AbstractEvent<ObservableDOMDocument, Listener> {
+        // Deliberately left empty
+    }
 
-        private final Object oldUserData;
+    /**
+     *
+     * @author codistmonk (creation 2010-07-03)
+     *
+     * @param <T> The type of the data
+     */
+    public abstract class AbstractThingChangedEvent<T> extends AbstractEvent {
 
-        private final Object newUserData;
+        private final T oldThing;
+
+        private final T newThing;
 
         /**
          *
+         * @param oldThing
+         * <br>Maybe null
+         * <br>Shared
+         * @param newThing
+         * <br>Maybe null
+         * <br>Shared
+         */
+        public AbstractThingChangedEvent(final T oldThing, final T newThing) {
+            this.oldThing = oldThing;
+            this.newThing = newThing;
+        }
+
+        /**
+         *
+         * @return
+         * <br>Maybe null
+         * <br>Shared
+         */
+        protected final T getNewThing() {
+            return this.newThing;
+        }
+
+        /**
+         *
+         * @return
+         * <br>Maybe null
+         * <br>Shared
+         */
+        protected final T getOldThing() {
+            return this.oldThing;
+        }
+
+    }
+
+    /**
+     *
+     * @author codistmonk (creation 2010-07-03)
+     */
+    public final class UserDataChangedEvent extends AbstractThingChangedEvent<Object> {
+
+        private final String key;
+
+        /**
+         *
+         * @param key
+         * <br>Maybe null
+         * <br>Shared
          * @param oldUserData
          * <br>Maybe null
          * <br>Shared
@@ -432,9 +502,19 @@ public final class ObservableDOMDocument extends AbstractObservable<ObservableDO
          * <br>Maybe null
          * <br>Shared
          */
-        public UserDataChangedEvent(final Object oldUserData, final Object newUserData) {
-            this.oldUserData = oldUserData;
-            this.newUserData = newUserData;
+        public UserDataChangedEvent(final String key, final Object oldUserData, final Object newUserData) {
+            super(oldUserData, newUserData);
+            this.key = key;
+        }
+
+        /**
+         *
+         * @return
+         * <br>Maybe null
+         * <br>Shared
+         */
+        public final String getKey() {
+            return this.key;
         }
 
         /**
@@ -444,7 +524,7 @@ public final class ObservableDOMDocument extends AbstractObservable<ObservableDO
          * <br>Shared
          */
         public final Object getNewUserData() {
-            return this.newUserData;
+            return this.getNewThing();
         }
 
         /**
@@ -454,12 +534,54 @@ public final class ObservableDOMDocument extends AbstractObservable<ObservableDO
          * <br>Shared
          */
         public final Object getOldUserData() {
-            return this.oldUserData;
+            return this.getOldThing();
         }
 
         @Override
         protected final void notifyListener(final Listener listener) {
             listener.userDataChanged(this);
+        }
+
+    }
+
+    public final class ChildReplacedEvent extends AbstractThingChangedEvent<Node> {
+
+        /**
+         * 
+         * @param oldChild
+         * <br>Not null
+         * <br>Shared
+         * @param newChild
+         * <br>Not null
+         * <br>Shared
+         */
+        public ChildReplacedEvent(final Node oldChild, final Node newChild) {
+            super(oldChild, newChild);
+        }
+
+        /**
+         * 
+         * @return
+         * <br>Not null
+         * <br>Shared
+         */
+        public final Node getOldChild() {
+            return this.getOldThing();
+        }
+
+        /**
+         *
+         * @return
+         * <br>Not null
+         * <br>Shared
+         */
+        public final Node getNewChild() {
+            return this.getNewThing();
+        }
+
+        @Override
+        protected final void notifyListener(final Listener listener) {
+            listener.childReplaced(this);
         }
 
     }
@@ -476,6 +598,13 @@ public final class ObservableDOMDocument extends AbstractObservable<ObservableDO
          * <br>Not null
          */
         public abstract void userDataChanged(UserDataChangedEvent event);
+
+        /**
+         *
+         * @param event
+         * <br>Not null
+         */
+        public abstract void childReplaced(ChildReplacedEvent event);
 
     }
 
