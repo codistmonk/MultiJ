@@ -211,6 +211,19 @@ public final class SubtitlesAdjusterTools {
             return null;
         }
 
+        @Override
+        public final boolean equals(final Object object) {
+            return this == object ||
+                    object != null &&
+                    Proxy.isProxyClass(object.getClass()) &&
+                    this == Proxy.getInvocationHandler(object);
+        }
+
+        @Override
+        public final int hashCode() {
+            return super.hashCode();
+        }
+
     }
 
 }
