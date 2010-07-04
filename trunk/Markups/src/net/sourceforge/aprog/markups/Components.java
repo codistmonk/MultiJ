@@ -24,16 +24,7 @@
 
 package net.sourceforge.aprog.markups;
 
-import java.awt.BorderLayout;
-import java.awt.CardLayout;
-import java.awt.Color;
-import java.awt.dnd.DropTarget;
-import java.awt.dnd.DropTargetAdapter;
-import java.awt.dnd.DropTargetDragEvent;
-import java.awt.dnd.DropTargetDropEvent;
-import java.awt.dnd.DropTargetEvent;
 import static javax.swing.KeyStroke.getKeyStroke;
-import net.sourceforge.aprog.events.Variable.ValueChangedEvent;
 
 import static net.sourceforge.aprog.markups.Constants.Variables.*;
 import static net.sourceforge.aprog.subtitlesadjuster.SubtitlesAdjusterTools.*;
@@ -42,13 +33,23 @@ import static net.sourceforge.aprog.swing.SwingTools.checkAWT;
 import static net.sourceforge.aprog.swing.SwingTools.menuBar;
 import static net.sourceforge.aprog.swing.SwingTools.packAndCenter;
 import static net.sourceforge.aprog.swing.SwingTools.scrollable;
+import static net.sourceforge.aprog.tools.Tools.*;
 
+import java.awt.BorderLayout;
+import java.awt.CardLayout;
+import java.awt.Color;
+import java.awt.dnd.DropTarget;
+import java.awt.dnd.DropTargetAdapter;
+import java.awt.dnd.DropTargetDragEvent;
+import java.awt.dnd.DropTargetDropEvent;
+import java.awt.dnd.DropTargetEvent;
 import java.awt.event.WindowListener;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.util.List;
+
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
-
 import javax.swing.JFrame;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -56,21 +57,24 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JTextPane;
 import javax.swing.JTree;
+import javax.swing.SwingUtilities;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 
 import net.sourceforge.aprog.context.Context;
 import net.sourceforge.aprog.events.Variable;
+import net.sourceforge.aprog.events.Variable.ValueChangedEvent;
 import net.sourceforge.aprog.i18n.Messages;
 import net.sourceforge.aprog.i18n.Translator;
 import net.sourceforge.aprog.swing.SwingTools;
 import net.sourceforge.aprog.tools.IllegalInstantiationException;
 import net.sourceforge.aprog.xml.XMLTools;
 import net.sourceforge.jmacadapter.MacAdapterTools;
-import org.w3c.dom.Document;
+
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
-import org.xml.sax.InputSource;
 
 /**
  *
@@ -432,21 +436,8 @@ public final class Components {
      */
     public static final JPanel newMainPanel(final Context context) {
         final JPanel result = new JPanel(new BorderLayout());
-        final JPanel views = new JPanel(new CardLayout());
 
-        result.add(views);
-
-        views.add(scrollable(newDOMTreeView(context)), "tree");
-        views.add(scrollable(new JTextPane()), "text");
-
-        getOrCreateViewModeVariable(context).addListener(new Variable.Listener<String>() {
-
-            @Override
-            public final void valueChanged(final ValueChangedEvent<String, ?> event) {
-                ((CardLayout) views.getLayout()).show(views, event.getNewValue());
-            }
-
-        });
+        result.add(newLayeredViews(context));
 
         new DropTarget(result, new DropTargetAdapter() {
 
@@ -484,18 +475,130 @@ public final class Components {
      * <br>Not null
      * <br>New
      */
-    public static final JTree newDOMTreeView(final Context context) {
-        final JTree result = new JTree(new DOMTreeModel(XMLTools.newDocument()));
+    public static final JPanel newLayeredViews(final Context context) {
+        final JPanel views = new JPanel(new CardLayout());
 
-        final Variable<File> fileVariable = context.getVariable(FILE);
+        views.add(scrollable(newDOMTreeView(context)), Constants.VIEW_MODE_TREE);
+        views.add(scrollable(newDOMTextView(context)), Constants.VIEW_MODE_TEXT);
 
-        fileVariable.addListener(new Variable.Listener<File>() {
+        getOrCreateViewModeVariable(context).addListener(new Variable.Listener<String>() {
 
             @Override
-            public final void valueChanged(final ValueChangedEvent<File, ?> event) {
-                final Document domDocument = event.getNewValue() == null ? XMLTools.newDocument() :
-                    XMLTools.parse(new InputSource(event.getNewValue().getAbsolutePath()));
-                final DOMTreeModel treeModel = new DOMTreeModel(domDocument);
+            public final void valueChanged(final ValueChangedEvent<String, ?> event) {
+                ((CardLayout) views.getLayout()).show(views, event.getNewValue());
+            }
+
+        });
+
+        return views;
+    }
+
+    /**
+     *
+     * @param context
+     * <br>Not null
+     * @return
+     * <br>Not null
+     * <br>New
+     */
+    public static final JTextPane newDOMTextView(final Context context) {
+        final Variable<Node> domVariable = context.getVariable(DOM);
+        final JTextPane result = new JTextPane();
+
+        result.getDocument().addDocumentListener(new DocumentListener() {
+
+            private final int[] newCaretPosition = new int[1];
+
+            @Override
+            public final void insertUpdate(final DocumentEvent event) {
+                this.newCaretPosition[0] = result.getCaretPosition() + 1;
+                this.updateContext();
+            }
+
+            @Override
+            public final void removeUpdate(final DocumentEvent event) {
+                this.newCaretPosition[0] = result.getCaretPosition() - 1;
+                this.updateContext();
+            }
+
+            @Override
+            public final void changedUpdate(final DocumentEvent event) {
+                this.newCaretPosition[0] = result.getCaretPosition();
+                this.updateContext();
+            }
+
+            private final void updateContext() {
+                final int caretPosition = this.newCaretPosition[0];
+
+                SwingUtilities.invokeLater(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        debugPrint(result.getText());
+                        if (!asString(domVariable.getValue()).equals(result.getText())) {
+                            context.set(FILE_MODIFIED, true);
+                            try {
+                                domVariable.setValue(XMLTools.parse(result.getText()));
+                                result.setCaretPosition(caretPosition);
+                            } catch (final Exception exception) {
+                                net.sourceforge.aprog.subtitlesadjuster.Actions.showErrorMessage(context, exception);
+                            }
+                        }
+                    }
+
+                });
+            }
+
+        });
+
+        domVariable.addListener(new Variable.Listener<Node>() {
+
+            @Override
+            public final void valueChanged(final ValueChangedEvent<Node, ?> event) {
+                result.setText(asString(domVariable.getValue()));
+            }
+
+        });
+
+        result.setText(asString(domVariable.getValue()));
+
+        return result;
+    }
+
+    /**
+     *
+     * @param node
+     * <br>Not null
+     * @return
+     * <br>Not null
+     * <br>New
+     */
+    public static final String asString(final Node node) {
+        final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+
+        XMLTools.write(node, buffer, 0);
+
+        return buffer.toString();
+    }
+
+    /**
+     *
+     * @param context
+     * <br>Not null
+     * @return
+     * <br>Not null
+     * <br>New
+     */
+    public static final JTree newDOMTreeView(final Context context) {
+        final Variable<Node> domVariable = context.getVariable(DOM);
+        final JTree result = new JTree(new DOMTreeModel(domVariable.getValue()));
+
+
+        domVariable.addListener(new Variable.Listener<Node>() {
+
+            @Override
+            public final void valueChanged(final ValueChangedEvent<Node, ?> event) {
+                final DOMTreeModel treeModel = new DOMTreeModel(event.getNewValue());
 
                 result.setModel(treeModel);
 
@@ -541,7 +644,7 @@ public final class Components {
         Variable<String> result = context.getVariable(VIEW_MODE);
 
         if (result == null) {
-            context.set(VIEW_MODE, "tree");
+            context.set(VIEW_MODE, Constants.VIEW_MODE_TREE);
             result = context.getVariable(VIEW_MODE);
         }
 
@@ -586,7 +689,23 @@ public final class Components {
          * <br>New
          */
         public static final DefaultMutableTreeNode newTreeNode(final Node domNode) {
-            final DefaultMutableTreeNode result = new DefaultMutableTreeNode(domNode);
+            final DefaultMutableTreeNode result = new DefaultMutableTreeNode(domNode) {
+
+                @Override
+                public final String toString() {
+                    switch (domNode.getNodeType()) {
+                        case Node.ATTRIBUTE_NODE:
+                            return domNode.getNodeName() +
+                                    (domNode.getNodeValue() == null ? "" : "=\"" + domNode.getNodeValue() + "\"");
+                        default:
+                            return domNode.getNodeName() +
+                                    (domNode.getNodeValue() == null ? "" : "[" + domNode.getNodeValue() + "]");
+                    }
+                }
+
+                private static final long serialVersionUID = 8090552131823122052L;
+
+            };
             final NamedNodeMap attributes = domNode.getAttributes();
 
             if (attributes != null) {

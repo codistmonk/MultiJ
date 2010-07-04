@@ -55,6 +55,16 @@ public final class Constants {
     public static final String APPLICATION_COPYRIGHT = "© 2010 Codist Monk";
 
     /**
+     * {@value}.
+     */
+    public static final String VIEW_MODE_TREE = "tree";
+
+    /**
+     * {@value}.
+     */
+    public static final String VIEW_MODE_TEXT = "text";
+
+    /**
      * This class defines constants used to identify the application context variables.
      *
      * @author codistmonk (creation 2010-07-03)
@@ -102,6 +112,11 @@ public final class Constants {
          * {@value}.
          */
         public static final String TREE_MODEL = "file.treeModel";
+
+        /**
+         * {@value}.
+         */
+        public static final String DOM = "file.dom";
 
         /**
          * {@value}.

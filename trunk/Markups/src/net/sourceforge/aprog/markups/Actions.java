@@ -35,6 +35,7 @@ import java.io.FileOutputStream;
 
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeModel;
 
 import net.sourceforge.aprog.context.Context;
@@ -43,6 +44,7 @@ import net.sourceforge.aprog.tools.Tools;
 import net.sourceforge.aprog.xml.XMLTools;
 
 import org.w3c.dom.Node;
+import org.xml.sax.InputSource;
 
 /**
  *
@@ -122,7 +124,10 @@ public final class Actions {
         final JFileChooser fileChooser = new JFileChooser();
 
         if (JFileChooser.APPROVE_OPTION == fileChooser.showOpenDialog((Component) context.get(MAIN_FRAME)) && fileChooser.getSelectedFile() != null) {
-            context.set(FILE, fileChooser.getSelectedFile());
+            final File file = fileChooser.getSelectedFile();
+
+            context.set(DOM, XMLTools.parse(new InputSource(file.getAbsolutePath())));
+            context.set(FILE, file);
         }
     }
 
@@ -151,7 +156,7 @@ public final class Actions {
     public static final void saveAs(final Context context) {
         final JFileChooser fileChooser = new JFileChooser();
 
-        if (JFileChooser.APPROVE_OPTION == fileChooser.showOpenDialog((Component) context.get(MAIN_FRAME)) && fileChooser.getSelectedFile() != null) {
+        if (JFileChooser.APPROVE_OPTION == fileChooser.showSaveDialog((Component) context.get(MAIN_FRAME)) && fileChooser.getSelectedFile() != null) {
             save(context, fileChooser.getSelectedFile());
         }
     }
@@ -167,8 +172,12 @@ public final class Actions {
      */
     private static final void save(final Context context, final File file) {
         try {
-            XMLTools.write((Node) ((TreeModel) context.get(TREE_MODEL)).getRoot(), new FileOutputStream(file), 0);
+            XMLTools.write(
+                    (Node) ((DefaultMutableTreeNode) ((TreeModel) context.get(TREE_MODEL)).getRoot()).getUserObject(),
+                    new FileOutputStream(file),
+                    0);
             context.set(FILE, file);
+            context.set(FILE_MODIFIED, false);
         } catch (final FileNotFoundException exception) {
             net.sourceforge.aprog.subtitlesadjuster.Actions.showErrorMessage(context, exception);
         }
@@ -235,7 +244,7 @@ public final class Actions {
      * <br>Not null
      */
     public static final void tree(final Context context) {
-        context.set(VIEW_MODE, "tree");
+        context.set(VIEW_MODE, Constants.VIEW_MODE_TREE);
     }
 
     /**
@@ -244,7 +253,7 @@ public final class Actions {
      * <br>Not null
      */
     public static final void text(final Context context) {
-        context.set(VIEW_MODE, "text");
+        context.set(VIEW_MODE, Constants.VIEW_MODE_TEXT);
     }
 
 }
