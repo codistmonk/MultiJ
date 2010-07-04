@@ -235,9 +235,7 @@ public final class Actions {
      * <br>Not null
      */
     public static final void tree(final Context context) {
-        Tools.debugPrint("TODO");
-
-        net.sourceforge.aprog.subtitlesadjuster.Actions.showTODOMessage(context);
+        context.set(VIEW_MODE, "tree");
     }
 
     /**
@@ -246,9 +244,7 @@ public final class Actions {
      * <br>Not null
      */
     public static final void text(final Context context) {
-        Tools.debugPrint("TODO");
-
-        net.sourceforge.aprog.subtitlesadjuster.Actions.showTODOMessage(context);
+        context.set(VIEW_MODE, "text");
     }
 
 }
