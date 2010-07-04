@@ -32,6 +32,7 @@ import static org.junit.Assert.*;
 
 import net.sourceforge.aprog.events.ObservableTest.*;
 import net.sourceforge.aprog.markups.ObservableDOMDocument.*;
+import net.sourceforge.aprog.xml.XMLTools;
 
 import org.junit.Test;
 import org.w3c.dom.Node;
@@ -114,7 +115,7 @@ public final class ObservableDOMDocumentTest {
 
         final NodeNormalizedEvent event = recorder.getEvent(0);
 
-        assertNotNull(event);
+        assertSame(document, event.getEventNode());
         assertEquals(1, recorder.getEvents().size());
     }
 
@@ -270,6 +271,44 @@ public final class ObservableDOMDocumentTest {
         }
 
         assertEquals(2, recorder.getEvents().size());
+    }
+
+    @Test
+    public final <R extends EventRecorder & Listener> void testNormalizeDocument() {
+        final ObservableDOMDocument document = new ObservableDOMDocument();
+        @SuppressWarnings("unchecked")
+        final R recorder = (R) newEventRecorder(Listener.class);
+
+        document.addListener(recorder);
+
+        document.normalizeDocument();
+
+        final DocumentNormalizedEvent event = recorder.getEvent(0);
+
+        assertNotNull(event);
+        assertEquals(1, recorder.getEvents().size());
+    }
+
+    @Test
+    public final <R extends EventRecorder & Listener> void testImportNode() {
+        final ObservableDOMDocument document = new ObservableDOMDocument();
+        @SuppressWarnings("unchecked")
+        final R recorder = (R) newEventRecorder(Listener.class);
+
+        document.addListener(recorder);
+
+        assertNull(document.getDocumentElement());
+
+        final Node importedNode = document.importNode(XMLTools.parse("<a/>").getDocumentElement(), false);
+
+        assertNotNull(importedNode);
+        assertSame(document, importedNode.getOwnerDocument());
+        assertEquals("a", importedNode.getNodeName());
+
+        final NodeImportedEvent event = recorder.getEvent(0);
+
+        assertSame(importedNode, event.getImportedNode());
+        assertEquals(1, recorder.getEvents().size());
     }
 
     /**

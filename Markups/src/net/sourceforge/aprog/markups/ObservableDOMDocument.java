@@ -25,6 +25,7 @@
 package net.sourceforge.aprog.markups;
 
 import net.sourceforge.aprog.events.AbstractObservable;
+import net.sourceforge.aprog.events.Observable;
 import net.sourceforge.aprog.tools.Tools;
 import net.sourceforge.aprog.xml.XMLTools;
 
@@ -44,15 +45,14 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.ProcessingInstruction;
 import org.w3c.dom.Text;
+import org.w3c.dom.TypeInfo;
 import org.w3c.dom.UserDataHandler;
 
 /**
  *
  * @author codistmonk (creation 2010-07-03)
  */
-public final class ObservableDOMDocument extends AbstractObservable<ObservableDOMDocument.Listener> implements Document {
-
-    private final Document document;
+public final class ObservableDOMDocument extends AbstractProxyDOMNode<Document, ObservableDOMDocument.Listener> implements Document {
 
     /**
      *
@@ -61,7 +61,7 @@ public final class ObservableDOMDocument extends AbstractObservable<ObservableDO
      * <br>Shared
      */
     public ObservableDOMDocument(final Document document) {
-        this.document = document;
+        super(document);
     }
 
     public ObservableDOMDocument() {
@@ -70,10 +70,10 @@ public final class ObservableDOMDocument extends AbstractObservable<ObservableDO
 
     @Override
     public final Object setUserData(final String key, final Object data, final UserDataHandler handler) {
-        final Object oldData = this.document.setUserData(key, data, handler);
+        final Object oldData = this.getDelegate().setUserData(key, data, handler);
 
         if (oldData != data) {
-            this.new UserDataChangedEvent(key, oldData, data).fire();
+            this.new UserDataChangedEvent(this, key, oldData, data).fire();
         }
 
         return oldData;
@@ -81,7 +81,7 @@ public final class ObservableDOMDocument extends AbstractObservable<ObservableDO
 
     @Override
     public final void setTextContent(final String textContent) throws DOMException {
-        this.document.setTextContent(textContent);
+        this.getDelegate().setTextContent(textContent);
 
         // According to the documentation, this method shouldn't have any effect
         assert this.getTextContent() == null;
@@ -89,7 +89,7 @@ public final class ObservableDOMDocument extends AbstractObservable<ObservableDO
 
     @Override
     public final void setPrefix(final String prefix) throws DOMException {
-        this.document.setPrefix(prefix);
+        this.getDelegate().setPrefix(prefix);
 
         // According to the documentation, this method shouldn't have any effect
         assert this.getPrefix() == null;
@@ -97,7 +97,7 @@ public final class ObservableDOMDocument extends AbstractObservable<ObservableDO
 
     @Override
     public final void setNodeValue(final String nodeValue) throws DOMException {
-        this.document.setNodeValue(nodeValue);
+        this.getDelegate().setNodeValue(nodeValue);
 
         // According to the documentation, this method shouldn't have any effect
         assert this.getNodeValue() == null;
@@ -105,9 +105,9 @@ public final class ObservableDOMDocument extends AbstractObservable<ObservableDO
 
     @Override
     public final Node replaceChild(final Node newChild, final Node oldChild) throws DOMException {
-        this.document.replaceChild(newChild, oldChild);
+        this.getDelegate().replaceChild(newChild, oldChild);
 
-        this.new ChildReplacedEvent(oldChild, newChild).fire();
+        this.new ChildReplacedEvent(this, oldChild, newChild).fire();
 
         return oldChild;
     }
@@ -115,44 +115,14 @@ public final class ObservableDOMDocument extends AbstractObservable<ObservableDO
     @Override
     public final Node removeChild(final Node oldChild) throws DOMException {
         // According to the documentation, this method shouldn't modify this object
-        return this.document.removeChild(oldChild);
+        return this.getDelegate().removeChild(oldChild);
     }
 
     @Override
     public final void normalize() {
-        this.document.normalize();
+        this.getDelegate().normalize();
 
-        this.new NodeNormalizedEvent().fire();
-    }
-
-    @Override
-    public final String lookupPrefix(final String namespaceURI) {
-        return this.document.lookupPrefix(namespaceURI);
-    }
-
-    @Override
-    public final String lookupNamespaceURI(final String prefix) {
-        return this.document.lookupNamespaceURI(prefix);
-    }
-
-    @Override
-    public final boolean isSupported(final String feature, final String version) {
-        return this.document.isSupported(feature, version);
-    }
-
-    @Override
-    public final boolean isSameNode(final Node other) {
-        return this.document.isSameNode(other);
-    }
-
-    @Override
-    public final boolean isEqualNode(final Node other) {
-        return this.document.isEqualNode(other);
-    }
-
-    @Override
-    public final boolean isDefaultNamespace(final String namespaceURI) {
-        return this.document.isDefaultNamespace(namespaceURI);
+        this.new NodeNormalizedEvent(this).fire();
     }
 
     @Override
@@ -160,124 +130,19 @@ public final class ObservableDOMDocument extends AbstractObservable<ObservableDO
         // I'm not sure about this one,
         // but I think the documentation says that
         // this method shouldn't modify this object
-        return this.document.insertBefore(newChild, refChild);
-    }
-
-    @Override
-    public final boolean hasChildNodes() {
-        return this.document.hasChildNodes();
-    }
-
-    @Override
-    public final boolean hasAttributes() {
-        return this.document.hasAttributes();
-    }
-
-    @Override
-    public final Object getUserData(final String key) {
-        return this.document.getUserData(key);
-    }
-
-    @Override
-    public final String getTextContent() throws DOMException {
-        return this.document.getTextContent();
-    }
-
-    @Override
-    public final Node getPreviousSibling() {
-        return this.document.getPreviousSibling();
-    }
-
-    @Override
-    public final String getPrefix() {
-        return this.document.getPrefix();
-    }
-
-    @Override
-    public final Node getParentNode() {
-        return this.document.getParentNode();
-    }
-
-    @Override
-    public Document getOwnerDocument() {
-        return this.document.getOwnerDocument();
-    }
-
-    @Override
-    public final String getNodeValue() throws DOMException {
-        return this.document.getNodeValue();
-    }
-
-    @Override
-    public final short getNodeType() {
-        return this.document.getNodeType();
-    }
-
-    @Override
-    public final String getNodeName() {
-        return this.document.getNodeName();
-    }
-
-    @Override
-    public final Node getNextSibling() {
-        return this.document.getNextSibling();
-    }
-
-    @Override
-    public final String getNamespaceURI() {
-        return this.document.getNamespaceURI();
-    }
-
-    @Override
-    public final String getLocalName() {
-        return this.document.getLocalName();
-    }
-
-    @Override
-    public final Node getLastChild() {
-        return this.document.getLastChild();
-    }
-
-    @Override
-    public final Node getFirstChild() {
-        return this.document.getFirstChild();
-    }
-
-    @Override
-    public final Object getFeature(final String feature, final String version) {
-        return this.document.getFeature(feature, version);
-    }
-
-    @Override
-    public final NodeList getChildNodes() {
-        return this.document.getChildNodes();
-    }
-
-    @Override
-    public final String getBaseURI() {
-        return this.document.getBaseURI();
-    }
-
-    @Override
-    public final NamedNodeMap getAttributes() {
-        return this.document.getAttributes();
-    }
-
-    @Override
-    public final short compareDocumentPosition(final Node other) throws DOMException {
-        return this.document.compareDocumentPosition(other);
+        return this.getDelegate().insertBefore(newChild, refChild);
     }
 
     @Override
     public final Node cloneNode(final boolean deep) {
-        return new ObservableDOMDocument((Document) this.document.cloneNode(deep));
+        return new ObservableDOMDocument((Document) this.getDelegate().cloneNode(deep));
     }
 
     @Override
     public final Node appendChild(final Node newChild) throws DOMException {
-        this.document.appendChild(newChild);
+        this.getDelegate().appendChild(newChild);
         
-        this.new ChildAppendedEvent(newChild).fire();
+        this.new ChildAppendedEvent(this, newChild).fire();
 
         return newChild;
     }
@@ -287,7 +152,7 @@ public final class ObservableDOMDocument extends AbstractObservable<ObservableDO
         final String oldXmlVersion = this.getXmlVersion();
 
         if (!Tools.equals(oldXmlVersion, xmlVersion)) {
-            this.document.setXmlVersion(xmlVersion);
+            this.getDelegate().setXmlVersion(xmlVersion);
 
             this.new XmlVersionChangedEvent(oldXmlVersion, xmlVersion).fire();
         }
@@ -298,7 +163,7 @@ public final class ObservableDOMDocument extends AbstractObservable<ObservableDO
         final boolean oldXmlStandalone = this.getXmlStandalone();
 
         if (oldXmlStandalone != xmlStandalone) {
-            this.document.setXmlStandalone(xmlStandalone);
+            this.getDelegate().setXmlStandalone(xmlStandalone);
 
             this.new XmlStandaloneChangedEvent(oldXmlStandalone, xmlStandalone).fire();
         }
@@ -309,7 +174,7 @@ public final class ObservableDOMDocument extends AbstractObservable<ObservableDO
         final boolean oldStrictErrorChecking = this.getStrictErrorChecking();
 
         if (oldStrictErrorChecking != strictErrorChecking) {
-            this.document.setStrictErrorChecking(strictErrorChecking);
+            this.getDelegate().setStrictErrorChecking(strictErrorChecking);
 
             this.new StrictErrorCheckingChangedEvent(oldStrictErrorChecking, strictErrorChecking).fire();
         }
@@ -320,7 +185,7 @@ public final class ObservableDOMDocument extends AbstractObservable<ObservableDO
         final String oldDocumentURI = this.getDocumentURI();
 
         if (!Tools.equals(oldDocumentURI, documentURI)) {
-            this.document.setDocumentURI(documentURI);
+            this.getDelegate().setDocumentURI(documentURI);
 
             this.new DocumentURIChangedEvent(oldDocumentURI, documentURI).fire();
         }
@@ -332,7 +197,7 @@ public final class ObservableDOMDocument extends AbstractObservable<ObservableDO
         final String oldQualifiedName = getQualifiedName(node);
 
         if (!Tools.equals(oldNamespaceURI, namespaceURI) || !Tools.equals(oldQualifiedName, qualifiedName)) {
-            final Node newNode = this.document.renameNode(node, namespaceURI, qualifiedName);
+            final Node newNode = this.getDelegate().renameNode(node, namespaceURI, qualifiedName);
 
             this.new NodeRenamedEvent(node, oldNamespaceURI, oldQualifiedName, newNode, namespaceURI, qualifiedName).fire();
 
@@ -344,132 +209,182 @@ public final class ObservableDOMDocument extends AbstractObservable<ObservableDO
 
     @Override
     public final void normalizeDocument() {
-        this.document.normalizeDocument();
+        this.getDelegate().normalizeDocument();
+
+        this.new DocumentNormalizedEvent().fire();
     }
 
     @Override
-    public final Node importNode(Node importedNode, boolean deep) throws DOMException {
-        return this.document.importNode(importedNode, deep);
+    public final Node importNode(final Node node, final boolean deep) throws DOMException {
+        final Node result = this.importSilently(node, deep);
+
+        this.new NodeImportedEvent(result).fire();
+
+        return result;
+    }
+
+    /**
+     *
+     * @param foreignNode
+     * <br>Not null
+     * @param deep
+     * @return
+     * <br>Not null
+     * <br>New
+     */
+    private final AbstractProxyNode<? extends Node> importSilently(final Node foreignNode, final boolean deep) {
+        switch (foreignNode.getNodeType()) {
+            case ATTRIBUTE_NODE:
+            case DOCUMENT_FRAGMENT_NODE:
+            case DOCUMENT_NODE:
+            case DOCUMENT_TYPE_NODE:
+                throw new RuntimeException("TODO");
+            case ELEMENT_NODE:
+                final ProxyElement result = this.new ProxyElement(this.getDelegate().createElement(((Element) foreignNode).getTagName()));
+
+                if (deep) {
+                    // TODO
+                }
+
+                return result;
+            case ENTITY_NODE:
+            case ENTITY_REFERENCE_NODE:
+            case NOTATION_NODE:
+            case PROCESSING_INSTRUCTION_NODE:
+            case TEXT_NODE:
+            case CDATA_SECTION_NODE:
+            case COMMENT_NODE:
+                throw new RuntimeException("TODO");
+            default:
+                break;
+        }
+
+        throw new IllegalArgumentException("Unknown node type: " + foreignNode.getNodeType());
     }
 
     @Override
     public final String getXmlVersion() {
-        return this.document.getXmlVersion();
+        return this.getDelegate().getXmlVersion();
     }
 
     @Override
     public final boolean getXmlStandalone() {
-        return this.document.getXmlStandalone();
+        return this.getDelegate().getXmlStandalone();
     }
 
     @Override
     public final String getXmlEncoding() {
-        return this.document.getXmlEncoding();
+        return this.getDelegate().getXmlEncoding();
     }
 
     @Override
     public final boolean getStrictErrorChecking() {
-        return this.document.getStrictErrorChecking();
+        return this.getDelegate().getStrictErrorChecking();
     }
 
     @Override
     public final String getInputEncoding() {
-        return this.document.getInputEncoding();
+        return this.getDelegate().getInputEncoding();
     }
 
     @Override
     public final DOMImplementation getImplementation() {
-        return this.document.getImplementation();
+        return this.getDelegate().getImplementation();
     }
 
     @Override
-    public final NodeList getElementsByTagNameNS(String namespaceURI, String localName) {
-        return this.document.getElementsByTagNameNS(namespaceURI, localName);
+    public final NodeList getElementsByTagNameNS(final String namespaceURI, final String localName) {
+        return this.getDelegate().getElementsByTagNameNS(namespaceURI, localName);
     }
 
     @Override
-    public final NodeList getElementsByTagName(String tagname) {
-        return this.document.getElementsByTagName(tagname);
+    public final NodeList getElementsByTagName(final String tagname) {
+        return this.getDelegate().getElementsByTagName(tagname);
     }
 
     @Override
-    public Element getElementById(String elementId) {
-        return this.document.getElementById(elementId);
+    public final Element getElementById(final String elementId) {
+        return this.getDelegate().getElementById(elementId);
     }
 
     @Override
-    public DOMConfiguration getDomConfig() {
-        return this.document.getDomConfig();
+    public final DOMConfiguration getDomConfig() {
+        return this.getDelegate().getDomConfig();
     }
 
     @Override
     public final String getDocumentURI() {
-        return this.document.getDocumentURI();
+        return this.getDelegate().getDocumentURI();
     }
 
     @Override
-    public Element getDocumentElement() {
-        return this.document.getDocumentElement();
+    public final Element getDocumentElement() {
+        return this.getDelegate().getDocumentElement();
     }
 
     @Override
-    public DocumentType getDoctype() {
-        return this.document.getDoctype();
+    public final DocumentType getDoctype() {
+        return this.getDelegate().getDoctype();
     }
 
     @Override
-    public Text createTextNode(String data) {
-        return this.document.createTextNode(data);
+    public final Text createTextNode(String data) {
+        return this.getDelegate().createTextNode(data);
     }
 
     @Override
-    public ProcessingInstruction createProcessingInstruction(String target, String data) throws DOMException {
-        return this.document.createProcessingInstruction(target, data);
+    public final ProcessingInstruction createProcessingInstruction(String target, String data) throws DOMException {
+        return this.getDelegate().createProcessingInstruction(target, data);
     }
 
     @Override
-    public EntityReference createEntityReference(String name) throws DOMException {
-        return this.document.createEntityReference(name);
+    public final EntityReference createEntityReference(String name) throws DOMException {
+        return this.getDelegate().createEntityReference(name);
     }
 
     @Override
-    public Element createElementNS(String namespaceURI, String qualifiedName) throws DOMException {
-        return this.document.createElementNS(namespaceURI, qualifiedName);
+    public final Element createElementNS(String namespaceURI, String qualifiedName) throws DOMException {
+        return this.getDelegate().createElementNS(namespaceURI, qualifiedName);
     }
 
     @Override
-    public Element createElement(String tagName) throws DOMException {
-        return this.document.createElement(tagName);
+    public final Element createElement(String tagName) throws DOMException {
+        return this.getDelegate().createElement(tagName);
     }
 
     @Override
-    public DocumentFragment createDocumentFragment() {
-        return this.document.createDocumentFragment();
+    public final DocumentFragment createDocumentFragment() {
+        return this.getDelegate().createDocumentFragment();
     }
 
     @Override
-    public Comment createComment(String data) {
-        return this.document.createComment(data);
+    public final Comment createComment(final String data) {
+        return this.getDelegate().createComment(data);
     }
 
     @Override
-    public CDATASection createCDATASection(String data) throws DOMException {
-        return this.document.createCDATASection(data);
+    public final CDATASection createCDATASection(final String data) throws DOMException {
+        return this.getDelegate().createCDATASection(data);
     }
 
     @Override
-    public Attr createAttributeNS(String namespaceURI, String qualifiedName) throws DOMException {
-        return this.document.createAttributeNS(namespaceURI, qualifiedName);
+    public final Attr createAttributeNS(final String namespaceURI, final String qualifiedName) throws DOMException {
+        return this.getDelegate().createAttributeNS(namespaceURI, qualifiedName);
     }
 
     @Override
-    public Attr createAttribute(String name) throws DOMException {
-        return this.document.createAttribute(name);
+    public final Attr createAttribute(final String name) throws DOMException {
+        return this.getDelegate().createAttribute(name);
     }
 
     @Override
-    public final Node adoptNode(Node source) throws DOMException {
-        return this.document.adoptNode(source);
+    public final Node adoptNode(final Node source) throws DOMException {
+        return this.getDelegate().adoptNode(source);
+    }
+
+    @Override
+    public final ObservableDOMDocument getOwnerDocument() {
+        return this;
     }
 
     /**
@@ -477,7 +392,29 @@ public final class ObservableDOMDocument extends AbstractObservable<ObservableDO
      * @author codistmonk (creation 2010-07-03)
      */
     public abstract class AbstractEvent extends AbstractObservable<Listener>.AbstractEvent<ObservableDOMDocument, Listener> {
-        // Deliberately left empty
+
+        private final Node eventNode;
+
+        /**
+         *
+         * @param eventNode
+         * <br>Not null
+         * <br>Shared
+         */
+        public AbstractEvent(final Node eventNode) {
+            this.eventNode = eventNode;
+        }
+
+        /**
+         *
+         * @return
+         * <br>Not null
+         * <br>Shared
+         */
+        public final Node getEventNode() {
+            return this.eventNode;
+        }
+
     }
 
     /**
@@ -494,6 +431,9 @@ public final class ObservableDOMDocument extends AbstractObservable<ObservableDO
 
         /**
          *
+         * @param eventNode
+         * <br>Not null
+         * <br>Shared
          * @param oldThing
          * <br>Maybe null
          * <br>Shared
@@ -501,7 +441,8 @@ public final class ObservableDOMDocument extends AbstractObservable<ObservableDO
          * <br>Maybe null
          * <br>Shared
          */
-        public AbstractThingChangedEvent(final T oldThing, final T newThing) {
+        public AbstractThingChangedEvent(final Node eventNode, final T oldThing, final T newThing) {
+            super(eventNode);
             this.oldThing = oldThing;
             this.newThing = newThing;
         }
@@ -538,6 +479,9 @@ public final class ObservableDOMDocument extends AbstractObservable<ObservableDO
 
         /**
          *
+         * @param eventNode
+         * <br>Not null
+         * <br>Shared
          * @param key
          * <br>Maybe null
          * <br>Shared
@@ -548,8 +492,9 @@ public final class ObservableDOMDocument extends AbstractObservable<ObservableDO
          * <br>Maybe null
          * <br>Shared
          */
-        public UserDataChangedEvent(final String key, final Object oldUserData, final Object newUserData) {
-            super(oldUserData, newUserData);
+        public UserDataChangedEvent(final Node eventNode,
+                final String key, final Object oldUserData, final Object newUserData) {
+            super(eventNode, oldUserData, newUserData);
             this.key = key;
         }
 
@@ -598,6 +543,9 @@ public final class ObservableDOMDocument extends AbstractObservable<ObservableDO
 
         /**
          * 
+         * @param eventNode
+         * <br>Not null
+         * <br>Shared
          * @param oldChild
          * <br>Not null
          * <br>Shared
@@ -605,8 +553,8 @@ public final class ObservableDOMDocument extends AbstractObservable<ObservableDO
          * <br>Not null
          * <br>Shared
          */
-        public ChildReplacedEvent(final Node oldChild, final Node newChild) {
-            super(oldChild, newChild);
+        public ChildReplacedEvent(final Node eventNode, final Node oldChild, final Node newChild) {
+            super(eventNode, oldChild, newChild);
         }
 
         /**
@@ -642,6 +590,16 @@ public final class ObservableDOMDocument extends AbstractObservable<ObservableDO
      */
     public final class NodeNormalizedEvent extends AbstractEvent {
 
+        /**
+         *
+         * @param node
+         * <br>Not null
+         * <br>Shared
+         */
+        public NodeNormalizedEvent(final Node node) {
+            super(node);
+        }
+
         @Override
         protected final void notifyListener(final Listener listener) {
             listener.nodeNormalized(this);
@@ -659,11 +617,15 @@ public final class ObservableDOMDocument extends AbstractObservable<ObservableDO
 
         /**
          *
+         * @param eventNode
+         * <br>Not null
+         * <br>Shared
          * @param appendedChild
          * <br>Not null
          * <br>Shared
          */
-        public ChildAppendedEvent(final Node appendedChild) {
+        public ChildAppendedEvent(final Node eventNode, final Node appendedChild) {
+            super(eventNode);
             this.appendedChild = appendedChild;
         }
 
@@ -700,7 +662,7 @@ public final class ObservableDOMDocument extends AbstractObservable<ObservableDO
          * <br>Shared
          */
         public XmlVersionChangedEvent(final String oldXmlVersion, final String newXmlVersion) {
-            super(oldXmlVersion, newXmlVersion);
+            super(ObservableDOMDocument.this, oldXmlVersion, newXmlVersion);
         }
 
         /**
@@ -746,7 +708,7 @@ public final class ObservableDOMDocument extends AbstractObservable<ObservableDO
          * <br>Shared
          */
         public XmlStandaloneChangedEvent(final boolean oldXmlStandalone, final boolean newXmlStandalone) {
-            super(oldXmlStandalone, newXmlStandalone);
+            super(ObservableDOMDocument.this, oldXmlStandalone, newXmlStandalone);
         }
 
         public final boolean getOldXmlStandalone() {
@@ -780,7 +742,7 @@ public final class ObservableDOMDocument extends AbstractObservable<ObservableDO
          * <br>Shared
          */
         public StrictErrorCheckingChangedEvent(final boolean oldStrictErrorChecking, final boolean newStrictErrorChecking) {
-            super(oldStrictErrorChecking, newStrictErrorChecking);
+            super(ObservableDOMDocument.this, oldStrictErrorChecking, newStrictErrorChecking);
         }
 
         public final boolean getOldStrictErrorChecking() {
@@ -814,7 +776,7 @@ public final class ObservableDOMDocument extends AbstractObservable<ObservableDO
          * <br>Shared
          */
         public DocumentURIChangedEvent(final String oldDocumentURI, final String newDocumentURI) {
-            super(oldDocumentURI, newDocumentURI);
+            super(ObservableDOMDocument.this, oldDocumentURI, newDocumentURI);
         }
 
         /**
@@ -882,7 +844,7 @@ public final class ObservableDOMDocument extends AbstractObservable<ObservableDO
         public NodeRenamedEvent(
                 final Node oldNode, final String oldNamespaceURI, final String oldQualifiedName,
                 final Node newNode, final String newNamespaceURI, final String newQualifiedName) {
-            super(oldNode, newNode);
+            super(ObservableDOMDocument.this, oldNode, newNode);
             this.oldNamespaceURI = oldNamespaceURI;
             this.oldQualifiedName = oldQualifiedName;
             this.newNamespaceURI = newNamespaceURI;
@@ -960,6 +922,59 @@ public final class ObservableDOMDocument extends AbstractObservable<ObservableDO
      *
      * @author codistmonk (creation 2010-07-03)
      */
+    public final class DocumentNormalizedEvent extends AbstractEvent {
+
+        public DocumentNormalizedEvent() {
+            super(ObservableDOMDocument.this);
+        }
+
+        @Override
+        protected final void notifyListener(final Listener listener) {
+            listener.documentNormalized(this);
+        }
+
+    }
+
+    /**
+     *
+     * @author codistmonk (creation 2010-07-03)
+     */
+    public final class NodeImportedEvent extends AbstractEvent {
+
+        private final Node importedNode;
+
+        /**
+         *
+         * @param importedNode
+         * <br>Not null
+         * <br>Shared
+         */
+        public NodeImportedEvent(final Node importedNode) {
+            super(ObservableDOMDocument.this);
+            this.importedNode = importedNode;
+        }
+
+        /**
+         *
+         * @return
+         * <br>Not null
+         * <br>Shared
+         */
+        public final Node getImportedNode() {
+            return this.importedNode;
+        }
+
+        @Override
+        protected final void notifyListener(final Listener listener) {
+            listener.nodeImported(this);
+        }
+
+    }
+
+    /**
+     *
+     * @author codistmonk (creation 2010-07-03)
+     */
     public static interface Listener {
 
         /**
@@ -1025,6 +1040,20 @@ public final class ObservableDOMDocument extends AbstractObservable<ObservableDO
          */
         public abstract void nodeRenamed(NodeRenamedEvent event);
 
+        /**
+         *
+         * @param event
+         * <br>Not null
+         */
+        public abstract void documentNormalized(DocumentNormalizedEvent event);
+
+        /**
+         *
+         * @param event
+         * <br>Not null
+         */
+        public abstract void nodeImported(NodeImportedEvent event);
+
     }
 
     /**
@@ -1036,6 +1065,405 @@ public final class ObservableDOMDocument extends AbstractObservable<ObservableDO
      */
     public static final String getQualifiedName(final Node node) {
         return node.getPrefix() == null ? node.getNodeName() : node.getPrefix() + ":" + node.getLocalName();
+    }
+
+    /**
+     *
+     * @author codistmonk (2010-07-04)
+     *
+     * @param <N> The actual delegate type
+     */
+    private abstract class AbstractProxyNode<N extends Node> extends AbstractProxyDOMNode<N, Void> {
+
+        /**
+         * 
+         * @param delegate
+         * <br>Not null
+         * <br>Shared
+         */
+        protected AbstractProxyNode(final N delegate) {
+            super(delegate);
+        }
+
+        @Override
+        public final Document getOwnerDocument() {
+            return ObservableDOMDocument.this;
+        }
+
+        @Override
+        public final void setNodeValue(final String nodeValue) throws DOMException {
+            // TODO event
+            this.getDelegate().setNodeValue(nodeValue);
+        }
+
+        @Override
+        public final Node insertBefore(final Node newChild, final Node referenceChild) throws DOMException {
+            this.checkOwnerDocument(newChild);
+            this.checkOwnerDocument(referenceChild);
+
+            // TODO event
+            return this.getDelegate().insertBefore(newChild, referenceChild);
+        }
+
+        @Override
+        public final Node replaceChild(final Node newChild, final Node oldChild) throws DOMException {
+            this.checkOwnerDocument(newChild);
+            this.checkOwnerDocument(oldChild);
+
+            if (oldChild != newChild) {
+                this.getDelegate().replaceChild(newChild, oldChild);
+
+                ObservableDOMDocument.this.new ChildReplacedEvent(this, oldChild, newChild).fire();
+            }
+
+            return oldChild;
+        }
+
+        @Override
+        public final Node removeChild(final Node oldChild) throws DOMException {
+            this.checkOwnerDocument(oldChild);
+            // TODO event
+            return this.getDelegate().removeChild(oldChild);
+        }
+
+        @Override
+        public final Node appendChild(final Node newChild) throws DOMException {
+            this.checkOwnerDocument(newChild);
+
+            this.getDelegate().appendChild(newChild);
+
+            ObservableDOMDocument.this.new ChildAppendedEvent(this, newChild).fire();
+
+            return newChild;
+        }
+
+        @Override
+        public void normalize() {
+            this.getDelegate().normalize();
+
+            ObservableDOMDocument.this.new NodeNormalizedEvent(this).fire();
+        }
+
+        @Override
+        public final void setPrefix(final String prefix) throws DOMException {
+            // TODO event
+            this.getDelegate().setPrefix(prefix);
+        }
+
+        @Override
+        public final void setTextContent(final String textContent) throws DOMException {
+            // TODO event
+            this.getDelegate().setTextContent(textContent);
+        }
+
+        @Override
+        public final Object setUserData(final String key, final Object data, final UserDataHandler handler) {
+            final Object oldData = this.getDelegate().setUserData(key, data, handler);
+
+            if (oldData != data) {
+                ObservableDOMDocument.this.new UserDataChangedEvent(this, key, oldData, data).fire();
+            }
+
+            return oldData;
+        }
+
+        /**
+         *
+         * @param node
+         * <br>Not null
+         * @throws IllegalArgumentException If {@code node}'s owner document is not {@code this.getOwnerDocument()}
+         */
+        protected final void checkOwnerDocument(final Node node) {
+            if (node.getOwnerDocument() != this.getOwnerDocument()) {
+                throw new IllegalArgumentException("The node belongs to another document: " + node);
+            }
+        }
+        
+    }
+
+    /**
+     *
+     * @author codistmonk (creation 2010-07-04)
+     */
+    private final class ProxyElement extends AbstractProxyNode<Element> implements Element {
+
+        /**
+         *
+         * @param delegate
+         * <br>Not null
+         * <br>Shared
+         */
+        public ProxyElement(final Element delegate) {
+            super(delegate);
+        }
+
+        @Override
+        public Node cloneNode(boolean deep) {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+
+        @Override
+        public final String getTagName() {
+            return this.getDelegate().getTagName();
+        }
+
+        @Override
+        public final String getAttribute(final String name) {
+            return this.getDelegate().getAttribute(name);
+        }
+
+        @Override
+        public void setAttribute(String name, String value) throws DOMException {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+
+        @Override
+        public void removeAttribute(String name) throws DOMException {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+
+        @Override
+        public final Attr getAttributeNode(final String name) {
+            return this.getDelegate().getAttributeNode(name);
+        }
+
+        @Override
+        public Attr setAttributeNode(Attr newAttr) throws DOMException {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+
+        @Override
+        public Attr removeAttributeNode(Attr oldAttr) throws DOMException {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+
+        @Override
+        public final NodeList getElementsByTagName(final String name) {
+            return this.getDelegate().getElementsByTagName(name);
+        }
+
+        @Override
+        public final String getAttributeNS(final String namespaceURI, final String localName) throws DOMException {
+            return this.getDelegate().getAttributeNS(namespaceURI, localName);
+        }
+
+        @Override
+        public void setAttributeNS(String namespaceURI, String qualifiedName, String value) throws DOMException {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+
+        @Override
+        public void removeAttributeNS(String namespaceURI, String localName) throws DOMException {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+
+        @Override
+        public final Attr getAttributeNodeNS(final String namespaceURI, final String localName) throws DOMException {
+            return this.getDelegate().getAttributeNodeNS(namespaceURI, localName);
+        }
+
+        @Override
+        public Attr setAttributeNodeNS(Attr newAttr) throws DOMException {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+
+        @Override
+        public final NodeList getElementsByTagNameNS(final String namespaceURI, final String localName) throws DOMException {
+            return this.getDelegate().getElementsByTagNameNS(namespaceURI, localName);
+        }
+
+        @Override
+        public final boolean hasAttribute(final String name) {
+            return this.getDelegate().hasAttribute(name);
+        }
+
+        @Override
+        public final boolean hasAttributeNS(final String namespaceURI, final String localName) throws DOMException {
+            return this.getDelegate().hasAttributeNS(namespaceURI, localName);
+        }
+
+        @Override
+        public final TypeInfo getSchemaTypeInfo() {
+            return this.getDelegate().getSchemaTypeInfo();
+        }
+
+        @Override
+        public void setIdAttribute(String name, boolean isId) throws DOMException {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+
+        @Override
+        public void setIdAttributeNS(String namespaceURI, String localName, boolean isId) throws DOMException {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+
+        @Override
+        public void setIdAttributeNode(Attr idAttr, boolean isId) throws DOMException {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+
+    }
+
+}
+
+/**
+ *
+ * @author codistmonk (creation 2010-07-04)
+ *
+ * @param <L> The listener type
+ */
+abstract class AbstractProxyDOMNode<N extends Node, L> extends AbstractObservable<L> implements Node {
+
+    private final N delegate;
+
+    /**
+     *
+     * @param delegate
+     * <br>Not null
+     * <br>Shared
+     */
+    AbstractProxyDOMNode(final N delegate) {
+        this.delegate = delegate;
+    }
+
+    @Override
+    public final String lookupPrefix(final String namespaceURI) {
+        return this.getDelegate().lookupPrefix(namespaceURI);
+    }
+
+    @Override
+    public final String lookupNamespaceURI(final String prefix) {
+        return this.getDelegate().lookupNamespaceURI(prefix);
+    }
+
+    @Override
+    public final boolean isSupported(final String feature, final String version) {
+        return this.getDelegate().isSupported(feature, version);
+    }
+
+    @Override
+    public final boolean isSameNode(final Node other) {
+        return this.getDelegate().isSameNode(other);
+    }
+
+    @Override
+    public final boolean isEqualNode(final Node other) {
+        return this.getDelegate().isEqualNode(other);
+    }
+
+    @Override
+    public final boolean isDefaultNamespace(final String namespaceURI) {
+        return this.getDelegate().isDefaultNamespace(namespaceURI);
+    }
+
+    @Override
+    public final boolean hasChildNodes() {
+        return this.getDelegate().hasChildNodes();
+    }
+
+    @Override
+    public final boolean hasAttributes() {
+        return this.getDelegate().hasAttributes();
+    }
+
+    @Override
+    public final Object getUserData(final String key) {
+        return this.getDelegate().getUserData(key);
+    }
+
+    @Override
+    public final String getTextContent() throws DOMException {
+        return this.getDelegate().getTextContent();
+    }
+
+    @Override
+    public final Node getPreviousSibling() {
+        return this.getDelegate().getPreviousSibling();
+    }
+
+    @Override
+    public final String getPrefix() {
+        return this.getDelegate().getPrefix();
+    }
+
+    @Override
+    public final Node getParentNode() {
+        return this.getDelegate().getParentNode();
+    }
+
+    @Override
+    public final String getNodeValue() throws DOMException {
+        return this.getDelegate().getNodeValue();
+    }
+
+    @Override
+    public final short getNodeType() {
+        return this.getDelegate().getNodeType();
+    }
+
+    @Override
+    public final String getNodeName() {
+        return this.getDelegate().getNodeName();
+    }
+
+    @Override
+    public final Node getNextSibling() {
+        return this.getDelegate().getNextSibling();
+    }
+
+    @Override
+    public final String getNamespaceURI() {
+        return this.getDelegate().getNamespaceURI();
+    }
+
+    @Override
+    public final String getLocalName() {
+        return this.getDelegate().getLocalName();
+    }
+
+    @Override
+    public final Node getLastChild() {
+        return this.getDelegate().getLastChild();
+    }
+
+    @Override
+    public final Node getFirstChild() {
+        return this.getDelegate().getFirstChild();
+    }
+
+    @Override
+    public final Object getFeature(final String feature, final String version) {
+        return this.getDelegate().getFeature(feature, version);
+    }
+
+    @Override
+    public final NodeList getChildNodes() {
+        return this.getDelegate().getChildNodes();
+    }
+
+    @Override
+    public final String getBaseURI() {
+        return this.getDelegate().getBaseURI();
+    }
+
+    @Override
+    public final NamedNodeMap getAttributes() {
+        return this.getDelegate().getAttributes();
+    }
+
+    @Override
+    public final short compareDocumentPosition(final Node other) throws DOMException {
+        return this.getDelegate().compareDocumentPosition(other);
+    }
+
+    /**
+     *
+     * @return
+     * <br>Not null
+     * <br>Shared
+     */
+    protected final N getDelegate() {
+        return this.delegate;
     }
 
 }
