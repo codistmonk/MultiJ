@@ -25,6 +25,12 @@
 package net.sourceforge.aprog.markups;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.dnd.DropTarget;
+import java.awt.dnd.DropTargetAdapter;
+import java.awt.dnd.DropTargetDragEvent;
+import java.awt.dnd.DropTargetDropEvent;
+import java.awt.dnd.DropTargetEvent;
 import static javax.swing.KeyStroke.getKeyStroke;
 import net.sourceforge.aprog.events.Variable.ValueChangedEvent;
 
@@ -38,17 +44,22 @@ import static net.sourceforge.aprog.swing.SwingTools.scrollable;
 
 import java.awt.event.WindowListener;
 import java.io.File;
+import java.util.List;
+import javax.swing.BorderFactory;
+import javax.swing.ButtonGroup;
 
 import javax.swing.JFrame;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 
 import net.sourceforge.aprog.context.Context;
 import net.sourceforge.aprog.events.Variable;
+import net.sourceforge.aprog.i18n.Messages;
 import net.sourceforge.aprog.i18n.Translator;
 import net.sourceforge.aprog.swing.SwingTools;
 import net.sourceforge.aprog.tools.IllegalInstantiationException;
@@ -365,8 +376,12 @@ public final class Components {
      * <br>New
      */
     public static final JMenuItem newTreeMenuItem(final Context context) {
-        final JMenuItem result = item("Tree",
-                Actions.class, "tree", context);
+        final JMenuItem result = Messages.translate(new JRadioButtonMenuItem(
+                SwingTools.action(Actions.class, "tree", context)
+                .setName("Tree")));
+
+        getOrCreateButtonGroup(context, VIEW_RADIO_GROUP).add(result);
+        getOrCreateButtonGroup(context, VIEW_RADIO_GROUP).setSelected(result.getModel(), true);
 
         return result;
     }
@@ -381,8 +396,11 @@ public final class Components {
      * <br>New
      */
     public static final JMenuItem newTextMenuItem(final Context context) {
-        final JMenuItem result = item("Text",
-                Actions.class, "text", context);
+        final JMenuItem result = Messages.translate(new JRadioButtonMenuItem(
+                SwingTools.action(Actions.class, "text", context)
+                .setName("Text")));
+
+        getOrCreateButtonGroup(context, VIEW_RADIO_GROUP).add(result);
 
         return result;
     }
@@ -415,6 +433,31 @@ public final class Components {
 
         result.add(scrollable(newDOMTreeView(context)));
 
+        new DropTarget(result, new DropTargetAdapter() {
+
+            @Override
+            public final void dragEnter(final DropTargetDragEvent event) {
+                result.setBorder(BorderFactory.createLineBorder(Color.GREEN, 2));
+            }
+
+            @Override
+            public final void dragExit(final DropTargetEvent event) {
+                result.setBorder(null);
+            }
+
+            @Override
+            public final void drop(final DropTargetDropEvent event) {
+                result.setBorder(null);
+
+                final List<File> files = SwingTools.getFiles(event);
+
+                if (!files.isEmpty() && Actions.confirm(context)) {
+                    context.set(FILE, files.get(0));
+                }
+            }
+
+        });
+
         return result;
     }
 
@@ -445,6 +488,27 @@ public final class Components {
             }
 
         });
+
+        return result;
+    }
+
+    /**
+     *
+     * @param context
+     * <br>Not null
+     * <br>Input-output
+     * @param variableName
+     * <br>Not null
+     * @return
+     * <br>Not null
+     * <br>Maybe new
+     */
+    public static final ButtonGroup getOrCreateButtonGroup(final Context context, final String variableName) {
+        ButtonGroup result = context.get(variableName);
+
+        if (result == null) {
+            context.set(variableName, result = new ButtonGroup());
+        }
 
         return result;
     }
