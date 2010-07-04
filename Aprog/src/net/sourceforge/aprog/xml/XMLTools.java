@@ -55,7 +55,6 @@ import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
 import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathFactory;
 
 import net.sourceforge.aprog.tools.IllegalInstantiationException;
@@ -94,6 +93,17 @@ public final class XMLTools {
      */
     public static final String XML_1_UTF8_STANDALONE =
             "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>";
+
+    /**
+     *
+     * @param node
+     * <br>Not null
+     * @return
+     * <br>Not null
+     */
+    public static final String getQualifiedName(final Node node) {
+        return node.getPrefix() == null ? node.getNodeName() : node.getPrefix() + ":" + node.getLocalName();
+    }
 
     /**
      *
