@@ -283,13 +283,25 @@ public final class ObservableDOMDocument extends AbstractObservable<ObservableDO
     }
 
     @Override
-    public final void setXmlVersion(String xmlVersion) throws DOMException {
-        this.document.setXmlVersion(xmlVersion);
+    public final void setXmlVersion(final String xmlVersion) throws DOMException {
+        final String oldXmlVersion = this.getXmlVersion();
+
+        if (!Tools.equals(oldXmlVersion, xmlVersion)) {
+            this.document.setXmlVersion(xmlVersion);
+
+            this.new XmlVersionChangedEvent(oldXmlVersion, xmlVersion).fire();
+        }
     }
 
     @Override
-    public final void setXmlStandalone(boolean xmlStandalone) throws DOMException {
-        this.document.setXmlStandalone(xmlStandalone);
+    public final void setXmlStandalone(final boolean xmlStandalone) throws DOMException {
+        final boolean oldXmlStandalone = this.getXmlStandalone();
+
+        if (oldXmlStandalone != xmlStandalone) {
+            this.document.setXmlStandalone(xmlStandalone);
+
+            this.new XmlStandaloneChangedEvent(oldXmlStandalone, xmlStandalone).fire();
+        }
     }
 
     @Override
@@ -614,6 +626,10 @@ public final class ObservableDOMDocument extends AbstractObservable<ObservableDO
 
     }
 
+    /**
+     *
+     * @author codistmonk (creation 2010-07-03)
+     */
     public final class ChildAppendedEvent extends AbstractEvent {
 
         private final Node appendedChild;
@@ -641,6 +657,86 @@ public final class ObservableDOMDocument extends AbstractObservable<ObservableDO
         @Override
         protected final void notifyListener(final Listener listener) {
             listener.childAppended(this);
+        }
+
+    }
+
+    /**
+     *
+     * @author codistmonk (creation 2010-07-04)
+     */
+    public final class XmlVersionChangedEvent extends AbstractThingChangedEvent<String> {
+
+        /**
+         *
+         * @param oldXmlVersion
+         * <br>Maybe null
+         * <br>Shared
+         * @param newXmlVersion
+         * <br>Maybe null
+         * <br>Shared
+         */
+        public XmlVersionChangedEvent(final String oldXmlVersion, final String newXmlVersion) {
+            super(oldXmlVersion, newXmlVersion);
+        }
+
+        /**
+         *
+         * @return
+         * <br>Maybe null
+         * <br>Shared
+         */
+        public final String getOldXmlVersion() {
+            return this.getOldThing();
+        }
+
+        /**
+         *
+         * @return
+         * <br>Maybe null
+         * <br>Shared
+         */
+        public final String getNewXmlVersion() {
+            return this.getNewThing();
+        }
+
+        @Override
+        protected final void notifyListener(final Listener listener) {
+            listener.xmlVersionChanged(this);
+        }
+
+    }
+
+    /**
+     *
+     * @author codistmonk (creation 2010-07-04)
+     */
+    public final class XmlStandaloneChangedEvent extends AbstractThingChangedEvent<Boolean> {
+
+        /**
+         *
+         * @param oldXmlStandalone
+         * <br>Maybe null
+         * <br>Shared
+         * @param newXmlStandalone
+         * <br>Maybe null
+         * <br>Shared
+         */
+        public XmlStandaloneChangedEvent(final boolean oldXmlStandalone, final boolean newXmlStandalone) {
+            super(oldXmlStandalone, newXmlStandalone);
+        }
+
+        public final boolean getOldXmlStandalone() {
+            return this.getOldThing();
+        }
+
+        public final boolean getNewXmlStandalone() {
+            return this.getNewThing();
+        }
+
+        @Override
+        protected final void notifyListener(final Listener listener) {
+            listener.xmlStandaloneChanged(this);
         }
 
     }
@@ -678,6 +774,20 @@ public final class ObservableDOMDocument extends AbstractObservable<ObservableDO
          * <br>Not null
          */
         public abstract void childAppended(ChildAppendedEvent event);
+
+        /**
+         *
+         * @param event
+         * <br>Not null
+         */
+        public abstract void xmlVersionChanged(XmlVersionChangedEvent event);
+
+        /**
+         *
+         * @param event
+         * <br>Not null
+         */
+        public abstract void xmlStandaloneChanged(XmlStandaloneChangedEvent event);
 
     }
 
