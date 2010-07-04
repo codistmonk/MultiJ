@@ -305,13 +305,25 @@ public final class ObservableDOMDocument extends AbstractObservable<ObservableDO
     }
 
     @Override
-    public final void setStrictErrorChecking(boolean strictErrorChecking) {
-        this.document.setStrictErrorChecking(strictErrorChecking);
+    public final void setStrictErrorChecking(final boolean strictErrorChecking) {
+        final boolean oldStrictErrorChecking = this.getStrictErrorChecking();
+
+        if (oldStrictErrorChecking != strictErrorChecking) {
+            this.document.setStrictErrorChecking(strictErrorChecking);
+
+            this.new StrictErrorCheckingChangedEvent(oldStrictErrorChecking, strictErrorChecking).fire();
+        }
     }
 
     @Override
-    public final void setDocumentURI(String documentURI) {
-        this.document.setDocumentURI(documentURI);
+    public final void setDocumentURI(final String documentURI) {
+        final String oldDocumentURI = this.getDocumentURI();
+
+        if (!Tools.equals(oldDocumentURI, documentURI)) {
+            this.document.setDocumentURI(documentURI);
+
+            this.new DocumentURIChangedEvent(oldDocumentURI, documentURI).fire();
+        }
     }
 
     @Override
@@ -743,6 +755,86 @@ public final class ObservableDOMDocument extends AbstractObservable<ObservableDO
 
     /**
      *
+     * @author codistmonk (creation 2010-07-04)
+     */
+    public final class StrictErrorCheckingChangedEvent extends AbstractThingChangedEvent<Boolean> {
+
+        /**
+         *
+         * @param oldStrictErrorChecking
+         * <br>Maybe null
+         * <br>Shared
+         * @param newStrictErrorChecking
+         * <br>Maybe null
+         * <br>Shared
+         */
+        public StrictErrorCheckingChangedEvent(final boolean oldStrictErrorChecking, final boolean newStrictErrorChecking) {
+            super(oldStrictErrorChecking, newStrictErrorChecking);
+        }
+
+        public final boolean getOldStrictErrorChecking() {
+            return this.getOldThing();
+        }
+
+        public final boolean getNewStrictErrorChecking() {
+            return this.getNewThing();
+        }
+
+        @Override
+        protected final void notifyListener(final Listener listener) {
+            listener.strictErrorCheckingChanged(this);
+        }
+
+    }
+
+    /**
+     *
+     * @author codistmonk (creation 2010-07-04)
+     */
+    public final class DocumentURIChangedEvent extends AbstractThingChangedEvent<String> {
+
+        /**
+         *
+         * @param oldDocumentURI
+         * <br>Maybe null
+         * <br>Shared
+         * @param newDocumentURI
+         * <br>Maybe null
+         * <br>Shared
+         */
+        public DocumentURIChangedEvent(final String oldDocumentURI, final String newDocumentURI) {
+            super(oldDocumentURI, newDocumentURI);
+        }
+
+        /**
+         *
+         * @return
+         * <br>Maybe null
+         * <br>Shared
+         */
+        public final String getOldDocumentURI() {
+            return this.getOldThing();
+        }
+
+        /**
+         *
+         * @return
+         * <br>Maybe null
+         * <br>Shared
+         */
+        public final String getNewDocumentURI() {
+            return this.getNewThing();
+        }
+
+        @Override
+        protected final void notifyListener(final Listener listener) {
+            listener.documentURIChanged(this);
+        }
+
+    }
+
+    /**
+     *
      * @author codistmonk (creation 2010-07-03)
      */
     public static interface Listener {
@@ -788,6 +880,20 @@ public final class ObservableDOMDocument extends AbstractObservable<ObservableDO
          * <br>Not null
          */
         public abstract void xmlStandaloneChanged(XmlStandaloneChangedEvent event);
+
+        /**
+         *
+         * @param event
+         * <br>Not null
+         */
+        public abstract void strictErrorCheckingChanged(StrictErrorCheckingChangedEvent event);
+
+        /**
+         *
+         * @param event
+         * <br>Not null
+         */
+        public abstract void documentURIChanged(DocumentURIChangedEvent event);
 
     }
 

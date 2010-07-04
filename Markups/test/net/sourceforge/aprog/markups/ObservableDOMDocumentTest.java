@@ -184,6 +184,47 @@ public final class ObservableDOMDocumentTest {
         assertEquals(1, recorder.getEvents().size());
     }
 
+    @Test
+    public final <R extends EventRecorder & Listener> void testSetStrictErrorChecking() {
+        final ObservableDOMDocument document = new ObservableDOMDocument();
+        @SuppressWarnings("unchecked")
+        final R recorder = (R) newEventRecorder(Listener.class);
+
+        assertTrue(document.getStrictErrorChecking());
+
+        document.addListener(recorder);
+        document.setStrictErrorChecking(false);
+
+        assertFalse(document.getStrictErrorChecking());
+
+        final StrictErrorCheckingChangedEvent event = recorder.getEvent(0);
+
+        assertTrue(event.getOldStrictErrorChecking());
+        assertFalse(event.getNewStrictErrorChecking());
+        assertEquals(1, recorder.getEvents().size());
+    }
+
+    @Test
+    public final <R extends EventRecorder & Listener> void testSetDocumentURI() {
+        final String documentURI = "urn:net.sourceforge.aprog/observable-document-test.xml";
+        final ObservableDOMDocument document = new ObservableDOMDocument();
+        @SuppressWarnings("unchecked")
+        final R recorder = (R) newEventRecorder(Listener.class);
+
+        assertNull(document.getDocumentURI());
+
+        document.addListener(recorder);
+        document.setDocumentURI(documentURI);
+
+        assertEquals(documentURI, document.getDocumentURI());
+
+        final DocumentURIChangedEvent event = recorder.getEvent(0);
+
+        assertNull(event.getOldDocumentURI());
+        assertEquals(documentURI, event.getNewDocumentURI());
+        assertEquals(1, recorder.getEvents().size());
+    }
+
     private static final String USER_DATA_KEY = "key";
 
 }
