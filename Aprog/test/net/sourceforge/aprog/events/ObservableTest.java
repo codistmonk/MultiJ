@@ -47,7 +47,7 @@ import org.junit.Test;
 public final class ObservableTest {
 
     @Test
-    public final <R extends EventRecorder & DummyObservable.Listener> void testFireEvent() {
+    public final <R extends EventRecorder<Event<?>> & DummyObservable.Listener> void testFireEvent() {
         final DummyObservable observable = new DummyObservable();
         @SuppressWarnings("unchecked")
         final R recorder1 = (R) newEventRecorder(DummyObservable.Listener.class);
@@ -69,7 +69,7 @@ public final class ObservableTest {
 
     /**
      *
-     * @param <R> the (multi)listener recorder proxy type
+     * @param <R> The (multi)listener recorder proxy type
      * @param listenerTypes
      * <br>Not null
      * @return
@@ -77,19 +77,21 @@ public final class ObservableTest {
      * <br>New
      */
     @SuppressWarnings("unchecked")
-    public static final <R extends EventRecorder> R newEventRecorder(
+    public static final <R extends EventRecorder<?>> R newEventRecorder(
             final Class<?>... listenerTypes) {
         return (R) Proxy.newProxyInstance(
                 Tools.getCallerClass().getClassLoader(),
                 Tools.append(listenerTypes, EventRecorder.class),
-                new RecorderInvocationHandler());
+                new RecorderInvocationHandler<Object>());
     }
 
     /**
      *
      * @author codistmonk (creation 2010-06-18)
+     *
+     * @param <E> The base event type
      */
-    public static interface EventRecorder {
+    public static interface EventRecorder<E> {
 
         /**
          *
@@ -97,11 +99,11 @@ public final class ObservableTest {
          * <br>Not null
          * <br>Not shared
          */
-        public abstract List<Event<?>> getEvents();
+        public abstract List<E> getEvents();
 
         /**
          *
-         * @param <E> the expected event type
+         * @param <T> the expected event type
          * @param index
          * <br>Range: {@code [0 .. this.getEvents().size() - 1]}
          * @return
@@ -109,7 +111,7 @@ public final class ObservableTest {
          * <br>Shared
          * @throws IndexOutOfBoundsException if {@code index} is out of range
          */
-        public abstract <E extends Event<?>> E getEvent(int index);
+        public abstract <T extends E> T getEvent(int index);
 
     }
 
@@ -117,12 +119,12 @@ public final class ObservableTest {
      *
      * @author codistmonk (creation 2010-06-18)
      */
-    private static class RecorderInvocationHandler extends AbstractInvocationHandler implements EventRecorder {
+    private static class RecorderInvocationHandler<E> extends AbstractInvocationHandler implements EventRecorder<E> {
 
-        private final List<Event<?>> events;
+        private final List<E> events;
 
         RecorderInvocationHandler() {
-            this.events = new ArrayList<Event<?>>();
+            this.events = new ArrayList<E>();
         }
 
         @Override
@@ -133,21 +135,21 @@ public final class ObservableTest {
             }
 
             if (arguments.length == 1 && arguments[0] instanceof Event<?>) {
-                this.events.add((Event<?>) arguments[0]);
+                this.events.add((E) arguments[0]);
             }
 
             return null;
         }
 
         @Override
-        public final List<Event<?>> getEvents() {
+        public final List<E> getEvents() {
             return Collections.unmodifiableList(this.events);
         }
 
         @Override
         @SuppressWarnings("unchecked")
-        public final <E extends Event<?>> E getEvent(final int index) {
-            return (E) this.getEvents().get(index);
+        public final <T extends E> T getEvent(final int index) {
+            return (T) this.getEvents().get(index);
         }
 
     }
