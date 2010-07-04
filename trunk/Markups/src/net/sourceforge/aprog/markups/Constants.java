@@ -103,6 +103,11 @@ public final class Constants {
          */
         public static final String TREE_MODEL = "file.treeModel";
 
+        /**
+         * {@value}.
+         */
+        public static final String VIEW_RADIO_GROUP = "mainFrame.view.radioGroup";
+
     }
 
 }

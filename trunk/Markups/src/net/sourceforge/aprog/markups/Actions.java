@@ -77,7 +77,7 @@ public final class Actions {
      * <br>Input-output
      * @return {@code true} if the caller can proceed
      */
-    private static final boolean confirm(final Context context) {
+    public static final boolean confirm(final Context context) {
         if ((Boolean) context.get(FILE_MODIFIED)) {
             switch (JOptionPane.showConfirmDialog(null, "Save?", null, JOptionPane.YES_NO_CANCEL_OPTION)) {
                 case JOptionPane.YES_OPTION:
@@ -115,6 +115,10 @@ public final class Actions {
      * <br>Input-output
      */
     public static final void open(final Context context) {
+        if (!confirm(context)) {
+            return;
+        }
+
         final JFileChooser fileChooser = new JFileChooser();
 
         if (JFileChooser.APPROVE_OPTION == fileChooser.showOpenDialog((Component) context.get(MAIN_FRAME)) && fileChooser.getSelectedFile() != null) {
