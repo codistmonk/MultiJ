@@ -42,12 +42,18 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JTree;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.MutableTreeNode;
 
 import net.sourceforge.aprog.context.Context;
 import net.sourceforge.aprog.i18n.Translator;
 import net.sourceforge.aprog.swing.SwingTools;
 import net.sourceforge.aprog.tools.IllegalInstantiationException;
+import net.sourceforge.aprog.xml.XMLTools;
 import net.sourceforge.jmacadapter.MacAdapterTools;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
 
 /**
  *
@@ -237,9 +243,78 @@ public final class Components {
     public static final JPanel newMainPanel() {
         final JPanel result = new JPanel(new BorderLayout());
 
-        result.add(scrollable(new JTree()));
+        result.add(scrollable(newDOMTreeView()));
 
         return result;
+    }
+
+    /**
+     *
+     * @return
+     * <br>Not null
+     * <br>New
+     */
+    public static final JTree newDOMTreeView() {
+        final JTree result = new JTree(new DOMTreeModel(XMLTools.parse("<a><b c='d'/><b c='e'/></a>")));
+
+        return result;
+    }
+
+    /**
+     *
+     * @author codistmonk (creation 2010-07-04)
+     */
+    public static final class DOMTreeModel extends DefaultTreeModel {
+
+        /**
+         *
+         * @param domNode
+         * <br>Not null
+         * <br>Shared
+         */
+        public DOMTreeModel(final Node domNode) {
+            super(newTreeNode(domNode));
+        }
+
+        /**
+         *
+         * @return
+         * <br>Not null
+         * <br>Shared
+         */
+        public final Node getDOMNode() {
+            return (Node) ((DefaultMutableTreeNode) this.getRoot()).getUserObject();
+        }
+
+        private static final long serialVersionUID = 4264388285566053331L;
+
+        /**
+         *
+         * @param domNode
+         * <br>Not null
+         * <br>Shared
+         * @return
+         * <br>Not null
+         * <br>New
+         */
+        public static final DefaultMutableTreeNode newTreeNode(final Node domNode) {
+            final DefaultMutableTreeNode result = new DefaultMutableTreeNode(domNode);
+            final NamedNodeMap attributes = domNode.getAttributes();
+
+            if (attributes != null) {
+                for (int i = 0; i < attributes.getLength(); ++i) {
+                    result.add(newTreeNode(attributes.item(i)));
+                }
+            }
+
+            for (final Node domChild : XMLTools.toList(domNode.getChildNodes())) {
+                result.add(newTreeNode(domChild));
+            }
+
+
+            return result;
+        }
+
     }
 
 }
