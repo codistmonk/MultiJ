@@ -25,14 +25,23 @@
 package net.sourceforge.aprog.markups;
 
 import java.awt.Component;
+import java.io.FileNotFoundException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import static net.sourceforge.aprog.markups.Constants.Variables.*;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileFilter;
+import javax.swing.tree.TreeModel;
 import net.sourceforge.aprog.context.Context;
+import net.sourceforge.aprog.i18n.Messages;
 import net.sourceforge.aprog.tools.IllegalInstantiationException;
 import net.sourceforge.aprog.tools.Tools;
+import net.sourceforge.aprog.xml.XMLTools;
+import org.w3c.dom.Node;
 
 /**
  *
@@ -53,7 +62,20 @@ public final class Actions {
      * <br>Unused
      */
     public static final void quit(final Context context) {
-        Tools.debugPrint("TODO: check if file needs saving");
+        if ((Boolean) context.get(FILE_MODIFIED)) {
+            switch (JOptionPane.showConfirmDialog(null, "Save?", null, JOptionPane.YES_NO_CANCEL_OPTION)) {
+                case JOptionPane.YES_OPTION:
+                    save(context);
+                    break;
+                case JOptionPane.NO_OPTION:
+                    break;
+                case JOptionPane.CANCEL_OPTION:
+                    return;
+                default:
+                    Tools.getLoggerForThisMethod().log(Level.WARNING, "Unhandled option");
+                    break;
+            }
+        }
 
         System.exit(0);
     }
@@ -61,7 +83,8 @@ public final class Actions {
     /**
      *
      * @param context
-     * <br>Unused
+     * <br>Not null
+     * <br>Input-output
      */
     public static final void open(final Context context) {
         final JFileChooser fileChooser = new JFileChooser();
@@ -74,9 +97,123 @@ public final class Actions {
     /**
      *
      * @param context
-     * <br>Unused
+     * <br>Not null
+     * <br>Input-output
      */
     public static final void save(final Context context) {
+        final File file = context.get(FILE);
+
+        if (file != null) {
+            save(context, file);
+        } else {
+            saveAs(context);
+        }
+    }
+
+    /**
+     *
+     * @param context
+     * <br>Not null
+     * <br>Input-output
+     */
+    public static final void saveAs(final Context context) {
+        final JFileChooser fileChooser = new JFileChooser();
+
+        if (JFileChooser.APPROVE_OPTION == fileChooser.showOpenDialog((Component) context.get(MAIN_FRAME)) && fileChooser.getSelectedFile() != null) {
+            save(context, fileChooser.getSelectedFile());
+        }
+    }
+
+    /**
+     *
+     * @param context
+     * <br>Not null
+     * <br>Input-output
+     * @param file
+     * <br>Not null
+     * <br>Shared
+     */
+    private static final void save(final Context context, final File file) {
+        try {
+            XMLTools.write((Node) ((TreeModel) context.get(TREE_MODEL)).getRoot(), new FileOutputStream(file), 0);
+            context.set(FILE, file);
+        } catch (final FileNotFoundException exception) {
+            net.sourceforge.aprog.subtitlesadjuster.Actions.showErrorMessage(context, exception);
+        }
+    }
+
+    /**
+     *
+     * @param context
+     * <br>Not null
+     */
+    public static final void undo(final Context context) {
+        Tools.debugPrint("TODO");
+
+        net.sourceforge.aprog.subtitlesadjuster.Actions.showTODOMessage(context);
+    }
+
+    /**
+     *
+     * @param context
+     * <br>Not null
+     */
+    public static final void redo(final Context context) {
+        Tools.debugPrint("TODO");
+
+        net.sourceforge.aprog.subtitlesadjuster.Actions.showTODOMessage(context);
+    }
+
+    /**
+     *
+     * @param context
+     * <br>Not null
+     */
+    public static final void copy(final Context context) {
+        Tools.debugPrint("TODO");
+
+        net.sourceforge.aprog.subtitlesadjuster.Actions.showTODOMessage(context);
+    }
+
+    /**
+     *
+     * @param context
+     * <br>Not null
+     */
+    public static final void cut(final Context context) {
+        Tools.debugPrint("TODO");
+
+        net.sourceforge.aprog.subtitlesadjuster.Actions.showTODOMessage(context);
+    }
+
+    /**
+     *
+     * @param context
+     * <br>Not null
+     */
+    public static final void paste(final Context context) {
+        Tools.debugPrint("TODO");
+
+        net.sourceforge.aprog.subtitlesadjuster.Actions.showTODOMessage(context);
+    }
+
+    /**
+     *
+     * @param context
+     * <br>Not null
+     */
+    public static final void tree(final Context context) {
+        Tools.debugPrint("TODO");
+
+        net.sourceforge.aprog.subtitlesadjuster.Actions.showTODOMessage(context);
+    }
+
+    /**
+     *
+     * @param context
+     * <br>Not null
+     */
+    public static final void text(final Context context) {
         Tools.debugPrint("TODO");
 
         net.sourceforge.aprog.subtitlesadjuster.Actions.showTODOMessage(context);
