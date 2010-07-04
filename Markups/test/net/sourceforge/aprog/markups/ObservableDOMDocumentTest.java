@@ -25,6 +25,7 @@
 package net.sourceforge.aprog.markups;
 
 import static net.sourceforge.aprog.events.ObservableTest.*;
+import static net.sourceforge.aprog.markups.ObservableDOMDocument.*;
 import static net.sourceforge.aprog.tools.Tools.*;
 
 import static org.junit.Assert.*;
@@ -206,7 +207,7 @@ public final class ObservableDOMDocumentTest {
 
     @Test
     public final <R extends EventRecorder & Listener> void testSetDocumentURI() {
-        final String documentURI = "urn:net.sourceforge.aprog/observable-document-test.xml";
+        final String documentURI = NAMESPACE_URI + ":observable-document-test.xml";
         final ObservableDOMDocument document = new ObservableDOMDocument();
         @SuppressWarnings("unchecked")
         final R recorder = (R) newEventRecorder(Listener.class);
@@ -225,6 +226,60 @@ public final class ObservableDOMDocumentTest {
         assertEquals(1, recorder.getEvents().size());
     }
 
+    @Test
+    public final <R extends EventRecorder & Listener> void testRenameNode() {
+        final ObservableDOMDocument document = new ObservableDOMDocument();
+        @SuppressWarnings("unchecked")
+        final R recorder = (R) newEventRecorder(Listener.class);
+        final Node node = document.createElement("root");
+
+        assertNull(node.getNamespaceURI());
+        assertEquals("root", getQualifiedName(node));
+
+        document.addListener(recorder);
+
+        {
+            assertSame(node, document.renameNode(node, null, "renamed-root"));
+            assertNull(node.getNamespaceURI());
+            assertEquals("renamed-root", getQualifiedName(node));
+
+            final NodeRenamedEvent event = recorder.getEvent(0);
+
+            assertSame(node, event.getOldNode());
+            assertNull(event.getOldNamespaceURI());
+            assertEquals("root", event.getOldQualifiedName());
+            assertSame(node, event.getNewNode());
+            assertNull(event.getNewNamespaceURI());
+            assertEquals("renamed-root", event.getNewQualifiedName());
+        }
+        {
+            final Node newNode = document.renameNode(node, NAMESPACE_URI, "renamed:root");
+
+            assertNotSame(node, newNode);
+            assertEquals(NAMESPACE_URI, newNode.getNamespaceURI());
+            assertEquals("renamed:root", getQualifiedName(newNode));
+
+            final NodeRenamedEvent event = recorder.getEvent(1);
+
+            assertSame(node, event.getOldNode());
+            assertNull(event.getOldNamespaceURI());
+            assertEquals("renamed-root", event.getOldQualifiedName());
+            assertSame(newNode, event.getNewNode());
+            assertEquals(NAMESPACE_URI, event.getNewNamespaceURI());
+            assertEquals("renamed:root", event.getNewQualifiedName());
+        }
+
+        assertEquals(2, recorder.getEvents().size());
+    }
+
+    /**
+     * {@value}.
+     */
     private static final String USER_DATA_KEY = "key";
+
+    /**
+     * {@value}.
+     */
+    private static final String NAMESPACE_URI = "urn:net.sourceforge.aprog";
 
 }

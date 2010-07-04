@@ -327,8 +327,19 @@ public final class ObservableDOMDocument extends AbstractObservable<ObservableDO
     }
 
     @Override
-    public final Node renameNode(Node n, String namespaceURI, String qualifiedName) throws DOMException {
-        return this.document.renameNode(n, namespaceURI, qualifiedName);
+    public final Node renameNode(final Node node, final String namespaceURI, final String qualifiedName) throws DOMException {
+        final String oldNamespaceURI = node.getNamespaceURI();
+        final String oldQualifiedName = getQualifiedName(node);
+
+        if (!Tools.equals(oldNamespaceURI, namespaceURI) || !Tools.equals(oldQualifiedName, qualifiedName)) {
+            final Node newNode = this.document.renameNode(node, namespaceURI, qualifiedName);
+
+            this.new NodeRenamedEvent(node, oldNamespaceURI, oldQualifiedName, newNode, namespaceURI, qualifiedName).fire();
+
+            return newNode;
+        }
+
+        return node;
     }
 
     @Override
@@ -835,6 +846,118 @@ public final class ObservableDOMDocument extends AbstractObservable<ObservableDO
 
     /**
      *
+     * @author codistmonk (creation 2010-07-04)
+     */
+    public final class NodeRenamedEvent extends AbstractThingChangedEvent<Node> {
+
+        private final String oldNamespaceURI;
+
+        private final String oldQualifiedName;
+
+        private final String newNamespaceURI;
+
+        private final String newQualifiedName;
+
+        /**
+         *
+         * @param oldNode
+         * <br>Not null
+         * <br>Shared
+         * @param oldNamespaceURI
+         * <br>Maybe null
+         * <br>Shared
+         * @param oldQualifiedName
+         * <br>Not null
+         * <br>Shared
+         * @param newNode
+         * <br>Not null
+         * <br>Shared
+         * @param newNamespaceURI
+         * <br>Maybe null
+         * <br>Shared
+         * @param newQualifiedName
+         * <br>Not null
+         * <br>Shared
+         */
+        public NodeRenamedEvent(
+                final Node oldNode, final String oldNamespaceURI, final String oldQualifiedName,
+                final Node newNode, final String newNamespaceURI, final String newQualifiedName) {
+            super(oldNode, newNode);
+            this.oldNamespaceURI = oldNamespaceURI;
+            this.oldQualifiedName = oldQualifiedName;
+            this.newNamespaceURI = newNamespaceURI;
+            this.newQualifiedName = newQualifiedName;
+        }
+
+        /**
+         *
+         * @return
+         * <br>Not null
+         * <br>Shared
+         */
+        public final Node getOldNode() {
+            return this.getOldThing();
+        }
+
+        /**
+         *
+         * @return
+         * <br>Maybe null
+         * <br>Shared
+         */
+        public final String getOldNamespaceURI() {
+            return this.oldNamespaceURI;
+        }
+
+        /**
+         *
+         * @return
+         * <br>Not null
+         * <br>Shared
+         */
+        public final String getOldQualifiedName() {
+            return this.oldQualifiedName;
+        }
+
+        /**
+         *
+         * @return
+         * <br>Not null
+         * <br>Shared
+         */
+        public final Node getNewNode() {
+            return this.getNewThing();
+        }
+
+        /**
+         *
+         * @return
+         * <br>Maybe null
+         * <br>Shared
+         */
+        public final String getNewNamespaceURI() {
+            return this.newNamespaceURI;
+        }
+
+        /**
+         *
+         * @return
+         * <br>Not null
+         * <br>Shared
+         */
+        public final String getNewQualifiedName() {
+            return this.newQualifiedName;
+        }
+
+        @Override
+        protected final void notifyListener(final Listener listener) {
+            listener.nodeRenamed(this);
+        }
+
+    }
+
+    /**
+     *
      * @author codistmonk (creation 2010-07-03)
      */
     public static interface Listener {
@@ -895,6 +1018,24 @@ public final class ObservableDOMDocument extends AbstractObservable<ObservableDO
          */
         public abstract void documentURIChanged(DocumentURIChangedEvent event);
 
+        /**
+         *
+         * @param event
+         * <br>Not null
+         */
+        public abstract void nodeRenamed(NodeRenamedEvent event);
+
+    }
+
+    /**
+     * 
+     * @param node
+     * <br>Not null
+     * @return
+     * <br>Not null
+     */
+    public static final String getQualifiedName(final Node node) {
+        return node.getPrefix() == null ? node.getNodeName() : node.getPrefix() + ":" + node.getLocalName();
     }
 
 }
