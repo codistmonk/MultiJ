@@ -24,6 +24,12 @@
 
 package net.sourceforge.aprog.markups;
 
+import java.awt.Component;
+import static net.sourceforge.aprog.markups.Constants.Variables.*;
+
+import java.io.File;
+import javax.swing.JFileChooser;
+import javax.swing.filechooser.FileFilter;
 import net.sourceforge.aprog.context.Context;
 import net.sourceforge.aprog.tools.IllegalInstantiationException;
 import net.sourceforge.aprog.tools.Tools;
@@ -58,9 +64,11 @@ public final class Actions {
      * <br>Unused
      */
     public static final void open(final Context context) {
-        Tools.debugPrint("TODO");
+        final JFileChooser fileChooser = new JFileChooser();
 
-        net.sourceforge.aprog.subtitlesadjuster.Actions.showTODOMessage(context);
+        if (JFileChooser.APPROVE_OPTION == fileChooser.showOpenDialog((Component) context.get(MAIN_FRAME)) && fileChooser.getSelectedFile() != null) {
+            context.set(FILE, fileChooser.getSelectedFile());
+        }
     }
 
     /**

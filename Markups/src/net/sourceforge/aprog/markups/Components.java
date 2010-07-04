@@ -26,6 +26,7 @@ package net.sourceforge.aprog.markups;
 
 import java.awt.BorderLayout;
 import static javax.swing.KeyStroke.getKeyStroke;
+import net.sourceforge.aprog.events.Variable.ValueChangedEvent;
 
 import static net.sourceforge.aprog.markups.Constants.Variables.*;
 import static net.sourceforge.aprog.subtitlesadjuster.SubtitlesAdjusterTools.*;
@@ -36,6 +37,7 @@ import static net.sourceforge.aprog.swing.SwingTools.packAndCenter;
 import static net.sourceforge.aprog.swing.SwingTools.scrollable;
 
 import java.awt.event.WindowListener;
+import java.io.File;
 
 import javax.swing.JFrame;
 import javax.swing.JMenuBar;
@@ -44,9 +46,9 @@ import javax.swing.JPanel;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.MutableTreeNode;
 
 import net.sourceforge.aprog.context.Context;
+import net.sourceforge.aprog.events.Variable;
 import net.sourceforge.aprog.i18n.Translator;
 import net.sourceforge.aprog.swing.SwingTools;
 import net.sourceforge.aprog.tools.IllegalInstantiationException;
@@ -54,6 +56,7 @@ import net.sourceforge.aprog.xml.XMLTools;
 import net.sourceforge.jmacadapter.MacAdapterTools;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
+import org.xml.sax.InputSource;
 
 /**
  *
@@ -83,7 +86,7 @@ public final class Components {
         context.set(MAIN_FRAME, result);
 
         result.setJMenuBar(newMenuBar(context));
-        result.add(newMainPanel());
+        result.add(newMainPanel(context));
 
         result.addWindowListener(newListener(WindowListener.class, "windowClosing",
                 Actions.class, "quit", context));
@@ -236,26 +239,41 @@ public final class Components {
 
     /**
      *
+     * @param context
+     * <br>Not null
      * @return
      * <br>Not null
      * <br>New
      */
-    public static final JPanel newMainPanel() {
+    public static final JPanel newMainPanel(final Context context) {
         final JPanel result = new JPanel(new BorderLayout());
 
-        result.add(scrollable(newDOMTreeView()));
+        result.add(scrollable(newDOMTreeView(context)));
 
         return result;
     }
 
     /**
      *
+     * @param context
+     * <br>Not null
      * @return
      * <br>Not null
      * <br>New
      */
-    public static final JTree newDOMTreeView() {
-        final JTree result = new JTree(new DOMTreeModel(XMLTools.parse("<a><b c='d'/><b c='e'/></a>")));
+    public static final JTree newDOMTreeView(final Context context) {
+        final JTree result = new JTree(new DOMTreeModel(XMLTools.newDocument()));
+
+        final Variable<File> fileVariable = context.getVariable(FILE);
+
+        fileVariable.addListener(new Variable.Listener<File>() {
+
+            @Override
+            public final void valueChanged(final ValueChangedEvent<File, ?> event) {
+                result.setModel(new DOMTreeModel(XMLTools.parse(new InputSource(event.getNewValue().getAbsolutePath()))));
+            }
+
+        });
 
         return result;
     }
@@ -307,8 +325,10 @@ public final class Components {
                 }
             }
 
-            for (final Node domChild : XMLTools.toList(domNode.getChildNodes())) {
-                result.add(newTreeNode(domChild));
+            if (domNode.getNodeType() != Node.ATTRIBUTE_NODE) {
+                for (final Node domChild : XMLTools.toList(domNode.getChildNodes())) {
+                    result.add(newTreeNode(domChild));
+                }
             }
 
 
