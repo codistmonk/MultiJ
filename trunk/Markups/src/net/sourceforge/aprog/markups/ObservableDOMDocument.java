@@ -1057,17 +1057,6 @@ public final class ObservableDOMDocument extends AbstractProxyDOMNode<Document, 
     }
 
     /**
-     * 
-     * @param node
-     * <br>Not null
-     * @return
-     * <br>Not null
-     */
-    public static final String getQualifiedName(final Node node) {
-        return node.getPrefix() == null ? node.getNodeName() : node.getPrefix() + ":" + node.getLocalName();
-    }
-
-    /**
      *
      * @author codistmonk (2010-07-04)
      *
@@ -1464,6 +1453,17 @@ abstract class AbstractProxyDOMNode<N extends Node, L> extends AbstractObservabl
      */
     protected final N getDelegate() {
         return this.delegate;
+    }
+
+    /**
+     *
+     * @param node
+     * <br>Not null
+     * @return
+     * <br>Not null
+     */
+    public static final String getQualifiedName(final Node node) {
+        return node.getPrefix() == null ? node.getNodeName() : node.getPrefix() + ":" + node.getLocalName();
     }
 
 }

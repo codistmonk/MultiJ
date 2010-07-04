@@ -24,9 +24,8 @@
 
 package net.sourceforge.aprog.markups;
 
-import static net.sourceforge.aprog.events.ObservableTest.*;
+import static net.sourceforge.aprog.events.EventsTestingTools.*;
 import static net.sourceforge.aprog.markups.ObservableDOMDocument.*;
-import static net.sourceforge.aprog.tools.Tools.*;
 
 import static org.junit.Assert.*;
 
@@ -47,7 +46,7 @@ import org.w3c.dom.Node;
 public final class ObservableDOMDocumentTest {
 
     @Test
-    public final <R extends EventRecorder & Listener> void testSetUserData() {
+    public final <R extends EventRecorder<AbstractEvent> & Listener> void testSetUserData() {
         final ObservableDOMDocument document = new ObservableDOMDocument();
         @SuppressWarnings("unchecked")
         final R recorder = (R) newEventRecorder(Listener.class);
@@ -73,7 +72,7 @@ public final class ObservableDOMDocumentTest {
     }
 
     @Test
-    public final <R extends EventRecorder & Listener> void testReplaceChild() {
+    public final <R extends EventRecorder<AbstractEvent> & Listener> void testReplaceChild() {
         final ObservableDOMDocument document = new ObservableDOMDocument();
         @SuppressWarnings("unchecked")
         final R recorder = (R) newEventRecorder(Listener.class);
@@ -104,7 +103,7 @@ public final class ObservableDOMDocumentTest {
     }
 
     @Test
-    public final <R extends EventRecorder & Listener> void testNormalize() {
+    public final <R extends EventRecorder<AbstractEvent> & Listener> void testNormalize() {
         final ObservableDOMDocument document = new ObservableDOMDocument();
         @SuppressWarnings("unchecked")
         final R recorder = (R) newEventRecorder(Listener.class);
@@ -125,7 +124,7 @@ public final class ObservableDOMDocumentTest {
     }
 
     @Test
-    public final <R extends EventRecorder & Listener> void testAppendChild() {
+    public final <R extends EventRecorder<AbstractEvent> & Listener> void testAppendChild() {
         final ObservableDOMDocument document = new ObservableDOMDocument();
         @SuppressWarnings("unchecked")
         final R recorder = (R) newEventRecorder(Listener.class);
@@ -147,7 +146,7 @@ public final class ObservableDOMDocumentTest {
     }
 
     @Test
-    public final <R extends EventRecorder & Listener> void testSetXmlVersion() {
+    public final <R extends EventRecorder<AbstractEvent> & Listener> void testSetXmlVersion() {
         final ObservableDOMDocument document = new ObservableDOMDocument();
         @SuppressWarnings("unchecked")
         final R recorder = (R) newEventRecorder(Listener.class);
@@ -167,7 +166,7 @@ public final class ObservableDOMDocumentTest {
     }
 
     @Test
-    public final <R extends EventRecorder & Listener> void testSetXmlStandalone() {
+    public final <R extends EventRecorder<AbstractEvent> & Listener> void testSetXmlStandalone() {
         final ObservableDOMDocument document = new ObservableDOMDocument();
         @SuppressWarnings("unchecked")
         final R recorder = (R) newEventRecorder(Listener.class);
@@ -187,7 +186,7 @@ public final class ObservableDOMDocumentTest {
     }
 
     @Test
-    public final <R extends EventRecorder & Listener> void testSetStrictErrorChecking() {
+    public final <R extends EventRecorder<AbstractEvent> & Listener> void testSetStrictErrorChecking() {
         final ObservableDOMDocument document = new ObservableDOMDocument();
         @SuppressWarnings("unchecked")
         final R recorder = (R) newEventRecorder(Listener.class);
@@ -207,7 +206,7 @@ public final class ObservableDOMDocumentTest {
     }
 
     @Test
-    public final <R extends EventRecorder & Listener> void testSetDocumentURI() {
+    public final <R extends EventRecorder<AbstractEvent> & Listener> void testSetDocumentURI() {
         final String documentURI = NAMESPACE_URI + ":observable-document-test.xml";
         final ObservableDOMDocument document = new ObservableDOMDocument();
         @SuppressWarnings("unchecked")
@@ -228,7 +227,7 @@ public final class ObservableDOMDocumentTest {
     }
 
     @Test
-    public final <R extends EventRecorder & Listener> void testRenameNode() {
+    public final <R extends EventRecorder<AbstractEvent> & Listener> void testRenameNode() {
         final ObservableDOMDocument document = new ObservableDOMDocument();
         @SuppressWarnings("unchecked")
         final R recorder = (R) newEventRecorder(Listener.class);
@@ -274,7 +273,7 @@ public final class ObservableDOMDocumentTest {
     }
 
     @Test
-    public final <R extends EventRecorder & Listener> void testNormalizeDocument() {
+    public final <R extends EventRecorder<AbstractEvent> & Listener> void testNormalizeDocument() {
         final ObservableDOMDocument document = new ObservableDOMDocument();
         @SuppressWarnings("unchecked")
         final R recorder = (R) newEventRecorder(Listener.class);
@@ -290,7 +289,7 @@ public final class ObservableDOMDocumentTest {
     }
 
     @Test
-    public final <R extends EventRecorder & Listener> void testImportNode() {
+    public final <R extends EventRecorder<AbstractEvent> & Listener> void testImportNode() {
         final ObservableDOMDocument document = new ObservableDOMDocument();
         @SuppressWarnings("unchecked")
         final R recorder = (R) newEventRecorder(Listener.class);
