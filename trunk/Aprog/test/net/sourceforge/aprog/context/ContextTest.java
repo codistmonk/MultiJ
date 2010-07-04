@@ -24,11 +24,11 @@
 
 package net.sourceforge.aprog.context;
 
+import static net.sourceforge.aprog.events.EventsTestingTools.*;
+
 import static org.junit.Assert.*;
 
 import net.sourceforge.aprog.context.Context.Listener;
-import net.sourceforge.aprog.events.ObservableTest;
-import net.sourceforge.aprog.events.ObservableTest.EventRecorder;
 
 import org.junit.Test;
 
@@ -40,10 +40,10 @@ import org.junit.Test;
 public final class ContextTest {
 
     @Test
-    public final <R extends EventRecorder & Listener> void testSetAndGet() {
+    public final <R extends EventRecorder<?> & Listener> void testSetAndGet() {
         final Context context = new Context();
         @SuppressWarnings("unchecked")
-        final R recorder = (R) ObservableTest.newEventRecorder(Context.Listener.class);
+        final R recorder = (R) newEventRecorder(Context.Listener.class);
 
         context.addListener(recorder);
 

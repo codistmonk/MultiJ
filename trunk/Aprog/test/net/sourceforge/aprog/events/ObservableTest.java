@@ -24,18 +24,11 @@
 
 package net.sourceforge.aprog.events;
 
+import static net.sourceforge.aprog.events.EventsTestingTools.*;
+
 import static org.junit.Assert.*;
 
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import net.sourceforge.aprog.events.Observable.Event;
-import net.sourceforge.aprog.tools.AbstractInvocationHandler;
-import net.sourceforge.aprog.tools.Tools;
 
 import org.junit.Test;
 
@@ -65,93 +58,6 @@ public final class ObservableTest {
         assertSame(recorder1.getEvent(0), recorder2.getEvent(0));
         assertEquals(2, recorder1.getEvents().size());
         assertEquals(1, recorder2.getEvents().size());
-    }
-
-    /**
-     *
-     * @param <R> The (multi)listener recorder proxy type
-     * @param listenerTypes
-     * <br>Not null
-     * @return
-     * <br>Not null
-     * <br>New
-     */
-    @SuppressWarnings("unchecked")
-    public static final <R extends EventRecorder<?>> R newEventRecorder(
-            final Class<?>... listenerTypes) {
-        return (R) Proxy.newProxyInstance(
-                Tools.getCallerClass().getClassLoader(),
-                Tools.append(listenerTypes, EventRecorder.class),
-                new RecorderInvocationHandler<Object>());
-    }
-
-    /**
-     *
-     * @author codistmonk (creation 2010-06-18)
-     *
-     * @param <E> The base event type
-     */
-    public static interface EventRecorder<E> {
-
-        /**
-         *
-         * @return
-         * <br>Not null
-         * <br>Not shared
-         */
-        public abstract List<E> getEvents();
-
-        /**
-         *
-         * @param <T> the expected event type
-         * @param index
-         * <br>Range: {@code [0 .. this.getEvents().size() - 1]}
-         * @return
-         * <br>Not null
-         * <br>Shared
-         * @throws IndexOutOfBoundsException if {@code index} is out of range
-         */
-        public abstract <T extends E> T getEvent(int index);
-
-    }
-
-    /**
-     *
-     * @author codistmonk (creation 2010-06-18)
-     */
-    private static class RecorderInvocationHandler<E> extends AbstractInvocationHandler implements EventRecorder<E> {
-
-        private final List<E> events;
-
-        RecorderInvocationHandler() {
-            this.events = new ArrayList<E>();
-        }
-
-        @Override
-        public final Object invoke(final Object proxy, final Method method, final Object[] arguments)
-                throws Throwable {
-            if (method.getDeclaringClass().isAssignableFrom(EventRecorder.class)) {
-                return method.invoke(this, arguments);
-            }
-
-            if (arguments.length == 1 && arguments[0] instanceof Event<?>) {
-                this.events.add((E) arguments[0]);
-            }
-
-            return null;
-        }
-
-        @Override
-        public final List<E> getEvents() {
-            return Collections.unmodifiableList(this.events);
-        }
-
-        @Override
-        @SuppressWarnings("unchecked")
-        public final <T extends E> T getEvent(final int index) {
-            return (T) this.getEvents().get(index);
-        }
-
     }
 
     /**

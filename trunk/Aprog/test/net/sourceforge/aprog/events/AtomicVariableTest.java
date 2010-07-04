@@ -24,10 +24,11 @@
 
 package net.sourceforge.aprog.events;
 
-import net.sourceforge.aprog.events.Observable.Event;
+import static net.sourceforge.aprog.events.EventsTestingTools.*;
+
 import static org.junit.Assert.*;
 
-import net.sourceforge.aprog.events.ObservableTest.EventRecorder;
+import net.sourceforge.aprog.events.Observable.Event;
 import net.sourceforge.aprog.events.Variable.Listener;
 
 import org.junit.Test;
@@ -43,7 +44,7 @@ public final class AtomicVariableTest {
     public final <R extends EventRecorder<Event<?>> & Listener<Integer>> void testEvents() {
         final AtomicVariable<Integer> x = new AtomicVariable<Integer>(Integer.class, "x", 42);
         @SuppressWarnings("unchecked")
-        final R recorder = (R) ObservableTest.newEventRecorder(Listener.class);
+        final R recorder = (R) newEventRecorder(Listener.class);
 
         x.addListener(recorder);
 
