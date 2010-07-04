@@ -54,6 +54,7 @@ import net.sourceforge.aprog.swing.SwingTools;
 import net.sourceforge.aprog.tools.IllegalInstantiationException;
 import net.sourceforge.aprog.xml.XMLTools;
 import net.sourceforge.jmacadapter.MacAdapterTools;
+import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
@@ -127,6 +128,8 @@ public final class Components {
                     newQuitMenuItem(context)
                 ),
                 menu("File",
+                        newNewMenuItem(context),
+                        null,
                         newOpenMenuItem(context),
                         null,
                         newSaveMenuItem(context),
@@ -200,6 +203,20 @@ public final class Components {
 
         return item("Quit", getKeyStroke(META + " Q"),
                 Actions.class, "quit", context);
+    }
+
+    /**
+     *
+     * @param context
+     * <br>Not null
+     * <br>Shared
+     * @return
+     * <br>Not null
+     * <br>New
+     */
+    public static final JMenuItem newNewMenuItem(final Context context) {
+        return item("New", getKeyStroke(META + " N"),
+                Actions.class, "newFile", context);
     }
 
     /**
@@ -418,8 +435,9 @@ public final class Components {
 
             @Override
             public final void valueChanged(final ValueChangedEvent<File, ?> event) {
-                final DOMTreeModel treeModel = new DOMTreeModel(XMLTools.parse(
-                        new InputSource(event.getNewValue().getAbsolutePath())));
+                final Document domDocument = event.getNewValue() == null ? XMLTools.newDocument() :
+                    XMLTools.parse(new InputSource(event.getNewValue().getAbsolutePath()));
+                final DOMTreeModel treeModel = new DOMTreeModel(domDocument);
 
                 result.setModel(treeModel);
 

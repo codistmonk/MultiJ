@@ -24,23 +24,24 @@
 
 package net.sourceforge.aprog.markups;
 
+import static net.sourceforge.aprog.markups.Constants.Variables.*;
+
 import java.awt.Component;
 import java.io.FileNotFoundException;
 import java.util.logging.Level;
-import java.util.logging.Logger;
-import static net.sourceforge.aprog.markups.Constants.Variables.*;
 
 import java.io.File;
 import java.io.FileOutputStream;
+
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
-import javax.swing.filechooser.FileFilter;
 import javax.swing.tree.TreeModel;
+
 import net.sourceforge.aprog.context.Context;
-import net.sourceforge.aprog.i18n.Messages;
 import net.sourceforge.aprog.tools.IllegalInstantiationException;
 import net.sourceforge.aprog.tools.Tools;
 import net.sourceforge.aprog.xml.XMLTools;
+
 import org.w3c.dom.Node;
 
 /**
@@ -62,6 +63,21 @@ public final class Actions {
      * <br>Unused
      */
     public static final void quit(final Context context) {
+        if (confirm(context)) {
+            System.exit(0);
+        }
+    }
+
+    /**
+     * Returns {@code true} if the file doesn't need saving;
+     * otherwise, asks the user what to do.
+     *
+     * @param context
+     * <br>Not null
+     * <br>Input-output
+     * @return {@code true} if the caller can proceed
+     */
+    private static final boolean confirm(final Context context) {
         if ((Boolean) context.get(FILE_MODIFIED)) {
             switch (JOptionPane.showConfirmDialog(null, "Save?", null, JOptionPane.YES_NO_CANCEL_OPTION)) {
                 case JOptionPane.YES_OPTION:
@@ -70,14 +86,26 @@ public final class Actions {
                 case JOptionPane.NO_OPTION:
                     break;
                 case JOptionPane.CANCEL_OPTION:
-                    return;
+                    return false;
                 default:
                     Tools.getLoggerForThisMethod().log(Level.WARNING, "Unhandled option");
                     break;
             }
         }
 
-        System.exit(0);
+        return true;
+    }
+
+    /**
+     *
+     * @param context
+     * <br>Not null
+     * <br>Input-output
+     */
+    public static final void newFile(final Context context) {
+        if (confirm(context)) {
+            context.set(FILE, null);
+        }
     }
 
     /**
