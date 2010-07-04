@@ -129,7 +129,20 @@ public final class Components {
                 menu("File",
                         newOpenMenuItem(context),
                         null,
-                        newSaveMenuItem(context)
+                        newSaveMenuItem(context),
+                        newSaveAsMenuItem(context)
+                ),
+                menu("Edit",
+                        newUndoMenuItem(context),
+                        newRedoMenuItem(context),
+                        null,
+                        newCopyMenuItem(context),
+                        newCutMenuItem(context),
+                        newPasteMenuItem(context)
+                ),
+                menu("View",
+                        newTreeMenuItem(context),
+                        newTextMenuItem(context)
                 ),
                 menu("Help",
                         newManualMenuItem(context)
@@ -215,9 +228,144 @@ public final class Components {
     public static final JMenuItem newSaveMenuItem(final Context context) {
         final JMenuItem result = item("Save", getKeyStroke(META + " S"),
                 Actions.class, "save", context);
+        final Variable<Boolean> fileModifiedVariable = context.getVariable(FILE_MODIFIED);
 
-        net.sourceforge.aprog.subtitlesadjuster.Components
-                .synchronizeComponentEnabledWithFileVariableNullity(result, context);
+        fileModifiedVariable.addListener(new Variable.Listener<Boolean>() {
+
+            @Override
+            public final void valueChanged(final ValueChangedEvent<Boolean, ?> event) {
+                result.setEnabled(event.getNewValue());
+            }
+
+        });
+
+        return result;
+    }
+
+    /**
+     *
+     * @param context
+     * <br>Not null
+     * <br>Shared
+     * @return
+     * <br>Not null
+     * <br>New
+     */
+    public static final JMenuItem newSaveAsMenuItem(final Context context) {
+        final JMenuItem result = item("Save As...", getKeyStroke(META + " shift S"),
+                Actions.class, "saveAs", context);
+
+        return result;
+    }
+
+    /**
+     *
+     * @param context
+     * <br>Not null
+     * <br>Shared
+     * @return
+     * <br>Not null
+     * <br>New
+     */
+    public static final JMenuItem newUndoMenuItem(final Context context) {
+        final JMenuItem result = item("Undo", getKeyStroke(META + " Z"),
+                Actions.class, "undo", context);
+
+        return result;
+    }
+
+    /**
+     *
+     * @param context
+     * <br>Not null
+     * <br>Shared
+     * @return
+     * <br>Not null
+     * <br>New
+     */
+    public static final JMenuItem newRedoMenuItem(final Context context) {
+        final JMenuItem result = item("Redo", getKeyStroke(META + " Y"),
+                Actions.class, "redo", context);
+
+        return result;
+    }
+
+    /**
+     *
+     * @param context
+     * <br>Not null
+     * <br>Shared
+     * @return
+     * <br>Not null
+     * <br>New
+     */
+    public static final JMenuItem newCopyMenuItem(final Context context) {
+        final JMenuItem result = item("Copy", getKeyStroke(META + " C"),
+                Actions.class, "copy", context);
+
+        return result;
+    }
+
+    /**
+     *
+     * @param context
+     * <br>Not null
+     * <br>Shared
+     * @return
+     * <br>Not null
+     * <br>New
+     */
+    public static final JMenuItem newCutMenuItem(final Context context) {
+        final JMenuItem result = item("Cut", getKeyStroke(META + " X"),
+                Actions.class, "cut", context);
+
+        return result;
+    }
+
+    /**
+     *
+     * @param context
+     * <br>Not null
+     * <br>Shared
+     * @return
+     * <br>Not null
+     * <br>New
+     */
+    public static final JMenuItem newPasteMenuItem(final Context context) {
+        final JMenuItem result = item("Paste", getKeyStroke(META + " V"),
+                Actions.class, "paste", context);
+
+        return result;
+    }
+
+    /**
+     *
+     * @param context
+     * <br>Not null
+     * <br>Shared
+     * @return
+     * <br>Not null
+     * <br>New
+     */
+    public static final JMenuItem newTreeMenuItem(final Context context) {
+        final JMenuItem result = item("Tree",
+                Actions.class, "tree", context);
+
+        return result;
+    }
+
+    /**
+     *
+     * @param context
+     * <br>Not null
+     * <br>Shared
+     * @return
+     * <br>Not null
+     * <br>New
+     */
+    public static final JMenuItem newTextMenuItem(final Context context) {
+        final JMenuItem result = item("Text",
+                Actions.class, "text", context);
 
         return result;
     }
@@ -270,7 +418,12 @@ public final class Components {
 
             @Override
             public final void valueChanged(final ValueChangedEvent<File, ?> event) {
-                result.setModel(new DOMTreeModel(XMLTools.parse(new InputSource(event.getNewValue().getAbsolutePath()))));
+                final DOMTreeModel treeModel = new DOMTreeModel(XMLTools.parse(
+                        new InputSource(event.getNewValue().getAbsolutePath())));
+
+                result.setModel(treeModel);
+
+                context.set(TREE_MODEL, treeModel);
             }
 
         });

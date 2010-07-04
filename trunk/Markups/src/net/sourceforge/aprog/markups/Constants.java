@@ -98,6 +98,11 @@ public final class Constants {
          */
         public static final String FILE_MODIFIED = "file.modified";
 
+        /**
+         * {@value}.
+         */
+        public static final String TREE_MODEL = "file.treeModel";
+
     }
 
 }
