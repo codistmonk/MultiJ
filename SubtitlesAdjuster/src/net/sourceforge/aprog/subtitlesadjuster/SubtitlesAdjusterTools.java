@@ -41,6 +41,7 @@ import net.sourceforge.aprog.events.Variable;
 import net.sourceforge.aprog.events.Variable.Listener;
 import net.sourceforge.aprog.i18n.Messages;
 import net.sourceforge.aprog.swing.SwingTools;
+import net.sourceforge.aprog.tools.AbstractInvocationHandler;
 import net.sourceforge.aprog.tools.Tools;
 import net.sourceforge.jmacadapter.MacAdapterTools;
 
@@ -237,49 +238,6 @@ public final class SubtitlesAdjusterTools {
             final Object objectOrClass, final String methodName, final Object... arguments) {
         return (L) Proxy.newProxyInstance(getCallerClass().getClassLoader(), array(listenerClass),
                 new ListenerInvocationHandler(listenerMethodName, objectOrClass, methodName, arguments));
-    }
-
-    /**
-     *
-     * @author codistmonk (creation 2010-07-03)
-     */
-    public static abstract class AbstractInvocationHandler implements InvocationHandler {
-
-        @Override
-        public final boolean equals(final Object object) {
-            return this == object ||
-                    object != null &&
-                    Proxy.isProxyClass(object.getClass()) &&
-                    this == Proxy.getInvocationHandler(object);
-        }
-
-        @Override
-        public final int hashCode() {
-            return super.hashCode();
-        }
-
-        /**
-         * Invokes {@link #equals(java.lang.Object)} or {@link #hashCode()} or returns {@code null}.
-         *
-         * @param proxy
-         * <br>Unused
-         * @param method
-         * <br>Not null
-         * @param arguments
-         * <br>Not null
-         * @return
-         * <br>Maybe null
-         * @throws Throwable If an error occurs
-         */
-        protected final Object defaultInvoke(final Object proxy,
-                final Method method, final Object[] arguments) throws Throwable {
-            if (method.getDeclaringClass().isAssignableFrom(this.getClass())) {
-                return method.invoke(this, arguments);
-            }
-
-            return null;
-        }
-
     }
 
     /**
