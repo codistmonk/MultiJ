@@ -34,6 +34,7 @@ import java.util.Collections;
 import java.util.List;
 
 import net.sourceforge.aprog.events.Observable.Event;
+import net.sourceforge.aprog.tools.AbstractInvocationHandler;
 import net.sourceforge.aprog.tools.Tools;
 
 import org.junit.Test;
@@ -116,7 +117,7 @@ public final class ObservableTest {
      *
      * @author codistmonk (creation 2010-06-18)
      */
-    private static class RecorderInvocationHandler implements InvocationHandler, EventRecorder {
+    private static class RecorderInvocationHandler extends AbstractInvocationHandler implements EventRecorder {
 
         private final List<Event<?>> events;
 
@@ -147,19 +148,6 @@ public final class ObservableTest {
         @SuppressWarnings("unchecked")
         public final <E extends Event<?>> E getEvent(final int index) {
             return (E) this.getEvents().get(index);
-        }
-
-        @Override
-        public final boolean equals(final Object object) {
-            return this == object ||
-                    object != null &&
-                    Proxy.isProxyClass(object.getClass()) &&
-                    this == Proxy.getInvocationHandler(object);
-        }
-
-        @Override
-        public final int hashCode() {
-            return super.hashCode();
         }
 
     }

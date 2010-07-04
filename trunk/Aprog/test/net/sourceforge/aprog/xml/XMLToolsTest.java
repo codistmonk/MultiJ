@@ -47,6 +47,21 @@ import org.w3c.dom.Node;
 public final class XMLToolsTest {
 
     @Test
+    public final void testGetQualifiedName() {
+        final Document document = XMLTools.parse("<root/>");
+
+        assertEquals("root", getQualifiedName(document.getDocumentElement()));
+
+        document.renameNode(document.getDocumentElement(), null, "renamed-root");
+
+        assertEquals("renamed-root", getQualifiedName(document.getDocumentElement()));
+
+        document.renameNode(document.getDocumentElement(), NAMESPACE_URI, "renamed:root");
+
+        assertEquals("renamed:root", getQualifiedName(document.getDocumentElement()));
+    }
+
+    @Test
     public final void testParse() {
         assertNotNull(parse("<a/>"));
         assertNotNull(parse("<?xml version=\"1.0\" encoding=\"UTF-8\"?><a/>"));
@@ -198,6 +213,11 @@ public final class XMLToolsTest {
     }
 
     private static final String PATH = getCallerPackagePath();
+
+    /**
+     * {@value}.
+     */
+    private static final String NAMESPACE_URI = "urn:net.sourceforge.aprog";
 
     /**
      *
