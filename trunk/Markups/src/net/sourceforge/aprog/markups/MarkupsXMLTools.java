@@ -27,7 +27,6 @@ package net.sourceforge.aprog.markups;
 import static java.util.Arrays.asList;
 import static java.util.Collections.unmodifiableList;
 
-import java.util.Collection;
 import java.util.List;
 
 import net.sourceforge.aprog.tools.IllegalInstantiationException;
@@ -89,6 +88,7 @@ public final class MarkupsXMLTools {
     /**
      *
      * @param node
+     * <br>Not null
      * @throws IllegalArgumentException If {@code node} doesn't have the "events 2.0" feature
      */
     public static final void checkHasEventsFeature(final Node node) {
