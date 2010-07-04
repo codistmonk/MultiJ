@@ -108,6 +108,11 @@ public final class Constants {
          */
         public static final String VIEW_RADIO_GROUP = "mainFrame.view.radioGroup";
 
+        /**
+         * {@value}.
+         */
+        public static final String VIEW_MODE = "mainFrame.view.mode";
+
     }
 
 }

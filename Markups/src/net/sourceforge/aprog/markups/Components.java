@@ -25,6 +25,7 @@
 package net.sourceforge.aprog.markups;
 
 import java.awt.BorderLayout;
+import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.dnd.DropTarget;
 import java.awt.dnd.DropTargetAdapter;
@@ -53,6 +54,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JRadioButtonMenuItem;
+import javax.swing.JTextPane;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
@@ -430,8 +432,21 @@ public final class Components {
      */
     public static final JPanel newMainPanel(final Context context) {
         final JPanel result = new JPanel(new BorderLayout());
+        final JPanel views = new JPanel(new CardLayout());
 
-        result.add(scrollable(newDOMTreeView(context)));
+        result.add(views);
+
+        views.add(scrollable(newDOMTreeView(context)), "tree");
+        views.add(scrollable(new JTextPane()), "text");
+
+        getOrCreateViewModeVariable(context).addListener(new Variable.Listener<String>() {
+
+            @Override
+            public final void valueChanged(final ValueChangedEvent<String, ?> event) {
+                ((CardLayout) views.getLayout()).show(views, event.getNewValue());
+            }
+
+        });
 
         new DropTarget(result, new DropTargetAdapter() {
 
@@ -508,6 +523,26 @@ public final class Components {
 
         if (result == null) {
             context.set(variableName, result = new ButtonGroup());
+        }
+
+        return result;
+    }
+
+    /**
+     *
+     * @param context
+     * <br>Not null
+     * <br>Input-output
+     * @return
+     * <br>Not null
+     * <br>Maybe new
+     */
+    public static final Variable<String> getOrCreateViewModeVariable(final Context context) {
+        Variable<String> result = context.getVariable(VIEW_MODE);
+
+        if (result == null) {
+            context.set(VIEW_MODE, "tree");
+            result = context.getVariable(VIEW_MODE);
         }
 
         return result;
