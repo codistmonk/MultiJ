@@ -144,6 +144,46 @@ public final class ObservableDOMDocumentTest {
         assertEquals(1, recorder.getEvents().size());
     }
 
+    @Test
+    public final <R extends EventRecorder & Listener> void testSetXmlVersion() {
+        final ObservableDOMDocument document = new ObservableDOMDocument();
+        @SuppressWarnings("unchecked")
+        final R recorder = (R) newEventRecorder(Listener.class);
+
+        assertEquals("1.0", document.getXmlVersion());
+
+        document.addListener(recorder);
+        document.setXmlVersion("1.1");
+
+        assertEquals("1.1", document.getXmlVersion());
+
+        final XmlVersionChangedEvent event = recorder.getEvent(0);
+
+        assertEquals("1.0", event.getOldXmlVersion());
+        assertEquals("1.1", event.getNewXmlVersion());
+        assertEquals(1, recorder.getEvents().size());
+    }
+
+    @Test
+    public final <R extends EventRecorder & Listener> void testSetXmlStandalone() {
+        final ObservableDOMDocument document = new ObservableDOMDocument();
+        @SuppressWarnings("unchecked")
+        final R recorder = (R) newEventRecorder(Listener.class);
+
+        assertTrue(document.getXmlStandalone());
+
+        document.addListener(recorder);
+        document.setXmlStandalone(false);
+
+        assertFalse(document.getXmlStandalone());
+
+        final XmlStandaloneChangedEvent event = recorder.getEvent(0);
+
+        assertTrue(event.getOldXmlStandalone());
+        assertFalse(event.getNewXmlStandalone());
+        assertEquals(1, recorder.getEvents().size());
+    }
+
     private static final String USER_DATA_KEY = "key";
 
 }
