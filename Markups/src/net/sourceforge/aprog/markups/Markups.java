@@ -30,7 +30,9 @@ import static net.sourceforge.aprog.tools.Tools.*;
 import static net.sourceforge.aprog.swing.SwingTools.*;
 
 import net.sourceforge.aprog.context.Context;
+import net.sourceforge.aprog.events.Variable;
 import net.sourceforge.aprog.tools.IllegalInstantiationException;
+import net.sourceforge.aprog.xml.XMLTools;
 import net.sourceforge.jmacadapter.MacAdapterTools;
 
 /**
@@ -75,6 +77,7 @@ public final class Markups {
         result.set(APPLICATION_COPYRIGHT, Constants.APPLICATION_COPYRIGHT);
         result.set(FILE, null);
         result.set(FILE_MODIFIED, false);
+        result.set(DOM, XMLTools.newDocument());
 
         return result;
     }
