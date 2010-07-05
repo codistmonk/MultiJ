@@ -24,15 +24,12 @@
 
 package net.sourceforge.aprog.markups;
 
-import java.io.File;
-import net.sourceforge.aprog.events.Variable.ValueChangedEvent;
 import static net.sourceforge.aprog.markups.MarkupsConstants.Variables.*;
 import static net.sourceforge.aprog.i18n.Messages.*;
 import static net.sourceforge.aprog.tools.Tools.*;
 import static net.sourceforge.aprog.swing.SwingTools.*;
 
 import net.sourceforge.aprog.context.Context;
-import net.sourceforge.aprog.events.Variable;
 import net.sourceforge.aprog.tools.IllegalInstantiationException;
 import net.sourceforge.aprog.xml.XMLTools;
 import net.sourceforge.jmacadapter.MacAdapterTools;

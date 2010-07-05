@@ -777,7 +777,7 @@ public final class MarkupsComponents {
     public static final JPanel newQuasiXPathPanel(final Context context) {
         final JPanel result = new JPanel(new BorderLayout());
 
-        result.add(newTitledPanel("Quasi-XPath expression", newQuasiXPathExpressionTextArea(context)), BorderLayout.CENTER);
+        result.add(newTitledPanel("Quasi-XPath Expression", newQuasiXPathExpressionTextArea(context)), BorderLayout.CENTER);
         result.add(newQuasiXPathCreateButton(context), BorderLayout.SOUTH);
 
         return result;
@@ -881,6 +881,12 @@ public final class MarkupsComponents {
 
             @Override
             public final void valueChanged(final TreeSelectionEvent event) {
+                if (event.getNewLeadSelectionPath() == null) {
+                    context.set(SELECTED_NODE, null);
+
+                    return;
+                }
+
                 final DefaultMutableTreeNode selectedTreeNode = (DefaultMutableTreeNode) event.getNewLeadSelectionPath().getLastPathComponent();
 
                 if (selectedTreeNode != null) {
