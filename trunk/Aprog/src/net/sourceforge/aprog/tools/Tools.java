@@ -24,12 +24,21 @@
 
 package net.sourceforge.aprog.tools;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Enumeration;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -43,6 +52,166 @@ public final class Tools {
      */
     private Tools() {
         throw new IllegalInstantiationException();
+    }
+
+    /**
+     * Tries to create a temporary file and initialize it using {@code contents}.
+     * {@code contents} is closed at the end of this method.
+     *
+     * @param prefix
+     * <br>Not null
+     * @param suffix
+     * <br>Not null
+     * @param contents
+     * <br>Not null
+     * <br>Input-output
+     * @return a temporary file that is deleted when the program exits
+     * <br>Not null
+     * <br>New
+     * @throws RuntimeException if<ul>
+     *  <li>the file cannot be created
+     *  <li>an I/O error occurs while writing {@code contents} to the file
+     * </ul>
+     */
+    public static final File createTemporaryFile(final String prefix, final String suffix,
+            final InputStream contents) {
+        try {
+            final File result = File.createTempFile(prefix, suffix);
+
+            result.deleteOnExit();
+
+            if (contents == null) {
+                return result;
+            }
+
+            final OutputStream output = new FileOutputStream(result);
+
+            try {
+                write(contents, output);
+
+                return result;
+            } finally {
+                close(output);
+            }
+        } catch (final IOException exception) {
+            throw unchecked(exception);
+        } finally {
+            close(contents);
+        }
+    }
+
+    /**
+     * Writes {@code input} to {@code output}; this method does not close the streams when it terminates.
+     *
+     * @param input
+     * <br>Not null
+     * <br>Input-output
+     * @param output
+     * <br>Not null
+     * <br>Input-output
+     * @throws RuntimeException if an I/O error occurs
+     */
+    public static final void write(final InputStream input, final OutputStream output) {
+        try {
+            final byte[] buffer = new byte[4096];
+            int bytesRead;
+
+            while ((bytesRead = input.read(buffer)) != -1) {
+                output.write(buffer, 0, bytesRead);
+            }
+        } catch (final IOException exception) {
+            throw unchecked(exception);
+        }
+    }
+
+    /**
+     * Tries to close {@code closable} using reflection and without throwing an exception if it fails.
+     * If an exception occurs, it is logged in the caller's logger.
+     *
+     * @param closable
+     * <br>Maybe null
+     */
+    public static final void close(final Object closable) {
+        try {
+            if (closable != null) {
+                closable.getClass().getMethod("close").invoke(closable);
+            }
+        } catch (final Exception exception) {
+            Logger.getLogger(getCallerClass().getName() + "." + getCallerMethodName())
+                    .log(Level.WARNING, null, exception);
+        }
+    }
+
+    /**
+     * Retrieves the local file associated with the aplication URL (it could be a folder, a compiled
+     * class file or a jar, depending on the packaging).
+     * 
+     * @return
+     * <br>Not null
+     * <br>New
+     */
+    public static final File getApplicationFile() {
+        final URL applicationURL = getCallerClass().getProtectionDomain().getCodeSource().getLocation();
+
+        return new File(applicationURL.toString().replace("file:", ""));
+    }
+
+    /**
+     *
+     * @param <T> The type of the elements
+     * @param iterable
+     * <br>Not null
+     * @return
+     * <br>Not null
+     * <br>New
+     */
+    public static final <T> ArrayList<T> list(final Iterable<T> iterable) {
+        final ArrayList<T> result = new ArrayList<T>();
+
+        for (final T element : iterable) {
+            result.add(element);
+        }
+
+        return result;
+    }
+
+    /**
+     *
+     * @param <T> The type of the elements
+     * @param enumeration
+     * <br>Not null
+     * <br>Input-output
+     * <br>Shared
+     * @return
+     * <br>Not null
+     * <br>New
+     */
+    public static final <T> Iterable<T> iterable(final Enumeration<T> enumeration) {
+        return new Iterable<T>() {
+
+            @Override
+            public final Iterator<T> iterator() {
+                return new Iterator<T>() {
+
+                    @Override
+                    public final boolean hasNext() {
+                        return enumeration.hasMoreElements();
+                    }
+
+                    @Override
+                    public final T next() {
+                        return enumeration.nextElement();
+                    }
+
+                    @Override
+                    public final void remove() {
+                        throw new UnsupportedOperationException();
+                    }
+
+                };
+            }
+
+        };
     }
 
     /**
@@ -263,7 +432,7 @@ public final class Tools {
      * @return
      * <br>Not null
      */
-    public static final String getCallerPackagePath() {
+    public static final String getThisPackagePath() {
         return getPackagePath(getCallerClass());
     }
 

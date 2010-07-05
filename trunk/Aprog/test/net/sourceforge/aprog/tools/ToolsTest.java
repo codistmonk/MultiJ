@@ -24,10 +24,16 @@
 
 package net.sourceforge.aprog.tools;
 
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import static org.junit.Assert.*;
 
 import java.lang.reflect.Method;
 import java.util.Set;
+import java.util.Vector;
 import java.util.concurrent.Callable;
 
 import org.junit.Test;
@@ -38,6 +44,54 @@ import org.junit.Test;
  * @author codistmonk (creation 2010-06-11)
  */
 public final class ToolsTest {
+
+    @Test
+    public final void testCreateTemporaryFile() {
+        {
+            final File temporaryFile = Tools.createTemporaryFile("prefix", "suffix", null);
+
+            assertTrue(temporaryFile.exists());
+            assertTrue(temporaryFile.getName().startsWith("prefix"));
+            assertTrue(temporaryFile.getName().endsWith("suffix"));
+            assertEquals(0L, temporaryFile.length());
+        }
+        {
+            final File temporaryFile = Tools.createTemporaryFile("prefix", "suffix",
+                    Tools.getResourceAsStream(Tools.getThisPackagePath() + "test.txt"));
+
+            assertTrue(temporaryFile.exists());
+            assertTrue(temporaryFile.getName().startsWith("prefix"));
+            assertTrue(temporaryFile.getName().endsWith("suffix"));
+            assertEquals(2L, temporaryFile.length());
+        }
+    }
+
+    @Test
+    public final void testClose() throws IOException {
+        final InputStream input = Tools.getResourceAsStream(Tools.getThisPackagePath() + "test.txt");
+
+        assertTrue(input.available() > 0);
+
+        Tools.close(input);
+
+        try {
+            input.available();
+
+            fail("This point shouldn't be reached");
+        } catch (final IOException exception) {
+            assertEquals("Stream closed", exception.getMessage());
+        }
+    }
+
+    @Test
+    public final void testListAndIterable() {
+        final Vector<Object> vector = new Vector<Object>();
+
+        vector.add(42);
+        vector.add(33);
+
+        assertEquals(vector, Tools.list(Tools.iterable(vector.elements())));
+    }
 
     @Test
     public final void testArray() {
@@ -211,7 +265,7 @@ public final class ToolsTest {
 
     @Test
     public final void testGetCallerPackagePath() {
-        assertEquals("net/sourceforge/aprog/tools/", Tools.getCallerPackagePath());
+        assertEquals("net/sourceforge/aprog/tools/", Tools.getThisPackagePath());
     }
 
     @Test
