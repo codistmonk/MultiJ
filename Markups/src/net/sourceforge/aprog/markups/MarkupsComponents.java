@@ -26,6 +26,7 @@ package net.sourceforge.aprog.markups;
 
 import static javax.swing.KeyStroke.getKeyStroke;
 
+import static net.sourceforge.aprog.i18n.Messages.*;
 import static net.sourceforge.aprog.markups.MarkupsConstants.Variables.*;
 import static net.sourceforge.aprog.subtitlesadjuster.SubtitlesAdjusterTools.*;
 import static net.sourceforge.aprog.subtitlesadjuster.SubtitlesAdjusterTools.menu;
@@ -36,8 +37,9 @@ import static net.sourceforge.aprog.swing.SwingTools.scrollable;
 import static net.sourceforge.aprog.tools.Tools.*;
 
 import java.awt.BorderLayout;
-import java.awt.CardLayout;
 import java.awt.Color;
+import java.awt.Component;
+import java.awt.GridBagConstraints;
 import java.awt.dnd.DropTarget;
 import java.awt.dnd.DropTargetAdapter;
 import java.awt.dnd.DropTargetDragEvent;
@@ -49,24 +51,27 @@ import java.io.File;
 import java.util.List;
 
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.ButtonGroup;
+import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
-import javax.swing.JRadioButtonMenuItem;
-import javax.swing.JTextPane;
+import javax.swing.JSplitPane;
+import javax.swing.JTabbedPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
 import javax.swing.JTree;
-import javax.swing.SwingUtilities;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
+import javax.swing.border.TitledBorder;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 
 import net.sourceforge.aprog.context.Context;
 import net.sourceforge.aprog.events.Variable;
 import net.sourceforge.aprog.events.Variable.ValueChangedEvent;
-import net.sourceforge.aprog.i18n.Messages;
 import net.sourceforge.aprog.i18n.Translator;
 import net.sourceforge.aprog.subtitlesadjuster.SubtitlesAdjusterActions;
 import net.sourceforge.aprog.subtitlesadjuster.SubtitlesAdjusterComponents;
@@ -162,9 +167,11 @@ public final class MarkupsComponents {
                         newCutMenuItem(context),
                         newPasteMenuItem(context)
                 ),
-                menu("View",
-                        newTreeMenuItem(context),
-                        newTextMenuItem(context)
+                menu("Node",
+                        newAppendNewNodeMenuItem(context),
+                        null,
+                        newMoveUpMenuItem(context),
+                        newMoveDownMenuItem(context)
                 ),
                 menu("Help",
                         newManualMenuItem(context)
@@ -383,13 +390,9 @@ public final class MarkupsComponents {
      * <br>Not null
      * <br>New
      */
-    public static final JMenuItem newTreeMenuItem(final Context context) {
-        final JMenuItem result = Messages.translate(new JRadioButtonMenuItem(
-                SwingTools.action(MarkupsActions.class, "tree", context)
-                .setName("Tree")));
-
-        getOrCreateButtonGroup(context, VIEW_RADIO_GROUP).add(result);
-        getOrCreateButtonGroup(context, VIEW_RADIO_GROUP).setSelected(result.getModel(), true);
+    public static final JMenuItem newAppendNewNodeMenuItem(final Context context) {
+        final JMenuItem result = item("Append New Node",
+                MarkupsActions.class, "appendNewNode", context);
 
         return result;
     }
@@ -403,12 +406,25 @@ public final class MarkupsComponents {
      * <br>Not null
      * <br>New
      */
-    public static final JMenuItem newTextMenuItem(final Context context) {
-        final JMenuItem result = Messages.translate(new JRadioButtonMenuItem(
-                SwingTools.action(MarkupsActions.class, "text", context)
-                .setName("Text")));
+    public static final JMenuItem newMoveUpMenuItem(final Context context) {
+        final JMenuItem result = item("Move Up",
+                MarkupsActions.class, "moveUp", context);
 
-        getOrCreateButtonGroup(context, VIEW_RADIO_GROUP).add(result);
+        return result;
+    }
+
+    /**
+     *
+     * @param context
+     * <br>Not null
+     * <br>Shared
+     * @return
+     * <br>Not null
+     * <br>New
+     */
+    public static final JMenuItem newMoveDownMenuItem(final Context context) {
+        final JMenuItem result = item("Move Down",
+                MarkupsActions.class, "moveDown", context);
 
         return result;
     }
@@ -439,7 +455,7 @@ public final class MarkupsComponents {
     public static final JPanel newMainPanel(final Context context) {
         final JPanel result = new JPanel(new BorderLayout());
 
-        result.add(newLayeredViews(context));
+        result.add(newMainSplitPane(context));
 
         new DropTarget(result, new DropTargetAdapter() {
 
@@ -477,22 +493,10 @@ public final class MarkupsComponents {
      * <br>Not null
      * <br>New
      */
-    public static final JPanel newLayeredViews(final Context context) {
-        final JPanel views = new JPanel(new CardLayout());
-
-        views.add(scrollable(newDOMTreeView(context)), MarkupsConstants.VIEW_MODE_TREE);
-        views.add(scrollable(newDOMTextView(context)), MarkupsConstants.VIEW_MODE_TEXT);
-
-        getOrCreateViewModeVariable(context).addListener(new Variable.Listener<String>() {
-
-            @Override
-            public final void valueChanged(final ValueChangedEvent<String, ?> event) {
-                ((CardLayout) views.getLayout()).show(views, event.getNewValue());
-            }
-
-        });
-
-        return views;
+    public static final JSplitPane newMainSplitPane(final Context context) {
+        return new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
+                scrollable(newDOMTreeView(context)),
+                newContextualSplitPane(context));
     }
 
     /**
@@ -503,66 +507,269 @@ public final class MarkupsComponents {
      * <br>Not null
      * <br>New
      */
-    public static final JTextPane newDOMTextView(final Context context) {
-        final Variable<Node> domVariable = context.getVariable(DOM);
-        final JTextPane result = new JTextPane();
+    public static final JSplitPane newContextualSplitPane(final Context context) {
+        return new JSplitPane(JSplitPane.VERTICAL_SPLIT,
+                newNodePanel(context),
+                newXPathPanel(context));
+    }
 
-        result.getDocument().addDocumentListener(new DocumentListener() {
+    /**
+     *
+     * @param context
+     * <br>Not null
+     * @return
+     * <br>Not null
+     * <br>New
+     */
+    public static final JPanel newNodePanel(final Context context) {
+        final JPanel result = new JPanel(new BorderLayout());
+//        final GridBagConstraints constraints = new GridBagConstraints();
+//
+//        {
+//            constraints.gridx = 0;
+//            constraints.gridy = 0;
+//            constraints.fill = GridBagConstraints.HORIZONTAL;
+//            constraints.weightx = 1D;
+//            constraints.weighty = 0D;
+//
+//            SwingTools.add(result, newNodeNamePanel(context), constraints);
+//        }
+//        {
+//            ++constraints.gridy;
+//            constraints.fill = GridBagConstraints.BOTH;
+//            constraints.weighty = 1D;
+//
+//            SwingTools.add(result, newNodeValuePanel(context), constraints);
+//        }
 
-            private final int[] newCaretPosition = new int[1];
+        result.add(newNodeNamePanel(context), BorderLayout.NORTH);
+        result.add(newNodeValuePanel(context), BorderLayout.CENTER);
 
-            @Override
-            public final void insertUpdate(final DocumentEvent event) {
-                this.newCaretPosition[0] = result.getCaretPosition() + 1;
-                this.updateContext();
-            }
+        return result;
+    }
 
-            @Override
-            public final void removeUpdate(final DocumentEvent event) {
-                this.newCaretPosition[0] = result.getCaretPosition() - 1;
-                this.updateContext();
-            }
+    /**
+     *
+     * @param context
+     * <br>Not null
+     * @return
+     * <br>Not null
+     * <br>New
+     */
+    public static final JPanel newNodeNamePanel(final Context context) {
+        return newTitledPanel("Name", newNodeNameTextField(context));
+    }
 
-            @Override
-            public final void changedUpdate(final DocumentEvent event) {
-                this.newCaretPosition[0] = result.getCaretPosition();
-                this.updateContext();
-            }
+    /**
+     *
+     * @param context
+     * <br>Not null
+     * @return
+     * <br>Not null
+     * <br>New
+     */
+    public static final JTextField newNodeNameTextField(final Context context) {
+        final JTextField result = new JTextField();
 
-            private final void updateContext() {
-                final int caretPosition = this.newCaretPosition[0];
+        // TODO
 
-                SwingUtilities.invokeLater(new Runnable() {
+        return result;
+    }
 
-                    @Override
-                    public void run() {
-                        debugPrint(result.getText());
-                        if (!asString(domVariable.getValue()).equals(result.getText())) {
-                            context.set(FILE_MODIFIED, true);
-                            try {
-                                domVariable.setValue(XMLTools.parse(result.getText()));
-                                result.setCaretPosition(caretPosition);
-                            } catch (final Exception exception) {
-                                SubtitlesAdjusterActions.showErrorMessage(context, exception);
-                            }
-                        }
-                    }
+    /**
+     *
+     * @param context
+     * <br>Not null
+     * @return
+     * <br>Not null
+     * <br>New
+     */
+    public static final JPanel newNodeValuePanel(final Context context) {
+        return newTitledPanel("Value", scrollable(newNodeValueTextArea(context)));
+    }
 
-                });
-            }
+    /**
+     *
+     * @param context
+     * <br>Not null
+     * @return
+     * <br>Not null
+     * <br>New
+     */
+    public static final JTextArea newNodeValueTextArea(final Context context) {
+        final JTextArea result = new JTextArea();
 
-        });
+        // TODO
 
-        domVariable.addListener(new Variable.Listener<Node>() {
+        return result;
+    }
 
-            @Override
-            public final void valueChanged(final ValueChangedEvent<Node, ?> event) {
-                result.setText(asString(domVariable.getValue()));
-            }
+    /**
+     *
+     * @param context
+     * <br>Not null
+     * @return
+     * <br>Not null
+     * <br>New
+     */
+    public static final JPanel newXPathPanel(final Context context) {
+        final JPanel result = new JPanel(new BorderLayout());
 
-        });
+        result.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createEtchedBorder(),
+                "XPath",
+                TitledBorder.CENTER,
+                TitledBorder.TOP));
 
-        result.setText(asString(domVariable.getValue()));
+        result.add(newContextLabel(context), BorderLayout.NORTH);
+        result.add(newXPathTabbedPane(context), BorderLayout.CENTER);
+
+        return result;
+    }
+
+    /**
+     *
+     * @param context
+     * <br>Not null
+     * @return
+     * <br>Not null
+     * <br>New
+     */
+    public static final JLabel newContextLabel(final Context context) {
+        final JLabel result = new JLabel();
+
+        return result;
+    }
+
+    /**
+     *
+     * @param context
+     * <br>Not null
+     * @return
+     * <br>Not null
+     * <br>New
+     */
+    public static final JTabbedPane newXPathTabbedPane(final Context context) {
+        final JTabbedPane result = new JTabbedPane();
+
+        result.add("List", newXPathListSplitPane(context));
+        result.add("Create", newQuasiXPathPanel(context));
+
+        return result;
+    }
+
+    /**
+     *
+     * @param context
+     * <br>Not null
+     * @return
+     * <br>Not null
+     * <br>New
+     */
+    public static final JSplitPane newXPathListSplitPane(final Context context) {
+        return new JSplitPane(JSplitPane.VERTICAL_SPLIT,
+                newTitledPanel("XPath Expression", scrollable(newXPathExpressionTextArea(context))),
+                newTitledPanel("Matches", scrollable(newXPathList(context))));
+    }
+
+    /**
+     *
+     * @param context
+     * <br>Not null
+     * @return
+     * <br>Not null
+     * <br>New
+     */
+    public static final JTextArea newXPathExpressionTextArea(final Context context) {
+        final JTextArea result = new JTextArea();
+
+        // TODO
+
+        return result;
+    }
+
+    /**
+     *
+     * @param context
+     * <br>Not null
+     * @return
+     * <br>Not null
+     * <br>New
+     */
+    public static final JList newXPathList(final Context context) {
+        final JList result = new JList();
+
+        // TODO
+
+        return result;
+    }
+
+    /**
+     *
+     * @param context
+     * <br>Not null
+     * @return
+     * <br>Not null
+     * <br>New
+     */
+    public static final JPanel newQuasiXPathPanel(final Context context) {
+        final JPanel result = new JPanel(new BorderLayout());
+
+        result.add(newQuasiXPathExpressionTextArea(context), BorderLayout.CENTER);
+        result.add(newQuasiXPathCreateButton(context), BorderLayout.SOUTH);
+
+        return result;
+    }
+
+    /**
+     *
+     * @param context
+     * <br>Not null
+     * @return
+     * <br>Not null
+     * <br>New
+     */
+    public static final JTextArea newQuasiXPathExpressionTextArea(final Context context) {
+        final JTextArea result = new JTextArea();
+
+        // TODO
+
+        return result;
+    }
+
+    /**
+     *
+     * @param context
+     * <br>Not null
+     * @return
+     * <br>Not null
+     * <br>New
+     */
+    public static final JButton newQuasiXPathCreateButton(final Context context) {
+        final JButton result = translate(new JButton("Create Node"));
+
+        // TODO
+
+        return result;
+    }
+
+    /**
+     *
+     * @param translationKey
+     * <br>Not null
+     * @param component
+     * <br>Not null
+     * <br>Input-output
+     * @return
+     * <br>Not null
+     * <br>New
+     */
+    public static final JPanel newTitledPanel(final String translationKey, final Component component) {
+        final JPanel result = new JPanel(new BorderLayout());
+
+        result.setBorder(translate(BorderFactory.createTitledBorder(translationKey)));
+
+        result.add(component);
 
         return result;
     }
@@ -575,7 +782,7 @@ public final class MarkupsComponents {
      * <br>Not null
      * <br>New
      */
-    public static final String asString(final Node node) {
+    public static final String toXMLString(final Node node) {
         final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
 
         XMLTools.write(node, buffer, 0);
@@ -642,12 +849,12 @@ public final class MarkupsComponents {
      * <br>Not null
      * <br>Maybe new
      */
-    public static final Variable<String> getOrCreateViewModeVariable(final Context context) {
-        Variable<String> result = context.getVariable(VIEW_MODE);
+    public static final <T> Variable<T> getOrCreateVariable(final Context context, final String variableName, final T defaultValue) {
+        Variable<T> result = context.getVariable(variableName);
 
         if (result == null) {
-            context.set(VIEW_MODE, MarkupsConstants.VIEW_MODE_TREE);
-            result = context.getVariable(VIEW_MODE);
+            context.set(variableName, defaultValue);
+            result = context.getVariable(variableName);
         }
 
         return result;
