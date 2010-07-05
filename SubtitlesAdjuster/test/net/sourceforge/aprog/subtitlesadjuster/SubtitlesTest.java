@@ -25,7 +25,7 @@
 package net.sourceforge.aprog.subtitlesadjuster;
 
 import java.text.ParseException;
-import static net.sourceforge.aprog.subtitlesadjuster.Constants.Variables.*;
+import static net.sourceforge.aprog.subtitlesadjuster.SubtitlesAdjusterConstants.Variables.*;
 import static net.sourceforge.aprog.subtitlesadjuster.Subtitles.TIME_FORMAT;
 import static net.sourceforge.aprog.tools.Tools.*;
 

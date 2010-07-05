@@ -28,12 +28,12 @@ package net.sourceforge.aprog.subtitlesadjuster;
  *
  * @author codistmonk (creation 2010-06-27)
  */
-public final class Constants {
+public final class SubtitlesAdjusterConstants {
 
     /**
      * Private default constructor to prevent instantiation.
      */
-    private Constants() {
+    private SubtitlesAdjusterConstants() {
         // Do nothing
     }
 

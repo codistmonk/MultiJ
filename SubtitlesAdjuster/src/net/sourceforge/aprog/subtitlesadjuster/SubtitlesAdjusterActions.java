@@ -25,8 +25,8 @@
 package net.sourceforge.aprog.subtitlesadjuster;
 
 import static net.sourceforge.aprog.i18n.Messages.*;
-import static net.sourceforge.aprog.subtitlesadjuster.Components.*;
-import static net.sourceforge.aprog.subtitlesadjuster.Constants.Variables.*;
+import static net.sourceforge.aprog.subtitlesadjuster.SubtitlesAdjusterComponents.*;
+import static net.sourceforge.aprog.subtitlesadjuster.SubtitlesAdjusterConstants.Variables.*;
 
 import java.awt.Component;
 import java.io.File;
@@ -45,12 +45,12 @@ import net.sourceforge.aprog.tools.Tools;
  * 
  * @author codistmonk (creation 2010-06-27)
  */
-public final class Actions {
+public final class SubtitlesAdjusterActions {
 
     /**
      * Private default constructor to prevent instantiation.
      */
-    private Actions() {
+    private SubtitlesAdjusterActions() {
         // Do nothing
     }
 
