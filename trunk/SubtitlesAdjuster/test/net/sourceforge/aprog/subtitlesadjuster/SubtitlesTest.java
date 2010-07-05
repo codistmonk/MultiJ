@@ -94,7 +94,7 @@ public final class SubtitlesTest {
         assertEquals("01:10:27,760", TIME_FORMAT.format(context.get(LAST_TIME)));
     }
 
-    private static final String SRT_RESOURCE_PATH = getCallerPackagePath() + "REC.en.srt";
+    private static final String SRT_RESOURCE_PATH = getThisPackagePath() + "REC.en.srt";
 
     private static final File SRT_FILE = getFile(SRT_RESOURCE_PATH);
 
