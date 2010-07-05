@@ -24,7 +24,7 @@
 
 package net.sourceforge.aprog.markups;
 
-import static net.sourceforge.aprog.markups.Constants.Variables.*;
+import static net.sourceforge.aprog.markups.MarkupsConstants.Variables.*;
 
 import java.awt.Component;
 import java.io.FileNotFoundException;
@@ -39,6 +39,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeModel;
 
 import net.sourceforge.aprog.context.Context;
+import net.sourceforge.aprog.subtitlesadjuster.SubtitlesAdjusterActions;
 import net.sourceforge.aprog.tools.IllegalInstantiationException;
 import net.sourceforge.aprog.tools.Tools;
 import net.sourceforge.aprog.xml.XMLTools;
@@ -50,12 +51,12 @@ import org.xml.sax.InputSource;
  *
  * @author codistmonk (creation 2010-07-03)
  */
-public final class Actions {
+public final class MarkupsActions {
 
     /**
      * @throws IllegalInstantiationException To prevent instantiation
      */
-    private Actions() {
+    private MarkupsActions() {
         throw new IllegalInstantiationException();
     }
 
@@ -123,7 +124,8 @@ public final class Actions {
 
         final JFileChooser fileChooser = new JFileChooser();
 
-        if (JFileChooser.APPROVE_OPTION == fileChooser.showOpenDialog((Component) context.get(MAIN_FRAME)) && fileChooser.getSelectedFile() != null) {
+        if (JFileChooser.APPROVE_OPTION == fileChooser.showOpenDialog((Component) context.get(MAIN_FRAME)) &&
+                fileChooser.getSelectedFile() != null) {
             final File file = fileChooser.getSelectedFile();
 
             context.set(DOM, XMLTools.parse(new InputSource(file.getAbsolutePath())));
@@ -156,7 +158,8 @@ public final class Actions {
     public static final void saveAs(final Context context) {
         final JFileChooser fileChooser = new JFileChooser();
 
-        if (JFileChooser.APPROVE_OPTION == fileChooser.showSaveDialog((Component) context.get(MAIN_FRAME)) && fileChooser.getSelectedFile() != null) {
+        if (JFileChooser.APPROVE_OPTION == fileChooser.showSaveDialog((Component) context.get(MAIN_FRAME)) &&
+                fileChooser.getSelectedFile() != null) {
             save(context, fileChooser.getSelectedFile());
         }
     }
@@ -172,14 +175,16 @@ public final class Actions {
      */
     private static final void save(final Context context, final File file) {
         try {
+            final TreeModel treeModel = (TreeModel) context.get(TREE_MODEL);
+
             XMLTools.write(
-                    (Node) ((DefaultMutableTreeNode) ((TreeModel) context.get(TREE_MODEL)).getRoot()).getUserObject(),
+                    (Node) ((DefaultMutableTreeNode) treeModel.getRoot()).getUserObject(),
                     new FileOutputStream(file),
                     0);
             context.set(FILE, file);
             context.set(FILE_MODIFIED, false);
         } catch (final FileNotFoundException exception) {
-            net.sourceforge.aprog.subtitlesadjuster.Actions.showErrorMessage(context, exception);
+            SubtitlesAdjusterActions.showErrorMessage(context, exception);
         }
     }
 
@@ -191,7 +196,7 @@ public final class Actions {
     public static final void undo(final Context context) {
         Tools.debugPrint("TODO");
 
-        net.sourceforge.aprog.subtitlesadjuster.Actions.showTODOMessage(context);
+        SubtitlesAdjusterActions.showTODOMessage(context);
     }
 
     /**
@@ -202,7 +207,7 @@ public final class Actions {
     public static final void redo(final Context context) {
         Tools.debugPrint("TODO");
 
-        net.sourceforge.aprog.subtitlesadjuster.Actions.showTODOMessage(context);
+        SubtitlesAdjusterActions.showTODOMessage(context);
     }
 
     /**
@@ -213,7 +218,7 @@ public final class Actions {
     public static final void copy(final Context context) {
         Tools.debugPrint("TODO");
 
-        net.sourceforge.aprog.subtitlesadjuster.Actions.showTODOMessage(context);
+        SubtitlesAdjusterActions.showTODOMessage(context);
     }
 
     /**
@@ -224,7 +229,7 @@ public final class Actions {
     public static final void cut(final Context context) {
         Tools.debugPrint("TODO");
 
-        net.sourceforge.aprog.subtitlesadjuster.Actions.showTODOMessage(context);
+        SubtitlesAdjusterActions.showTODOMessage(context);
     }
 
     /**
@@ -235,7 +240,7 @@ public final class Actions {
     public static final void paste(final Context context) {
         Tools.debugPrint("TODO");
 
-        net.sourceforge.aprog.subtitlesadjuster.Actions.showTODOMessage(context);
+        SubtitlesAdjusterActions.showTODOMessage(context);
     }
 
     /**
@@ -244,7 +249,7 @@ public final class Actions {
      * <br>Not null
      */
     public static final void tree(final Context context) {
-        context.set(VIEW_MODE, Constants.VIEW_MODE_TREE);
+        context.set(VIEW_MODE, MarkupsConstants.VIEW_MODE_TREE);
     }
 
     /**
@@ -253,7 +258,7 @@ public final class Actions {
      * <br>Not null
      */
     public static final void text(final Context context) {
-        context.set(VIEW_MODE, Constants.VIEW_MODE_TEXT);
+        context.set(VIEW_MODE, MarkupsConstants.VIEW_MODE_TEXT);
     }
 
 }

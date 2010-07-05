@@ -26,7 +26,7 @@ package net.sourceforge.aprog.markups;
 
 import static javax.swing.KeyStroke.getKeyStroke;
 
-import static net.sourceforge.aprog.markups.Constants.Variables.*;
+import static net.sourceforge.aprog.markups.MarkupsConstants.Variables.*;
 import static net.sourceforge.aprog.subtitlesadjuster.SubtitlesAdjusterTools.*;
 import static net.sourceforge.aprog.subtitlesadjuster.SubtitlesAdjusterTools.menu;
 import static net.sourceforge.aprog.swing.SwingTools.checkAWT;
@@ -68,6 +68,8 @@ import net.sourceforge.aprog.events.Variable;
 import net.sourceforge.aprog.events.Variable.ValueChangedEvent;
 import net.sourceforge.aprog.i18n.Messages;
 import net.sourceforge.aprog.i18n.Translator;
+import net.sourceforge.aprog.subtitlesadjuster.SubtitlesAdjusterActions;
+import net.sourceforge.aprog.subtitlesadjuster.SubtitlesAdjusterComponents;
 import net.sourceforge.aprog.swing.SwingTools;
 import net.sourceforge.aprog.tools.IllegalInstantiationException;
 import net.sourceforge.aprog.xml.XMLTools;
@@ -80,12 +82,12 @@ import org.w3c.dom.Node;
  *
  * @author codistmonk (creation 2010-07-03)
  */
-public final class Components {
+public final class MarkupsComponents {
 
     /**
      * @throws IllegalInstantiationException To prevent instantiation
      */
-    private Components() {
+    private MarkupsComponents() {
         throw new IllegalInstantiationException();
     }
 
@@ -107,12 +109,12 @@ public final class Components {
         result.add(newMainPanel(context));
 
         result.addWindowListener(newListener(WindowListener.class, "windowClosing",
-                Actions.class, "quit", context));
+                MarkupsActions.class, "quit", context));
 
         invokeOnVariableChanged(context, FILE,
-                net.sourceforge.aprog.subtitlesadjuster.Actions.class, "updateMainFrameTitle", context);
+                SubtitlesAdjusterActions.class, "updateMainFrameTitle", context);
         invokeOnVariableChanged(context, FILE_MODIFIED,
-                net.sourceforge.aprog.subtitlesadjuster.Actions.class, "updateMainFrameTitle", context);
+                SubtitlesAdjusterActions.class, "updateMainFrameTitle", context);
 
         Translator.getDefaultTranslator().addListener(newListener(Translator.Listener.class, "localeChanged",
                 SwingTools.class, "packAndUpdateMinimumSize", result));
@@ -181,7 +183,7 @@ public final class Components {
     public static final JMenuItem newAboutMenuItem(final Context context) {
 		checkAWT();
 
-        return net.sourceforge.aprog.subtitlesadjuster.Components.newAboutMenuItem(context);
+        return SubtitlesAdjusterComponents.newAboutMenuItem(context);
     }
 
     /**
@@ -196,7 +198,7 @@ public final class Components {
     public static final JMenuItem newPreferencesMenuItem(final Context context) {
 		checkAWT();
 
-        return net.sourceforge.aprog.subtitlesadjuster.Components.newPreferencesMenuItem(context);
+        return SubtitlesAdjusterComponents.newPreferencesMenuItem(context);
     }
 
     /**
@@ -213,13 +215,13 @@ public final class Components {
 
         if (MacAdapterTools.isMacOSX() && MacAdapterTools.getUseScreenMenuBar()) {
             if (registerMacOSXApplicationListener("handleQuit",
-                    Actions.class, "quit", context)) {
+                    MarkupsActions.class, "quit", context)) {
                 return null;
             }
         }
 
         return item("Quit", getKeyStroke(META + " Q"),
-                Actions.class, "quit", context);
+                MarkupsActions.class, "quit", context);
     }
 
     /**
@@ -233,7 +235,7 @@ public final class Components {
      */
     public static final JMenuItem newNewMenuItem(final Context context) {
         return item("New", getKeyStroke(META + " N"),
-                Actions.class, "newFile", context);
+                MarkupsActions.class, "newFile", context);
     }
 
     /**
@@ -247,7 +249,7 @@ public final class Components {
      */
     public static final JMenuItem newOpenMenuItem(final Context context) {
         return item("Open...", getKeyStroke(META + " O"),
-                Actions.class, "open", context);
+                MarkupsActions.class, "open", context);
     }
 
     /**
@@ -261,7 +263,7 @@ public final class Components {
      */
     public static final JMenuItem newSaveMenuItem(final Context context) {
         final JMenuItem result = item("Save", getKeyStroke(META + " S"),
-                Actions.class, "save", context);
+                MarkupsActions.class, "save", context);
         final Variable<Boolean> fileModifiedVariable = context.getVariable(FILE_MODIFIED);
 
         fileModifiedVariable.addListener(new Variable.Listener<Boolean>() {
@@ -287,7 +289,7 @@ public final class Components {
      */
     public static final JMenuItem newSaveAsMenuItem(final Context context) {
         final JMenuItem result = item("Save As...", getKeyStroke(META + " shift S"),
-                Actions.class, "saveAs", context);
+                MarkupsActions.class, "saveAs", context);
 
         return result;
     }
@@ -303,7 +305,7 @@ public final class Components {
      */
     public static final JMenuItem newUndoMenuItem(final Context context) {
         final JMenuItem result = item("Undo", getKeyStroke(META + " Z"),
-                Actions.class, "undo", context);
+                MarkupsActions.class, "undo", context);
 
         return result;
     }
@@ -319,7 +321,7 @@ public final class Components {
      */
     public static final JMenuItem newRedoMenuItem(final Context context) {
         final JMenuItem result = item("Redo", getKeyStroke(META + " Y"),
-                Actions.class, "redo", context);
+                MarkupsActions.class, "redo", context);
 
         return result;
     }
@@ -335,7 +337,7 @@ public final class Components {
      */
     public static final JMenuItem newCopyMenuItem(final Context context) {
         final JMenuItem result = item("Copy", getKeyStroke(META + " C"),
-                Actions.class, "copy", context);
+                MarkupsActions.class, "copy", context);
 
         return result;
     }
@@ -351,7 +353,7 @@ public final class Components {
      */
     public static final JMenuItem newCutMenuItem(final Context context) {
         final JMenuItem result = item("Cut", getKeyStroke(META + " X"),
-                Actions.class, "cut", context);
+                MarkupsActions.class, "cut", context);
 
         return result;
     }
@@ -367,7 +369,7 @@ public final class Components {
      */
     public static final JMenuItem newPasteMenuItem(final Context context) {
         final JMenuItem result = item("Paste", getKeyStroke(META + " V"),
-                Actions.class, "paste", context);
+                MarkupsActions.class, "paste", context);
 
         return result;
     }
@@ -383,7 +385,7 @@ public final class Components {
      */
     public static final JMenuItem newTreeMenuItem(final Context context) {
         final JMenuItem result = Messages.translate(new JRadioButtonMenuItem(
-                SwingTools.action(Actions.class, "tree", context)
+                SwingTools.action(MarkupsActions.class, "tree", context)
                 .setName("Tree")));
 
         getOrCreateButtonGroup(context, VIEW_RADIO_GROUP).add(result);
@@ -403,7 +405,7 @@ public final class Components {
      */
     public static final JMenuItem newTextMenuItem(final Context context) {
         final JMenuItem result = Messages.translate(new JRadioButtonMenuItem(
-                SwingTools.action(Actions.class, "text", context)
+                SwingTools.action(MarkupsActions.class, "text", context)
                 .setName("Text")));
 
         getOrCreateButtonGroup(context, VIEW_RADIO_GROUP).add(result);
@@ -423,7 +425,7 @@ public final class Components {
     public static final JMenuItem newManualMenuItem(final Context context) {
         return item(
                 "Manual", getKeyStroke("F1"),
-                net.sourceforge.aprog.subtitlesadjuster.Actions.class, "showManual", context);
+                SubtitlesAdjusterActions.class, "showManual", context);
     }
 
     /**
@@ -457,7 +459,7 @@ public final class Components {
 
                 final List<File> files = SwingTools.getFiles(event);
 
-                if (!files.isEmpty() && Actions.confirm(context)) {
+                if (!files.isEmpty() && MarkupsActions.confirm(context)) {
                     context.set(FILE, files.get(0));
                 }
             }
@@ -478,8 +480,8 @@ public final class Components {
     public static final JPanel newLayeredViews(final Context context) {
         final JPanel views = new JPanel(new CardLayout());
 
-        views.add(scrollable(newDOMTreeView(context)), Constants.VIEW_MODE_TREE);
-        views.add(scrollable(newDOMTextView(context)), Constants.VIEW_MODE_TEXT);
+        views.add(scrollable(newDOMTreeView(context)), MarkupsConstants.VIEW_MODE_TREE);
+        views.add(scrollable(newDOMTextView(context)), MarkupsConstants.VIEW_MODE_TEXT);
 
         getOrCreateViewModeVariable(context).addListener(new Variable.Listener<String>() {
 
@@ -541,7 +543,7 @@ public final class Components {
                                 domVariable.setValue(XMLTools.parse(result.getText()));
                                 result.setCaretPosition(caretPosition);
                             } catch (final Exception exception) {
-                                net.sourceforge.aprog.subtitlesadjuster.Actions.showErrorMessage(context, exception);
+                                SubtitlesAdjusterActions.showErrorMessage(context, exception);
                             }
                         }
                     }
@@ -644,7 +646,7 @@ public final class Components {
         Variable<String> result = context.getVariable(VIEW_MODE);
 
         if (result == null) {
-            context.set(VIEW_MODE, Constants.VIEW_MODE_TREE);
+            context.set(VIEW_MODE, MarkupsConstants.VIEW_MODE_TREE);
             result = context.getVariable(VIEW_MODE);
         }
 
