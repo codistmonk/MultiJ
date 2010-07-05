@@ -24,6 +24,9 @@
 
 package net.sourceforge.aprog.xml;
 
+import static java.util.Arrays.asList;
+import static java.util.Collections.unmodifiableList;
+
 import static net.sourceforge.aprog.tools.Tools.*;
 
 import java.io.ByteArrayInputStream;
@@ -65,6 +68,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.w3c.dom.events.EventListener;
+import org.w3c.dom.events.EventTarget;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
@@ -86,14 +91,113 @@ public final class XMLTools {
     /**
      * {@value}.
      */
-    public static final String XML_1_UTF8_NOT_STANDALONE =
+    public static final String XML_1_0_UTF8 =
+            "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
+
+    /**
+     * {@value}.
+     */
+    public static final String XML_1_0_UTF8_STANDALONE_NO =
             "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>";
 
     /**
      * {@value}.
      */
-    public static final String XML_1_UTF8_STANDALONE =
+    public static final String XML_1_0_UTF8_STANDALONE_YES =
             "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>";
+
+    /**
+     * {@value}.
+     */
+    public static final String DOM_EVENT_SUBTREE_MODIFIED = "DOMSubtreeModified";
+
+    /**
+     * {@value}.
+     */
+    public static final String DOM_EVENT_NODE_INSERTED = "DOMNodeInserted";
+
+    /**
+     * {@value}.
+     */
+    public static final String DOM_EVENT_NODE_REMOVED = "DOMNodeRemoved";
+
+    /**
+     * {@value}.
+     */
+    public static final String DOM_EVENT_NODE_REMOVED_FROM_DOCUMENT = "DOMNodeRemovedFromDocument";
+
+    /**
+     * {@value}.
+     */
+    public static final String DOM_EVENT_NODE_INSERTED_INTO_DOCUMENT = "DOMNodeInsertedIntoDocument";
+
+    /**
+     * {@value}.
+     */
+    public static final String DOM_EVENT_ATTRIBUTE_MODIFIED = "DOMAttrModified";
+
+    /**
+     * {@value}.
+     */
+    public static final String DOM_EVENT_CHARACTER_DATA_MODIFIED = "DOMCharacterDataModified";
+
+    public static final List<String> DOM_EVENT_TYPES = unmodifiableList(asList(
+            DOM_EVENT_ATTRIBUTE_MODIFIED,
+            DOM_EVENT_CHARACTER_DATA_MODIFIED,
+            DOM_EVENT_NODE_INSERTED,
+            DOM_EVENT_NODE_INSERTED_INTO_DOCUMENT,
+            DOM_EVENT_NODE_REMOVED,
+            DOM_EVENT_NODE_REMOVED_FROM_DOCUMENT,
+            DOM_EVENT_SUBTREE_MODIFIED
+    ));
+
+    /**
+     *
+     * @param node
+     * <br>Not null
+     * <br>Input-output
+     * @param listener
+     * <br>Not null
+     * <br>Shared
+     * @throws IllegalArgumentException If {@code node} doesn't have the "events 2.0" feature
+     */
+    public static final void addDOMEventListener(final Node node, final EventListener listener) {
+        checkHasEventsFeature(node);
+
+        for (final String eventType : DOM_EVENT_TYPES) {
+            ((EventTarget) node).addEventListener(eventType, listener, false);
+        }
+    }
+
+    /**
+     *
+     * @param node
+     * <br>Not null
+     * <br>Input-output
+     * @param listener
+     * <br>Not null
+     * <br>Shared
+     * @throws IllegalArgumentException If {@code node} doesn't have the "events 2.0" feature
+     */
+    public static final void removeDOMEventListener(final Node node, final EventListener listener) {
+        checkHasEventsFeature(node);
+
+        for (final String eventType : DOM_EVENT_TYPES) {
+            ((EventTarget) node).removeEventListener(eventType, listener, false);
+        }
+    }
+
+    /**
+     *
+     * @param node
+     * <br>Not null
+     * @throws IllegalArgumentException If {@code node} doesn't have the "events 2.0" feature
+     */
+    public static final void checkHasEventsFeature(final Node node) {
+        if (!XMLTools.getOwnerDocument(node).getImplementation().hasFeature("events", "2.0")) {
+            throw new IllegalArgumentException("Events 2.0 feature unavailable for node " + node);
+        }
+    }
 
     /**
      *
