@@ -30,12 +30,12 @@ import net.sourceforge.aprog.tools.IllegalInstantiationException;
  *
  * @author codistmonk (creation 2010-07-03)
  */
-public final class Constants {
+public final class MarkupsConstants {
 
     /**
      * @throws IllegalInstantiationException To prevent instantiation
      */
-    private Constants() {
+    private MarkupsConstants() {
         throw new IllegalInstantiationException();
     }
 

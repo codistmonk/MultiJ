@@ -24,13 +24,12 @@
 
 package net.sourceforge.aprog.markups;
 
-import static net.sourceforge.aprog.markups.Constants.Variables.*;
+import static net.sourceforge.aprog.markups.MarkupsConstants.Variables.*;
 import static net.sourceforge.aprog.i18n.Messages.*;
 import static net.sourceforge.aprog.tools.Tools.*;
 import static net.sourceforge.aprog.swing.SwingTools.*;
 
 import net.sourceforge.aprog.context.Context;
-import net.sourceforge.aprog.events.Variable;
 import net.sourceforge.aprog.tools.IllegalInstantiationException;
 import net.sourceforge.aprog.xml.XMLTools;
 import net.sourceforge.jmacadapter.MacAdapterTools;
@@ -49,7 +48,7 @@ public final class Markups {
     }
 
     static {
-        MacAdapterTools.setApplicationName(Constants.APPLICATION_NAME);
+        MacAdapterTools.setApplicationName(MarkupsConstants.APPLICATION_NAME);
         useSystemLookAndFeel();
         setMessagesBase(getThisPackagePath() + "Messages");
     }
@@ -59,7 +58,7 @@ public final class Markups {
      */
     public static final void main(final String[] arguments) {
         if (canInvokeLaterThisMethodInAWT(null, (Object) arguments)) {
-            Components.newMainFrame(newContext()).setVisible(true);
+            MarkupsComponents.newMainFrame(newContext()).setVisible(true);
         }
     }
 
@@ -72,9 +71,9 @@ public final class Markups {
     public static final Context newContext() {
         final Context result = new Context();
 
-        result.set(APPLICATION_NAME, Constants.APPLICATION_NAME);
-        result.set(APPLICATION_VERSION, Constants.APPLICATION_VERSION);
-        result.set(APPLICATION_COPYRIGHT, Constants.APPLICATION_COPYRIGHT);
+        result.set(APPLICATION_NAME, MarkupsConstants.APPLICATION_NAME);
+        result.set(APPLICATION_VERSION, MarkupsConstants.APPLICATION_VERSION);
+        result.set(APPLICATION_COPYRIGHT, MarkupsConstants.APPLICATION_COPYRIGHT);
         result.set(FILE, null);
         result.set(FILE_MODIFIED, false);
         result.set(DOM, XMLTools.newDocument());
