@@ -24,6 +24,7 @@
 
 package net.sourceforge.aprog.xml;
 
+import static net.sourceforge.aprog.events.EventsTestingTools.*;
 import static net.sourceforge.aprog.tools.Tools.*;
 import static net.sourceforge.aprog.xml.XMLTools.*;
 
@@ -34,10 +35,14 @@ import java.util.logging.Level;
 
 import javax.xml.transform.Result;
 import javax.xml.transform.stream.StreamResult;
+import net.sourceforge.aprog.events.EventsTestingTools.EventRecorder;
 
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
+import org.w3c.dom.events.Event;
+import org.w3c.dom.events.EventListener;
+import org.w3c.dom.events.MutationEvent;
 
 /**
  * Automated tests using JUnit 4 for {@link XMLTools}.
@@ -45,6 +50,38 @@ import org.w3c.dom.Node;
  * @author codistmonk (creation 2010-07-01)
  */
 public final class XMLToolsTest {
+
+    @Test
+    public final <R extends EventRecorder<Event> & EventListener> void testEvents() {
+        final Document document = parse("<a><b c='d'/></a>");
+        @SuppressWarnings("unchecked")
+        final R recorder = (R) newEventRecorder(EventListener.class);
+
+        addDOMEventListener(document, recorder);
+        getNode(document, "a/b/@c").setNodeValue("e");
+
+        {
+            final MutationEvent event = recorder.getEvent(0);
+
+            assertEquals(DOM_EVENT_ATTRIBUTE_MODIFIED, event.getType());
+            assertSame(getNode(document, "a/b"), event.getTarget());
+            assertEquals(MutationEvent.MODIFICATION, event.getAttrChange());
+            assertEquals("d", event.getPrevValue());
+            assertEquals("e", event.getNewValue());
+        }
+
+        {
+            final MutationEvent event = recorder.getEvent(1);
+
+            assertEquals(DOM_EVENT_SUBTREE_MODIFIED, event.getType());
+            assertSame(getNode(document, "a/b"), event.getTarget());
+            assertEquals(0, event.getAttrChange());
+            assertNull(event.getPrevValue());
+            assertNull(event.getNewValue());
+        }
+
+        assertEquals(2, recorder.getEvents().size());
+    }
 
     @Test
     public final void testGetQualifiedName() {
@@ -107,14 +144,14 @@ public final class XMLToolsTest {
 
             XMLTools.write(document, buffer, 0);
 
-            assertEquals(XML_1_UTF8_NOT_STANDALONE + xmlInput, buffer.toString());
+            assertEquals(XML_1_0_UTF8_STANDALONE_NO + xmlInput, buffer.toString());
         }
         {
             final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
 
             XMLTools.write(standalone(document), buffer, 0);
 
-            assertEquals(XML_1_UTF8_STANDALONE + xmlInput, buffer.toString());
+            assertEquals(XML_1_0_UTF8_STANDALONE_YES + xmlInput, buffer.toString());
         }
         {
             final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
