@@ -27,8 +27,7 @@ package net.sourceforge.aprog.subtitlesadjuster;
 import static javax.swing.KeyStroke.getKeyStroke;
 
 import static net.sourceforge.aprog.i18n.Messages.*;
-import static net.sourceforge.aprog.subtitlesadjuster.Actions.*;
-import static net.sourceforge.aprog.subtitlesadjuster.Constants.Variables.*;
+import static net.sourceforge.aprog.subtitlesadjuster.SubtitlesAdjusterConstants.Variables.*;
 import static net.sourceforge.aprog.subtitlesadjuster.SubtitlesAdjusterTools.*;
 import static net.sourceforge.aprog.swing.SwingTools.action;
 import static net.sourceforge.aprog.swing.SwingTools.add;
@@ -72,7 +71,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.JTextArea;
 import javax.swing.JToggleButton;
-import javax.swing.KeyStroke;
 import javax.swing.SpinnerDateModel;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
@@ -87,20 +85,18 @@ import net.sourceforge.aprog.swing.LanguageComboBox;
 import net.sourceforge.aprog.swing.SwingTools;
 import net.sourceforge.jmacadapter.MacAdapterTools;
 import net.sourceforge.jmacadapter.eawtwrappers.Application;
-import net.sourceforge.jmacadapter.eawtwrappers.ApplicationAdapter;
-import net.sourceforge.jmacadapter.eawtwrappers.ApplicationEvent;
 
 /**
  * This class defines all the Swing components needed to build the GUI.
  *
  * @author codistmonk (creation 2010-06-27)
  */
-public final class Components {
+public final class SubtitlesAdjusterComponents {
     
     /**
      * Private default constructor to prevent instantiation.
      */
-    private Components() {
+    private SubtitlesAdjusterComponents() {
         // Do nothing
     }
 
@@ -208,12 +204,12 @@ public final class Components {
         result.add(newMainPanel(context));
 
         result.addWindowListener(newListener(WindowListener.class, "windowClosing",
-                Actions.class, "quit", context));
+                SubtitlesAdjusterActions.class, "quit", context));
 
         invokeOnVariableChanged(context, FILE,
-                Actions.class, "updateMainFrameTitle", context);
+                SubtitlesAdjusterActions.class, "updateMainFrameTitle", context);
         invokeOnVariableChanged(context, FILE_MODIFIED,
-                Actions.class, "updateMainFrameTitle", context);
+                SubtitlesAdjusterActions.class, "updateMainFrameTitle", context);
 
         Translator.getDefaultTranslator().addListener(newListener(Translator.Listener.class, "localeChanged",
                 SwingTools.class, "packAndUpdateMinimumSize", result));
@@ -271,13 +267,13 @@ public final class Components {
             Application.getApplication().setEnabledAboutMenu(true);
 
             if (registerMacOSXApplicationListener("handleAbout",
-                    Actions.class, "showAboutDialog", context)) {
+                    SubtitlesAdjusterActions.class, "showAboutDialog", context)) {
                 return null;
             }
         }
 
         return item("About",
-                Actions.class, "showAboutDialog", context);
+                SubtitlesAdjusterActions.class, "showAboutDialog", context);
     }
 
     /**
@@ -296,13 +292,13 @@ public final class Components {
             Application.getApplication().setEnabledPreferencesMenu(true);
 
             if (registerMacOSXApplicationListener("handlePreferences",
-                    Actions.class, "showPreferencesDialog", context)) {
+                    SubtitlesAdjusterActions.class, "showPreferencesDialog", context)) {
                 return null;
             }
         }
 
         return item("Preferences...", getKeyStroke(META + " R"),
-                Actions.class, "showPreferencesDialog", context);
+                SubtitlesAdjusterActions.class, "showPreferencesDialog", context);
     }
 
     /**
@@ -319,13 +315,13 @@ public final class Components {
 
         if (MacAdapterTools.isMacOSX() && MacAdapterTools.getUseScreenMenuBar()) {
             if (registerMacOSXApplicationListener("handleQuit",
-                    Actions.class, "quit", context)) {
+                    SubtitlesAdjusterActions.class, "quit", context)) {
                 return null;
             }
         }
 
         return item("Quit", getKeyStroke(META + " Q"),
-                Actions.class, "quit", context);
+                SubtitlesAdjusterActions.class, "quit", context);
     }
 
     /**
@@ -341,7 +337,7 @@ public final class Components {
 		checkAWT();
 
         return item("Open...", getKeyStroke(META + " O"),
-                Actions.class, "open", context);
+                SubtitlesAdjusterActions.class, "open", context);
     }
 
     /**
@@ -357,9 +353,9 @@ public final class Components {
 		checkAWT();
 
         final JMenuItem result = item("Save", getKeyStroke(META + " S"),
-                Actions.class, "save", context);
+                SubtitlesAdjusterActions.class, "save", context);
 
-        net.sourceforge.aprog.subtitlesadjuster.Components
+        net.sourceforge.aprog.subtitlesadjuster.SubtitlesAdjusterComponents
                 .synchronizeComponentEnabledWithFileVariableNullity(result, context);
 
         return result;
@@ -378,7 +374,7 @@ public final class Components {
 		checkAWT();
 
         return item("Manual", getKeyStroke("F1"),
-                Actions.class, "showManual", context);
+                SubtitlesAdjusterActions.class, "showManual", context);
     }
 
     /**
@@ -480,7 +476,7 @@ public final class Components {
     public static final JButton newSaveButton(final Context context) {
 		checkAWT();
 
-        final JButton result = translate(new JButton(action(Actions.class, "save", context).setName("Save")));
+        final JButton result = translate(new JButton(action(SubtitlesAdjusterActions.class, "save", context).setName("Save")));
 
         synchronizeComponentEnabledWithFileVariableNullity(result, context);
 

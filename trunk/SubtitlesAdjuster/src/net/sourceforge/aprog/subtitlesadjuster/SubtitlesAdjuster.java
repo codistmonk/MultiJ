@@ -25,7 +25,7 @@
 package net.sourceforge.aprog.subtitlesadjuster;
 
 import static net.sourceforge.aprog.i18n.Messages.*;
-import static net.sourceforge.aprog.subtitlesadjuster.Constants.Variables.*;
+import static net.sourceforge.aprog.subtitlesadjuster.SubtitlesAdjusterConstants.Variables.*;
 import static net.sourceforge.aprog.subtitlesadjuster.SubtitlesAdjusterTools.*;
 import static net.sourceforge.aprog.swing.SwingTools.*;
 import static net.sourceforge.aprog.tools.Tools.*;
@@ -50,7 +50,7 @@ public final class SubtitlesAdjuster {
     }
 
     static {
-        MacAdapterTools.setApplicationName(Constants.APPLICATION_NAME);
+        MacAdapterTools.setApplicationName(SubtitlesAdjusterConstants.APPLICATION_NAME);
         useSystemLookAndFeel();
         setMessagesBase(getThisPackagePath() + "Messages");
     }
@@ -68,7 +68,7 @@ public final class SubtitlesAdjuster {
             // FIXME The following doesn't seem to work well on Windows XP
             Thread.currentThread().setUncaughtExceptionHandler(new UncaughtExceptionHandler(context));
 
-            Components.newMainFrame(context).setVisible(true);
+            SubtitlesAdjusterComponents.newMainFrame(context).setVisible(true);
         }
     }
 
@@ -81,9 +81,9 @@ public final class SubtitlesAdjuster {
     public static final Context newContext() {
         final Context result = new Context();
 
-        result.set(APPLICATION_NAME, Constants.APPLICATION_NAME);
-        result.set(APPLICATION_VERSION, Constants.APPLICATION_VERSION);
-        result.set(APPLICATION_COPYRIGHT, Constants.APPLICATION_COPYRIGHT);
+        result.set(APPLICATION_NAME, SubtitlesAdjusterConstants.APPLICATION_NAME);
+        result.set(APPLICATION_VERSION, SubtitlesAdjusterConstants.APPLICATION_VERSION);
+        result.set(APPLICATION_COPYRIGHT, SubtitlesAdjusterConstants.APPLICATION_COPYRIGHT);
         result.set(FILE, null);
         result.set(FILE_MODIFIED, false);
         result.set(FIRST_TIME, new Date(0L));
@@ -103,7 +103,7 @@ public final class SubtitlesAdjuster {
      * <br>Not null
      * @param variableName
      * <br>Not null
-     * @param value The value to which the {@link Constants.Variables#FILE_MODIFIED} variable will be set
+     * @param value The value to which the {@link SubtitlesAdjusterConstants.Variables#FILE_MODIFIED} variable will be set
      */
     private static final void setFileModifiedOnVariableChanged(
             final Context context, final String variableName, final boolean value) {
@@ -135,7 +135,7 @@ public final class SubtitlesAdjuster {
         public final void uncaughtException(final Thread thread, final Throwable throwable) {
             this.defaultUncaughtExceptionHandler.uncaughtException(thread, throwable);
 
-            Actions.showErrorMessage(context, throwable);
+            SubtitlesAdjusterActions.showErrorMessage(context, throwable);
         }
 
     }
