@@ -51,7 +51,7 @@ public final class Markups {
     static {
         MacAdapterTools.setApplicationName(Constants.APPLICATION_NAME);
         useSystemLookAndFeel();
-        setMessagesBase(getCallerPackagePath() + "Messages");
+        setMessagesBase(getThisPackagePath() + "Messages");
     }
 
     /**
