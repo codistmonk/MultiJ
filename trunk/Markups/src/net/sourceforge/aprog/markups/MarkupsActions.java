@@ -248,8 +248,10 @@ public final class MarkupsActions {
      * @param context
      * <br>Not null
      */
-    public static final void tree(final Context context) {
-        context.set(VIEW_MODE, MarkupsConstants.VIEW_MODE_TREE);
+    public static final void appendNewNode(final Context context) {
+        Tools.debugPrint("TODO");
+
+        SubtitlesAdjusterActions.showTODOMessage(context);
     }
 
     /**
@@ -257,8 +259,21 @@ public final class MarkupsActions {
      * @param context
      * <br>Not null
      */
-    public static final void text(final Context context) {
-        context.set(VIEW_MODE, MarkupsConstants.VIEW_MODE_TEXT);
+    public static final void moveUp(final Context context) {
+        Tools.debugPrint("TODO");
+
+        SubtitlesAdjusterActions.showTODOMessage(context);
+    }
+
+    /**
+     *
+     * @param context
+     * <br>Not null
+     */
+    public static final void moveDown(final Context context) {
+        Tools.debugPrint("TODO");
+
+        SubtitlesAdjusterActions.showTODOMessage(context);
     }
 
 }

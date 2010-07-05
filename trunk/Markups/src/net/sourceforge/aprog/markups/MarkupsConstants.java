@@ -121,12 +121,7 @@ public final class MarkupsConstants {
         /**
          * {@value}.
          */
-        public static final String VIEW_RADIO_GROUP = "mainFrame.view.radioGroup";
-
-        /**
-         * {@value}.
-         */
-        public static final String VIEW_MODE = "mainFrame.view.mode";
+        public static final String SELECTED_NODE = "file.dom.selectedNode";
 
     }
 
