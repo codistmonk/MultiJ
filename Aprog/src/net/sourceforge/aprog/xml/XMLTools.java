@@ -31,6 +31,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -221,7 +222,7 @@ public final class XMLTools {
      * <br>Range: {@code [0 .. Integer.MAX_VALUE]}
      */
     public static final void write(final Node node, final OutputStream output, final int indent) {
-        write(node, new StreamResult(output), indent);
+        write(node, new StreamResult(new OutputStreamWriter(output)), indent);
     }
 
     /**

@@ -212,7 +212,7 @@ public final class XMLToolsTest {
         testValidate("test.xml", "test.rnc", true);
     }
 
-    private static final String PATH = getCallerPackagePath();
+    private static final String PATH = getThisPackagePath();
 
     /**
      * {@value}.

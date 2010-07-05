@@ -60,7 +60,7 @@ public final class SwingToolsTest {
 
     @Test
     public final void testGetIcon() {
-        SwingTools.setImagesBase(getCallerPackagePath());
+        SwingTools.setImagesBase(getThisPackagePath());
 
         assertNotNull(SwingTools.getIcon("start.png"));
     }
@@ -69,7 +69,7 @@ public final class SwingToolsTest {
     public final void testGetIconOrNull() {
         assertNull(SwingTools.getIconOrNull("inexisting_icon"));
 
-        SwingTools.setImagesBase(getCallerPackagePath());
+        SwingTools.setImagesBase(getThisPackagePath());
 
         assertNotNull(SwingTools.getIconOrNull("start.png"));
     }
@@ -93,7 +93,7 @@ public final class SwingToolsTest {
     @Test
     public final void testRollover() throws Exception {
         if (SwingTools.canInvokeThisMethodInAWT(this)) {
-            SwingTools.setImagesBase(getCallerPackagePath());
+            SwingTools.setImagesBase(getThisPackagePath());
 
             final JButton button = SwingTools.rollover(new JButton(), "start", false);
 
