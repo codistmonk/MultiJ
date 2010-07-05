@@ -126,11 +126,22 @@ public final class MarkupsActions {
 
         if (JFileChooser.APPROVE_OPTION == fileChooser.showOpenDialog((Component) context.get(MAIN_FRAME)) &&
                 fileChooser.getSelectedFile() != null) {
-            final File file = fileChooser.getSelectedFile();
-
-            context.set(DOM, XMLTools.parse(new InputSource(file.getAbsolutePath())));
-            context.set(FILE, file);
+            open(context, fileChooser.getSelectedFile());
         }
+    }
+
+    /**
+     *
+     * @param context
+     * <br>Not null
+     * <br>Input-output
+     * @param file
+     * <br>Not null
+     * <br>Shared
+     */
+    public static final void open(final Context context, final File file) {
+        context.set(DOM, XMLTools.parse(new InputSource(file.getAbsolutePath())));
+        context.set(FILE, file);
     }
 
     /**

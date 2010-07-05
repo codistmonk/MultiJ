@@ -25,6 +25,7 @@
 package net.sourceforge.aprog.markups;
 
 import static javax.swing.KeyStroke.getKeyStroke;
+import javax.swing.event.TreeSelectionEvent;
 
 import static net.sourceforge.aprog.i18n.Messages.*;
 import static net.sourceforge.aprog.markups.MarkupsConstants.Variables.*;
@@ -66,6 +67,7 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JTree;
 import javax.swing.border.TitledBorder;
+import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 
@@ -82,6 +84,7 @@ import net.sourceforge.jmacadapter.MacAdapterTools;
 
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 /**
  *
@@ -476,7 +479,7 @@ public final class MarkupsComponents {
                 final List<File> files = SwingTools.getFiles(event);
 
                 if (!files.isEmpty() && MarkupsActions.confirm(context)) {
-                    context.set(FILE, files.get(0));
+                    MarkupsActions.open(context, files.get(0));
                 }
             }
 
@@ -523,24 +526,6 @@ public final class MarkupsComponents {
      */
     public static final JPanel newNodePanel(final Context context) {
         final JPanel result = new JPanel(new BorderLayout());
-//        final GridBagConstraints constraints = new GridBagConstraints();
-//
-//        {
-//            constraints.gridx = 0;
-//            constraints.gridy = 0;
-//            constraints.fill = GridBagConstraints.HORIZONTAL;
-//            constraints.weightx = 1D;
-//            constraints.weighty = 0D;
-//
-//            SwingTools.add(result, newNodeNamePanel(context), constraints);
-//        }
-//        {
-//            ++constraints.gridy;
-//            constraints.fill = GridBagConstraints.BOTH;
-//            constraints.weighty = 1D;
-//
-//            SwingTools.add(result, newNodeValuePanel(context), constraints);
-//        }
 
         result.add(newNodeNamePanel(context), BorderLayout.NORTH);
         result.add(newNodeValuePanel(context), BorderLayout.CENTER);
@@ -621,7 +606,7 @@ public final class MarkupsComponents {
                 TitledBorder.CENTER,
                 TitledBorder.TOP));
 
-        result.add(newContextLabel(context), BorderLayout.NORTH);
+        result.add(newTitledPanel("Context", newContextTextField(context)), BorderLayout.NORTH);
         result.add(newXPathTabbedPane(context), BorderLayout.CENTER);
 
         return result;
@@ -635,10 +620,87 @@ public final class MarkupsComponents {
      * <br>Not null
      * <br>New
      */
-    public static final JLabel newContextLabel(final Context context) {
-        final JLabel result = new JLabel();
+    public static final JTextField newContextTextField(final Context context) {
+        final JTextField result = new JTextField();
+        final Variable<Node> selectedNodeVariable = getOrCreateVariable(context, SELECTED_NODE, null);
+
+        result.setEditable(false);
+
+        selectedNodeVariable.addListener(new Variable.Listener<Node>() {
+
+            @Override
+            public final void valueChanged(final ValueChangedEvent<Node, ?> event) {
+                result.setText(event.getNewValue() == null ? "" : getIdentifyingXPath(event.getNewValue()));
+            }
+
+        });
 
         return result;
+    }
+
+    /**
+     *
+     * @param node
+     * <br>Maybe null
+     * @return
+     * <br>Not null
+     */
+    public static final String getIdentifyingXPath(final Node node) {
+        if (node == null || node.getNodeType() == Node.DOCUMENT_NODE) {
+            return "/";
+        }
+
+        final String selector = getSelector(node);
+
+        debugPrint("../" + selector);
+
+        if (set(Node.ATTRIBUTE_NODE, Node.DOCUMENT_NODE, Node.DOCUMENT_FRAGMENT_NODE, Node.ENTITY_NODE, Node.NOTATION_NODE).contains(node.getNodeType())) {
+            return getIdentifyingXPath(XMLTools.getNode(node, "..")) +
+                    "/" + selector;
+        }
+
+        final NodeList siblings = XMLTools.getNodes(node, "../" + selector);
+
+        return getIdentifyingXPath(node.getParentNode()) +
+                "/" + selector + "[" + (indexOf(siblings, node) + 1) + "]";
+    }
+
+    /**
+     *
+     * @param node
+     * <br>Not null
+     * @return
+     * <br>Not null
+     */
+    public static final String getSelector(final Node node) {
+        if (node.getNodeName().startsWith("#")) {
+            return node.getNodeName().toLowerCase().substring(1) + "()";
+        }
+
+        if (node.getNodeType() == Node.ATTRIBUTE_NODE) {
+            return "@" + node.getNodeName();
+        }
+
+        return node.getNodeName();
+    }
+
+    /**
+     *
+     * @param nodes
+     * <br>Not null
+     * @param node
+     * <br>Maybe null
+     * @return
+     * <br>Range: {@code [-1 .. nodes.getLength() - 1]}
+     */
+    public static final int indexOf(final NodeList nodes, final Node node) {
+        for (int i = 0; i < nodes.getLength(); ++i) {
+            if (nodes.item(i) == node) {
+                return i;
+            }
+        }
+
+        return -1;
     }
 
     /**
@@ -715,7 +777,7 @@ public final class MarkupsComponents {
     public static final JPanel newQuasiXPathPanel(final Context context) {
         final JPanel result = new JPanel(new BorderLayout());
 
-        result.add(newQuasiXPathExpressionTextArea(context), BorderLayout.CENTER);
+        result.add(newTitledPanel("Quasi-XPath expression", newQuasiXPathExpressionTextArea(context)), BorderLayout.CENTER);
         result.add(newQuasiXPathCreateButton(context), BorderLayout.SOUTH);
 
         return result;
@@ -802,7 +864,6 @@ public final class MarkupsComponents {
         final Variable<Node> domVariable = context.getVariable(DOM);
         final JTree result = new JTree(new DOMTreeModel(domVariable.getValue()));
 
-
         domVariable.addListener(new Variable.Listener<Node>() {
 
             @Override
@@ -812,6 +873,19 @@ public final class MarkupsComponents {
                 result.setModel(treeModel);
 
                 context.set(TREE_MODEL, treeModel);
+            }
+
+        });
+
+        result.getSelectionModel().addTreeSelectionListener(new TreeSelectionListener() {
+
+            @Override
+            public final void valueChanged(final TreeSelectionEvent event) {
+                final DefaultMutableTreeNode selectedTreeNode = (DefaultMutableTreeNode) event.getNewLeadSelectionPath().getLastPathComponent();
+
+                if (selectedTreeNode != null) {
+                    context.set(SELECTED_NODE, (Node) selectedTreeNode.getUserObject());
+                }
             }
 
         });
