@@ -28,6 +28,7 @@ import static javax.swing.KeyStroke.getKeyStroke;
 
 import static net.sourceforge.aprog.i18n.Messages.*;
 import static net.sourceforge.aprog.markups.MarkupsConstants.Variables.*;
+import static net.sourceforge.aprog.markups.MarkupsXMLTools.*;
 import static net.sourceforge.aprog.subtitlesadjuster.SubtitlesAdjusterTools.*;
 import static net.sourceforge.aprog.subtitlesadjuster.SubtitlesAdjusterTools.menu;
 import static net.sourceforge.aprog.swing.SwingTools.checkAWT;
@@ -40,19 +41,19 @@ import static net.sourceforge.aprog.xml.XMLTools.*;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Graphics;
 import java.awt.dnd.DropTarget;
 import java.awt.dnd.DropTargetAdapter;
 import java.awt.dnd.DropTargetDragEvent;
 import java.awt.dnd.DropTargetDropEvent;
 import java.awt.dnd.DropTargetEvent;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.WindowListener;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.util.List;
 
 import javax.swing.BorderFactory;
-import javax.swing.ButtonGroup;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -87,7 +88,6 @@ import net.sourceforge.jmacadapter.MacAdapterTools;
 
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 import org.w3c.dom.events.Event;
 import org.w3c.dom.events.EventListener;
 
@@ -822,71 +822,6 @@ public final class MarkupsComponents {
 
     /**
      *
-     * @param node
-     * <br>Maybe null
-     * @return
-     * <br>Not null
-     */
-    public static final String getIdentifyingXPath(final Node node) {
-        if (node == null || node.getNodeType() == Node.DOCUMENT_NODE) {
-            return "/";
-        }
-
-        final String selector = getSelector(node);
-
-//        debugPrint("../" + selector);
-
-        if (set(Node.ATTRIBUTE_NODE, Node.DOCUMENT_NODE, Node.DOCUMENT_FRAGMENT_NODE, Node.ENTITY_NODE, Node.NOTATION_NODE).contains(node.getNodeType())) {
-            return getIdentifyingXPath(XMLTools.getNode(node, "..")) +
-                    "/" + selector;
-        }
-
-        final NodeList siblings = XMLTools.getNodes(node, "../" + selector);
-
-        return getIdentifyingXPath(node.getParentNode()) +
-                "/" + selector + "[" + (indexOf(siblings, node) + 1) + "]";
-    }
-
-    /**
-     *
-     * @param node
-     * <br>Not null
-     * @return
-     * <br>Not null
-     */
-    public static final String getSelector(final Node node) {
-        if (node.getNodeName().startsWith("#")) {
-            return node.getNodeName().toLowerCase().substring(1) + "()";
-        }
-
-        if (node.getNodeType() == Node.ATTRIBUTE_NODE) {
-            return "@" + node.getNodeName();
-        }
-
-        return node.getNodeName();
-    }
-
-    /**
-     *
-     * @param nodes
-     * <br>Not null
-     * @param node
-     * <br>Maybe null
-     * @return
-     * <br>Range: {@code [-1 .. nodes.getLength() - 1]}
-     */
-    public static final int indexOf(final NodeList nodes, final Node node) {
-        for (int i = 0; i < nodes.getLength(); ++i) {
-            if (nodes.item(i) == node) {
-                return i;
-            }
-        }
-
-        return -1;
-    }
-
-    /**
-     *
      * @param context
      * <br>Not null
      * @return
@@ -931,7 +866,24 @@ public final class MarkupsComponents {
 
             @Override
             protected final void eventReceived(final DocumentEvent event) {
-                context.set(XPAH_EXPRESSION, result.getText());
+                context.set(XPATH_EXPRESSION, result.getText());
+            }
+
+        });
+
+        final Variable<Exception> xPathErrorVariable = context.getVariable(XPATH_ERROR);
+
+        xPathErrorVariable.addListener(new Variable.Listener<Exception>() {
+
+            private Color defaultBackground;
+
+            @Override
+            public final void valueChanged(final ValueChangedEvent<Exception, ?> event) {
+                if (this.defaultBackground == null) {
+                    this.defaultBackground = result.getBackground();
+                }
+
+                result.setBackground(event.getNewValue() == null ? this.defaultBackground : Color.RED);
             }
 
         });
@@ -951,7 +903,7 @@ public final class MarkupsComponents {
         final DefaultListModel model = new DefaultListModel();
         final JList result = new JList(model);
 
-        final Variable<String> xpathExpressionVariable = context.getVariable(XPAH_EXPRESSION);
+        final Variable<String> xpathExpressionVariable = context.getVariable(XPATH_EXPRESSION);
 
         xpathExpressionVariable.addListener(new Variable.Listener<String>() {
 
@@ -966,9 +918,9 @@ public final class MarkupsComponents {
                         model.addElement(node);
                     }
 
-                    result.setBackground(Color.WHITE);
+                    context.set(XPATH_ERROR, null);
                 } catch (final Exception exception) {
-                    result.setBackground(Color.RED);
+                    context.set(XPATH_ERROR, exception);
                 }
             }
 
@@ -1005,7 +957,31 @@ public final class MarkupsComponents {
     public static final JTextArea newQuasiXPathExpressionTextArea(final Context context) {
         final JTextArea result = new JTextArea();
 
-        // TODO
+        result.getDocument().addDocumentListener(new AbstractDocumentHandler() {
+
+            @Override
+            protected final void eventReceived(final DocumentEvent event) {
+                context.set(QUASI_XPATH_EXPRESSION, result.getText());
+            }
+
+        });
+
+        final Variable<Exception> quasiXPathErrorVariable = context.getVariable(QUASI_XPATH_ERROR);
+
+        quasiXPathErrorVariable.addListener(new Variable.Listener<Exception>() {
+
+            private Color defaultBackground;
+
+            @Override
+            public final void valueChanged(final ValueChangedEvent<Exception, ?> event) {
+                if (this.defaultBackground == null) {
+                    this.defaultBackground = result.getBackground();
+                }
+
+                result.setBackground(event.getNewValue() == null ? this.defaultBackground : Color.RED);
+            }
+
+        });
 
         return result;
     }
@@ -1021,7 +997,26 @@ public final class MarkupsComponents {
     public static final JButton newQuasiXPathCreateButton(final Context context) {
         final JButton result = translate(new JButton("Create Node"));
 
-        // TODO
+        result.addActionListener(new ActionListener() {
+
+            private Color defaultBackground;
+
+            @Override
+            public final void actionPerformed(final ActionEvent event) {
+                if (this.defaultBackground == null) {
+                    this.defaultBackground = result.getParent().getBackground();
+                }
+
+                try {
+                    getOrCreateNode((Node) context.get(SELECTED_NODE), (String) context.get(QUASI_XPATH_EXPRESSION));
+
+                    context.set(QUASI_XPATH_ERROR, null);
+                } catch (final Exception exception) {
+                    context.set(QUASI_XPATH_ERROR, exception);
+                }
+            }
+
+        });
 
         return result;
     }
@@ -1106,47 +1101,6 @@ public final class MarkupsComponents {
             }
 
         });
-
-        return result;
-    }
-
-    /**
-     *
-     * @param context
-     * <br>Not null
-     * <br>Input-output
-     * @param variableName
-     * <br>Not null
-     * @return
-     * <br>Not null
-     * <br>Maybe new
-     */
-    public static final ButtonGroup getOrCreateButtonGroup(final Context context, final String variableName) {
-        ButtonGroup result = context.get(variableName);
-
-        if (result == null) {
-            context.set(variableName, result = new ButtonGroup());
-        }
-
-        return result;
-    }
-
-    /**
-     *
-     * @param context
-     * <br>Not null
-     * <br>Input-output
-     * @return
-     * <br>Not null
-     * <br>Maybe new
-     */
-    public static final <T> Variable<T> getOrCreateVariable(final Context context, final String variableName, final T defaultValue) {
-        Variable<T> result = context.getVariable(variableName);
-
-        if (result == null) {
-            context.set(variableName, defaultValue);
-            result = context.getVariable(variableName);
-        }
 
         return result;
     }
