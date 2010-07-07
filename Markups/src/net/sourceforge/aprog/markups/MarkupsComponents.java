@@ -24,8 +24,14 @@
 
 package net.sourceforge.aprog.markups;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.FocusEvent;
 import static javax.swing.KeyStroke.getKeyStroke;
+import javax.swing.event.DocumentEvent;
+
 import javax.swing.event.TreeSelectionEvent;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
 
 import static net.sourceforge.aprog.i18n.Messages.*;
 import static net.sourceforge.aprog.markups.MarkupsConstants.Variables.*;
@@ -36,27 +42,29 @@ import static net.sourceforge.aprog.swing.SwingTools.menuBar;
 import static net.sourceforge.aprog.swing.SwingTools.packAndCenter;
 import static net.sourceforge.aprog.swing.SwingTools.scrollable;
 import static net.sourceforge.aprog.tools.Tools.*;
+import static net.sourceforge.aprog.xml.XMLTools.*;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.GridBagConstraints;
+import java.awt.Graphics;
 import java.awt.dnd.DropTarget;
 import java.awt.dnd.DropTargetAdapter;
 import java.awt.dnd.DropTargetDragEvent;
 import java.awt.dnd.DropTargetDropEvent;
 import java.awt.dnd.DropTargetEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.FocusAdapter;
 import java.awt.event.WindowListener;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.util.List;
 
 import javax.swing.BorderFactory;
-import javax.swing.Box;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
+import javax.swing.JFormattedTextField;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -66,8 +74,12 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JTree;
+import javax.swing.SwingUtilities;
 import javax.swing.border.TitledBorder;
+import javax.swing.event.DocumentListener;
 import javax.swing.event.TreeSelectionListener;
+import javax.swing.text.DocumentFilter;
+import javax.swing.text.PlainDocument;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 
@@ -79,12 +91,16 @@ import net.sourceforge.aprog.subtitlesadjuster.SubtitlesAdjusterActions;
 import net.sourceforge.aprog.subtitlesadjuster.SubtitlesAdjusterComponents;
 import net.sourceforge.aprog.swing.SwingTools;
 import net.sourceforge.aprog.tools.IllegalInstantiationException;
+import net.sourceforge.aprog.tools.Tools;
 import net.sourceforge.aprog.xml.XMLTools;
 import net.sourceforge.jmacadapter.MacAdapterTools;
+import org.w3c.dom.Document;
 
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.w3c.dom.events.Event;
+import org.w3c.dom.events.EventListener;
 
 /**
  *
@@ -485,6 +501,28 @@ public final class MarkupsComponents {
 
         });
 
+        final Variable<Node> selectedNodeVariable = context.getVariable(DOM);
+
+        selectedNodeVariable.addListener(new Variable.Listener<Node>() {
+
+            @Override
+            public final void valueChanged(final ValueChangedEvent<Node, ?> event) {
+                final Node node = event.getNewValue();
+
+                debugPrint(node);
+
+                addDOMEventListener(node, new EventListener() {
+
+                    @Override
+                    public final void handleEvent(final Event event) {
+                        result.repaint();
+                    }
+
+                });
+            }
+
+        });
+
         return result;
     }
 
@@ -554,9 +592,82 @@ public final class MarkupsComponents {
      * <br>New
      */
     public static final JTextField newNodeNameTextField(final Context context) {
-        final JTextField result = new JTextField();
+        final JFormattedTextField result = new JFormattedTextField("");
+        final Variable<Node> selectedNodeVariable = context.getVariable(SELECTED_NODE);
+        final EventListener nodeListener = new EventListener() {
 
-        // TODO
+            @Override
+            public final void handleEvent(final Event event) {
+                final Node node = selectedNodeVariable.getValue();
+
+                debugPrint(node);
+
+                result.setText(node == null ? "" : node.getNodeName());
+            }
+
+        };
+
+        selectedNodeVariable.addListener(new Variable.Listener<Node>() {
+
+            @Override
+            public final void valueChanged(final ValueChangedEvent<Node, ?> event) {
+                if (event.getOldValue() != null) {
+                    removeDOMEventListener(event.getOldValue(), nodeListener);
+                }
+
+                final Node node = event.getNewValue();
+
+                debugPrint(node);
+
+                if (node != null) {
+                    addDOMEventListener(node, nodeListener);
+                }
+
+                result.setEditable(node != null && set(Node.ATTRIBUTE_NODE,
+                        Node.ELEMENT_NODE).contains(node.getNodeType()));
+
+                result.setText(node == null ? "" : node.getNodeName());
+            }
+
+        });
+
+        result.addFocusListener(new FocusAdapter() {
+
+            @Override
+            public final void focusLost(final FocusEvent event) {
+                if (!this.tryToSetNodeName(result.getText())) {
+                    result.setText(selectedNodeVariable.getValue().getNodeName());
+                }
+            }
+
+            /**
+             * @param nodeName
+             * <br>Not null
+             * @return {code true} if the selected node's name is {@code nodeName} when this method terminates
+             */
+            private final boolean tryToSetNodeName(final String nodeName) {
+                final Node node = selectedNodeVariable.getValue();
+
+                debugPrint(node, nodeName);
+
+                if (node.getNodeName().equals(nodeName)) {
+                    return true;
+                }
+
+                try {
+                    rename(
+                            node,
+                            node.getNamespaceURI(),
+                            node.getNamespaceURI() == null ? nodeName : node.getPrefix() + ":" + nodeName);
+
+                    return true;
+                } catch (final Exception exception) {
+                    exception.printStackTrace();
+                    return false;
+                }
+            }
+
+        });
 
         return result;
     }
@@ -582,9 +693,53 @@ public final class MarkupsComponents {
      * <br>New
      */
     public static final JTextArea newNodeValueTextArea(final Context context) {
+        final Variable<Node> selectedNodeVariable = context.getVariable(SELECTED_NODE);
         final JTextArea result = new JTextArea();
 
-        // TODO
+        final EventListener nodeListener = new EventListener() {
+
+            @Override
+            public final void handleEvent(final Event event) {
+                final Node node = selectedNodeVariable.getValue();
+
+                if (event.getTarget() == node) {
+                    result.setText(node == null ? "" : node.getNodeValue());
+                }
+            }
+
+        };
+
+        selectedNodeVariable.addListener(new Variable.Listener<Node>() {
+
+            @Override
+            public final void valueChanged(final ValueChangedEvent<Node, ?> event) {
+                if (event.getOldValue() != null) {
+                    removeDOMEventListener(event.getOldValue(), nodeListener);
+                }
+
+                final Node node = event.getNewValue();
+
+                if (node != null) {
+                    addDOMEventListener(node, nodeListener);
+                }
+
+                result.setEditable(node != null && set(Node.ATTRIBUTE_NODE, Node.CDATA_SECTION_NODE, Node.COMMENT_NODE,
+                        Node.PROCESSING_INSTRUCTION_NODE, Node.TEXT_NODE).contains(node.getNodeType()));
+
+                result.setText(node == null ? "" : node.getNodeValue());
+            }
+
+        });
+
+        result.addFocusListener(new FocusAdapter() {
+
+            @Override
+            public final void focusLost(final FocusEvent event) {
+                debugPrint(selectedNodeVariable.getValue(), result.getText());
+                selectedNodeVariable.getValue().setNodeValue(result.getText());
+            }
+
+        });
 
         return result;
     }
@@ -621,19 +776,23 @@ public final class MarkupsComponents {
      * <br>New
      */
     public static final JTextField newContextTextField(final Context context) {
-        final JTextField result = new JTextField();
-        final Variable<Node> selectedNodeVariable = getOrCreateVariable(context, SELECTED_NODE, null);
-
-        result.setEditable(false);
-
-        selectedNodeVariable.addListener(new Variable.Listener<Node>() {
+        final Variable<Node> selectedNodeVariable = context.getVariable(SELECTED_NODE);
+        final JTextField result = new JTextField() {
 
             @Override
-            public final void valueChanged(final ValueChangedEvent<Node, ?> event) {
-                result.setText(event.getNewValue() == null ? "" : getIdentifyingXPath(event.getNewValue()));
+            public final void paint(final Graphics graphics) {
+                final Node node = selectedNodeVariable.getValue();
+
+                this.setText(node == null ? "" : getIdentifyingXPath(node));
+
+                super.paint(graphics);
             }
 
-        });
+            private static final long serialVersionUID = -8905486694141219276L;
+
+        };
+
+        result.setEditable(false);
 
         return result;
     }
@@ -652,7 +811,7 @@ public final class MarkupsComponents {
 
         final String selector = getSelector(node);
 
-        debugPrint("../" + selector);
+//        debugPrint("../" + selector);
 
         if (set(Node.ATTRIBUTE_NODE, Node.DOCUMENT_NODE, Node.DOCUMENT_FRAGMENT_NODE, Node.ENTITY_NODE, Node.NOTATION_NODE).contains(node.getNodeType())) {
             return getIdentifyingXPath(XMLTools.getNode(node, "..")) +
