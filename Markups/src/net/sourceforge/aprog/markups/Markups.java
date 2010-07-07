@@ -25,6 +25,7 @@
 package net.sourceforge.aprog.markups;
 
 import static net.sourceforge.aprog.markups.MarkupsConstants.Variables.*;
+import static net.sourceforge.aprog.markups.MarkupsTools.*;
 import static net.sourceforge.aprog.i18n.Messages.*;
 import static net.sourceforge.aprog.tools.Tools.*;
 import static net.sourceforge.aprog.swing.SwingTools.*;
@@ -110,22 +111,19 @@ public final class Markups {
 
         };
 
-        final Variable<Node> domVariable = result.getVariable(DOM);
+        addListener(result, DOM, new AbstractDOMListenerReattacher(domListener) {
 
-        domVariable.addListener(new Variable.Listener<Node>() {
+            @Override
+            protected final void afterReattachment(ValueChangedEvent<Node, ?> event) {
+                MarkupsActions.evaluateXPathExpression(result);
+            }
+
+        });
+
+        addListener(result, SELECTED_NODE, new Variable.Listener<Node>() {
 
             @Override
             public final void valueChanged(final ValueChangedEvent<Node, ?> event) {
-                if (event.getOldValue() != null) {
-                    XMLTools.removeDOMEventListener(event.getOldValue(), domListener);
-                }
-
-                final Node dom = event.getNewValue();
-
-                if (dom != null) {
-                    XMLTools.addDOMEventListener(dom, domListener);
-                }
-
                 MarkupsActions.evaluateXPathExpression(result);
             }
 
