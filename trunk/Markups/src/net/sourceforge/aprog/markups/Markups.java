@@ -78,6 +78,7 @@ public final class Markups {
         result.set(FILE_MODIFIED, false);
         result.set(DOM, XMLTools.newDocument());
         result.set(SELECTED_NODE, null);
+        result.set(XPAH_EXPRESSION, null);
 
         return result;
     }

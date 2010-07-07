@@ -123,6 +123,12 @@ public final class MarkupsConstants {
          */
         public static final String SELECTED_NODE = "file.dom.selectedNode";
 
+
+        /**
+         * {@value}.
+         */
+        public static final String XPAH_EXPRESSION = "xpathExpression";
+
     }
 
 }
