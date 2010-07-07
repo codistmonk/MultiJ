@@ -24,6 +24,7 @@
 
 package net.sourceforge.aprog.xml;
 
+import com.sun.org.apache.xerces.internal.dom.events.MutationEventImpl;
 import static net.sourceforge.aprog.events.EventsTestingTools.*;
 import static net.sourceforge.aprog.tools.Tools.*;
 import static net.sourceforge.aprog.xml.XMLTools.*;
@@ -40,8 +41,10 @@ import net.sourceforge.aprog.events.EventsTestingTools.EventRecorder;
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
+import org.w3c.dom.events.DocumentEvent;
 import org.w3c.dom.events.Event;
 import org.w3c.dom.events.EventListener;
+import org.w3c.dom.events.EventTarget;
 import org.w3c.dom.events.MutationEvent;
 
 /**
@@ -66,6 +69,7 @@ public final class XMLToolsTest {
             assertEquals(DOM_EVENT_ATTRIBUTE_MODIFIED, event.getType());
             assertSame(getNode(document, "a/b"), event.getTarget());
             assertEquals(MutationEvent.MODIFICATION, event.getAttrChange());
+            assertEquals("c", event.getRelatedNode().getNodeName());
             assertEquals("d", event.getPrevValue());
             assertEquals("e", event.getNewValue());
         }
@@ -75,12 +79,24 @@ public final class XMLToolsTest {
 
             assertEquals(DOM_EVENT_SUBTREE_MODIFIED, event.getType());
             assertSame(getNode(document, "a/b"), event.getTarget());
+            assertNull(event.getRelatedNode());
             assertEquals(0, event.getAttrChange());
             assertNull(event.getPrevValue());
             assertNull(event.getNewValue());
         }
 
-        assertEquals(2, recorder.getEvents().size());
+        rename(getNode(document, "a/b"), null, "renamed-b");
+
+        {
+            final MutationEvent event = recorder.getEvent(2);
+
+            assertEquals(DOM_EVENT_SUBTREE_MODIFIED, event.getType());
+            assertSame(getNode(document, "a/renamed-b"), event.getTarget());
+            assertEquals("b", event.getPrevValue());
+            assertEquals("renamed-b", event.getNewValue());
+        }
+
+        assertEquals(3, recorder.getEvents().size());
     }
 
     @Test
