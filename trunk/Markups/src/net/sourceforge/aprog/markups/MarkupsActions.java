@@ -287,4 +287,38 @@ public final class MarkupsActions {
         SubtitlesAdjusterActions.showTODOMessage(context);
     }
 
+    /**
+     *
+     * @param context
+     * <br>Not null
+     * <br>Input-output
+     */
+    public static final void evaluateXPathExpression(final Context context) {
+        final Node node = context.get(SELECTED_NODE);
+
+        try {
+            context.set(XPATH_RESULT, XMLTools.getNodes(node, (String) context.get(XPATH_EXPRESSION)));
+            context.set(XPATH_ERROR, null);
+        } catch (final Exception exception) {
+            context.set(XPATH_RESULT, null);
+            context.set(XPATH_ERROR, exception);
+        }
+    }
+
+    /**
+     *
+     * @param context
+     * <br>Not null
+     * <br>Input-output
+     */
+    public static final void evaluateQuasiXPathExpression(final Context context) {
+        try {
+            XMLTools.getOrCreateNode((Node) context.get(SELECTED_NODE), (String) context.get(QUASI_XPATH_EXPRESSION));
+
+            context.set(QUASI_XPATH_ERROR, null);
+        } catch (final Exception exception) {
+            context.set(QUASI_XPATH_ERROR, exception);
+        }
+    }
+
 }

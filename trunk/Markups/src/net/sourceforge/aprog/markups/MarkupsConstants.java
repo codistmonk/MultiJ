@@ -131,6 +131,11 @@ public final class MarkupsConstants {
         /**
          * {@value}.
          */
+        public static final String XPATH_RESULT = "xPath.result";
+
+        /**
+         * {@value}.
+         */
         public static final String XPATH_ERROR = "xPath.error";
 
         /**
