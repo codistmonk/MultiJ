@@ -28,7 +28,7 @@ import static javax.swing.KeyStroke.getKeyStroke;
 
 import static net.sourceforge.aprog.i18n.Messages.*;
 import static net.sourceforge.aprog.markups.MarkupsConstants.Variables.*;
-import static net.sourceforge.aprog.markups.MarkupsXMLTools.*;
+import static net.sourceforge.aprog.markups.MarkupsTools.*;
 import static net.sourceforge.aprog.subtitlesadjuster.SubtitlesAdjusterTools.*;
 import static net.sourceforge.aprog.subtitlesadjuster.SubtitlesAdjusterTools.menu;
 import static net.sourceforge.aprog.swing.SwingTools.checkAWT;
@@ -72,6 +72,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
+import javax.swing.text.JTextComponent;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 
@@ -83,6 +84,7 @@ import net.sourceforge.aprog.subtitlesadjuster.SubtitlesAdjusterActions;
 import net.sourceforge.aprog.subtitlesadjuster.SubtitlesAdjusterComponents;
 import net.sourceforge.aprog.swing.SwingTools;
 import net.sourceforge.aprog.tools.IllegalInstantiationException;
+import net.sourceforge.aprog.tools.Tools;
 import net.sourceforge.aprog.xml.XMLTools;
 import net.sourceforge.jmacadapter.MacAdapterTools;
 
@@ -500,23 +502,8 @@ public final class MarkupsComponents {
 
         };
 
-        final Variable<Node> selectedNodeVariable = context.getVariable(DOM);
-
-        selectedNodeVariable.addListener(new Variable.Listener<Node>() {
-
-            @Override
-            public final void valueChanged(final ValueChangedEvent<Node, ?> event) {
-                if (event.getOldValue() != null) {
-                    removeDOMEventListener(event.getOldValue(), domListener);
-                }
-
-                final Node node = event.getNewValue();
-
-                debugPrint(node);
-
-                addDOMEventListener(node, domListener);
-            }
-
+        addListener(context, DOM, new AbstractDOMListenerReattacher(domListener) {
+            // Deliberately left empty
         });
 
         return result;
@@ -735,7 +722,7 @@ public final class MarkupsComponents {
 
                         debugPrint(node, text);
 
-                        if (node == null || node.getNodeValue().equals(text)) {
+                        if (node == null || emptyIfNull(node.getNodeValue()).equals(emptyIfNull(text))) {
                             return;
                         }
 
@@ -743,7 +730,7 @@ public final class MarkupsComponents {
                             node.setNodeValue(text);
                         } catch (final Exception exception) {
                             exception.printStackTrace();
-                            result.setText(node.getNodeName());
+                            result.setText(node.getNodeValue());
                         }
                     }
 
@@ -869,31 +856,9 @@ public final class MarkupsComponents {
     public static final JTextArea newXPathExpressionTextArea(final Context context) {
         final JTextArea result = new JTextArea();
 
-        result.getDocument().addDocumentListener(new AbstractDocumentHandler() {
+        updateVariableOnTextChanged(context, XPATH_EXPRESSION, result);
 
-            @Override
-            protected final void eventReceived(final DocumentEvent event) {
-                context.set(XPATH_EXPRESSION, result.getText());
-            }
-
-        });
-
-        final Variable<Exception> xPathErrorVariable = context.getVariable(XPATH_ERROR);
-
-        xPathErrorVariable.addListener(new Variable.Listener<Exception>() {
-
-            private Color defaultBackground;
-
-            @Override
-            public final void valueChanged(final ValueChangedEvent<Exception, ?> event) {
-                if (this.defaultBackground == null) {
-                    this.defaultBackground = result.getBackground();
-                }
-
-                result.setBackground(event.getNewValue() == null ? this.defaultBackground : Color.RED);
-            }
-
-        });
+        highlightBackgroundOnError(context, XPATH_ERROR, result);
 
         return result;
     }
@@ -910,9 +875,7 @@ public final class MarkupsComponents {
         final DefaultListModel model = new DefaultListModel();
         final JList result = new JList(model);
 
-        final Variable<NodeList> xpathExpressionVariable = context.getVariable(XPATH_RESULT);
-
-        xpathExpressionVariable.addListener(new Variable.Listener<NodeList>() {
+        addListener(context, XPATH_RESULT, new Variable.Listener<NodeList>() {
 
             @Override
             public final void valueChanged(final ValueChangedEvent<NodeList, ?> event) {
@@ -958,31 +921,9 @@ public final class MarkupsComponents {
     public static final JTextArea newQuasiXPathExpressionTextArea(final Context context) {
         final JTextArea result = new JTextArea();
 
-        result.getDocument().addDocumentListener(new AbstractDocumentHandler() {
+        updateVariableOnTextChanged(context, QUASI_XPATH_EXPRESSION, result);
 
-            @Override
-            protected final void eventReceived(final DocumentEvent event) {
-                context.set(QUASI_XPATH_EXPRESSION, result.getText());
-            }
-
-        });
-
-        final Variable<Exception> quasiXPathErrorVariable = context.getVariable(QUASI_XPATH_ERROR);
-
-        quasiXPathErrorVariable.addListener(new Variable.Listener<Exception>() {
-
-            private Color defaultBackground;
-
-            @Override
-            public final void valueChanged(final ValueChangedEvent<Exception, ?> event) {
-                if (this.defaultBackground == null) {
-                    this.defaultBackground = result.getBackground();
-                }
-
-                result.setBackground(event.getNewValue() == null ? this.defaultBackground : Color.RED);
-            }
-
-        });
+        highlightBackgroundOnError(context, QUASI_XPATH_ERROR, result);
 
         return result;
     }
@@ -1002,43 +943,6 @@ public final class MarkupsComponents {
                 MarkupsActions.class, "evaluateQuasiXPathExpression", context));
 
         return result;
-    }
-
-    /**
-     *
-     * @param translationKey
-     * <br>Not null
-     * @param component
-     * <br>Not null
-     * <br>Input-output
-     * @return
-     * <br>Not null
-     * <br>New
-     */
-    public static final JPanel newTitledPanel(final String translationKey, final Component component) {
-        final JPanel result = new JPanel(new BorderLayout());
-
-        result.setBorder(translate(BorderFactory.createTitledBorder(translationKey)));
-
-        result.add(component);
-
-        return result;
-    }
-
-    /**
-     *
-     * @param node
-     * <br>Not null
-     * @return
-     * <br>Not null
-     * <br>New
-     */
-    public static final String toXMLString(final Node node) {
-        final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-
-        XMLTools.write(node, buffer, 0);
-
-        return buffer.toString();
     }
 
     /**
@@ -1165,7 +1069,7 @@ public final class MarkupsComponents {
 
     /**
      *
-     * @author codistmonk (ceration 2010-07-07)
+     * @author codistmonk (creation 2010-07-07)
      */
     public static abstract class AbstractDocumentHandler implements DocumentListener {
 

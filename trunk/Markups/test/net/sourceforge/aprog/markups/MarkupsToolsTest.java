@@ -32,17 +32,17 @@ import org.junit.Test;
 import org.w3c.dom.Document;
 
 /**
- * Automated tests using JUnit 4 for {@link MarkupsXMLTools}.
+ * Automated tests using JUnit 4 for {@link MarkupsTools}.
  *
  * @author codistmonk (creation 2010-07-04)
  */
-public final class MarkupsXMLToolsTest {
+public final class MarkupsToolsTest {
 
     @Test
     public final void testGetIdentifyingXPath() {
         final Document document = XMLTools.parse("<a><b/><b c='d'/></a>");
 
-        assertEquals("//a[1]/b[2]/@c", MarkupsXMLTools.getIdentifyingXPath(XMLTools.getNode(document, "a/b/@c")));
+        assertEquals("//a[1]/b[2]/@c", MarkupsTools.getIdentifyingXPath(XMLTools.getNode(document, "a/b/@c")));
     }
 
 }
