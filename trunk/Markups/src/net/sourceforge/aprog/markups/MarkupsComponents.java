@@ -24,14 +24,7 @@
 
 package net.sourceforge.aprog.markups;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.FocusEvent;
 import static javax.swing.KeyStroke.getKeyStroke;
-import javax.swing.event.DocumentEvent;
-
-import javax.swing.event.TreeSelectionEvent;
-import javax.swing.text.AttributeSet;
-import javax.swing.text.BadLocationException;
 
 import static net.sourceforge.aprog.i18n.Messages.*;
 import static net.sourceforge.aprog.markups.MarkupsConstants.Variables.*;
@@ -53,8 +46,6 @@ import java.awt.dnd.DropTargetAdapter;
 import java.awt.dnd.DropTargetDragEvent;
 import java.awt.dnd.DropTargetDropEvent;
 import java.awt.dnd.DropTargetEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.FocusAdapter;
 import java.awt.event.WindowListener;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -63,7 +54,6 @@ import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
-import javax.swing.JFormattedTextField;
 import javax.swing.JFrame;
 import javax.swing.JList;
 import javax.swing.JMenuBar;
@@ -76,10 +66,10 @@ import javax.swing.JTextField;
 import javax.swing.JTree;
 import javax.swing.SwingUtilities;
 import javax.swing.border.TitledBorder;
+import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
-import javax.swing.text.DocumentFilter;
-import javax.swing.text.PlainDocument;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 
@@ -91,10 +81,8 @@ import net.sourceforge.aprog.subtitlesadjuster.SubtitlesAdjusterActions;
 import net.sourceforge.aprog.subtitlesadjuster.SubtitlesAdjusterComponents;
 import net.sourceforge.aprog.swing.SwingTools;
 import net.sourceforge.aprog.tools.IllegalInstantiationException;
-import net.sourceforge.aprog.tools.Tools;
 import net.sourceforge.aprog.xml.XMLTools;
 import net.sourceforge.jmacadapter.MacAdapterTools;
-import org.w3c.dom.Document;
 
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -592,7 +580,7 @@ public final class MarkupsComponents {
      * <br>New
      */
     public static final JTextField newNodeNameTextField(final Context context) {
-        final JFormattedTextField result = new JFormattedTextField("");
+        final JTextField result = new JTextField();
         final Variable<Node> selectedNodeVariable = context.getVariable(SELECTED_NODE);
         final EventListener nodeListener = new EventListener() {
 
@@ -631,40 +619,52 @@ public final class MarkupsComponents {
 
         });
 
-        result.addFocusListener(new FocusAdapter() {
+        result.getDocument().addDocumentListener(new DocumentListener() {
 
             @Override
-            public final void focusLost(final FocusEvent event) {
-                if (!this.tryToSetNodeName(result.getText())) {
-                    result.setText(selectedNodeVariable.getValue().getNodeName());
-                }
+            public final void insertUpdate(final DocumentEvent event) {
+                debugPrint(event);
+                this.tryToUpdateNodeName();
             }
 
-            /**
-             * @param nodeName
-             * <br>Not null
-             * @return {code true} if the selected node's name is {@code nodeName} when this method terminates
-             */
-            private final boolean tryToSetNodeName(final String nodeName) {
-                final Node node = selectedNodeVariable.getValue();
+            @Override
+            public final void removeUpdate(final DocumentEvent event) {
+                debugPrint(event);
+                this.tryToUpdateNodeName();
+            }
 
-                debugPrint(node, nodeName);
+            @Override
+            public final void changedUpdate(final DocumentEvent event) {
+                debugPrint(event);
+                this.tryToUpdateNodeName();
+            }
 
-                if (node.getNodeName().equals(nodeName)) {
-                    return true;
-                }
+            private final void tryToUpdateNodeName() {
+                SwingUtilities.invokeLater(new Runnable() {
 
-                try {
-                    rename(
-                            node,
-                            node.getNamespaceURI(),
-                            node.getNamespaceURI() == null ? nodeName : node.getPrefix() + ":" + nodeName);
+                    @Override
+                    public final void run() {
+                        final Node node = selectedNodeVariable.getValue();
+                        final String text = result.getText();
 
-                    return true;
-                } catch (final Exception exception) {
-                    exception.printStackTrace();
-                    return false;
-                }
+                        debugPrint(node, text);
+
+                        if (node.getNodeName().equals(text)) {
+                            return;
+                        }
+
+                        try {
+                            rename(
+                                    node,
+                                    node.getNamespaceURI(),
+                                    node.getNamespaceURI() == null ? text : node.getPrefix() + ":" + text);
+                        } catch (final Exception exception) {
+                            exception.printStackTrace();
+                            result.setText(node.getNodeName());
+                        }
+                    }
+
+                });
             }
 
         });
@@ -731,12 +731,59 @@ public final class MarkupsComponents {
 
         });
 
-        result.addFocusListener(new FocusAdapter() {
+//        result.addFocusListener(new FocusAdapter() {
+//
+//            @Override
+//            public final void focusLost(final FocusEvent event) {
+//                debugPrint(selectedNodeVariable.getValue(), result.getText());
+//                selectedNodeVariable.getValue().setNodeValue(result.getText());
+//            }
+//
+//        });
+
+        result.getDocument().addDocumentListener(new DocumentListener() {
 
             @Override
-            public final void focusLost(final FocusEvent event) {
-                debugPrint(selectedNodeVariable.getValue(), result.getText());
-                selectedNodeVariable.getValue().setNodeValue(result.getText());
+            public final void insertUpdate(final DocumentEvent event) {
+                debugPrint(event);
+                this.tryToUpdateNodeValue();
+            }
+
+            @Override
+            public final void removeUpdate(final DocumentEvent event) {
+                debugPrint(event);
+                this.tryToUpdateNodeValue();
+            }
+
+            @Override
+            public final void changedUpdate(final DocumentEvent event) {
+                debugPrint(event);
+                this.tryToUpdateNodeValue();
+            }
+
+            private final void tryToUpdateNodeValue() {
+                SwingUtilities.invokeLater(new Runnable() {
+
+                    @Override
+                    public final void run() {
+                        final Node node = selectedNodeVariable.getValue();
+                        final String text = result.getText();
+
+                        debugPrint(node, text);
+
+                        if (node.getNodeValue().equals(text)) {
+                            return;
+                        }
+
+                        try {
+                            node.setNodeValue(text);
+                        } catch (final Exception exception) {
+                            exception.printStackTrace();
+                            result.setText(node.getNodeName());
+                        }
+                    }
+
+                });
             }
 
         });
