@@ -123,11 +123,25 @@ public final class MarkupsConstants {
          */
         public static final String SELECTED_NODE = "file.dom.selectedNode";
 
+        /**
+         * {@value}.
+         */
+        public static final String XPATH_EXPRESSION = "xPath.expression";
 
         /**
          * {@value}.
          */
-        public static final String XPAH_EXPRESSION = "xpathExpression";
+        public static final String XPATH_ERROR = "xPath.error";
+
+        /**
+         * {@value}.
+         */
+        public static final String QUASI_XPATH_EXPRESSION = "quasiXPath.expression";
+
+        /**
+         * {@value}.
+         */
+        public static final String QUASI_XPATH_ERROR = "quasiXPath.error";
 
     }
 
