@@ -68,8 +68,10 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.w3c.dom.events.DocumentEvent;
 import org.w3c.dom.events.EventListener;
 import org.w3c.dom.events.EventTarget;
+import org.w3c.dom.events.MutationEvent;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
@@ -191,12 +193,52 @@ public final class XMLTools {
      *
      * @param node
      * <br>Not null
+     * @param namespaceURI
+     * <br>Maybe null
+     * @param qualifiedName
+     * <br>Not null
+     * @return
+     * <br>Not null
+     * <br>Maybe new
+     */
+    public static final Node rename(final Node node, final String namespaceURI, final String qualifiedName) {
+        final String oldQualifiedName = getQualifiedName(node);
+        final Document document = getOwnerDocument(node);
+        final Node result = document.renameNode(node, namespaceURI, qualifiedName);
+
+        if (hasEventsFeature(node) && node.getNodeType() == Node.ELEMENT_NODE) {
+            final MutationEvent event = (MutationEvent) ((DocumentEvent) document).createEvent("MutationEvent");
+
+            event.initMutationEvent(DOM_EVENT_SUBTREE_MODIFIED, true, true,
+                    node, oldQualifiedName, qualifiedName,
+                    null, (short) 0);
+
+            ((EventTarget) result).dispatchEvent(event);
+        }
+
+        return result;
+    }
+
+    /**
+     *
+     * @param node
+     * <br>Not null
      * @throws IllegalArgumentException If {@code node} doesn't have the "events 2.0" feature
      */
     public static final void checkHasEventsFeature(final Node node) {
-        if (!XMLTools.getOwnerDocument(node).getImplementation().hasFeature("events", "2.0")) {
+        if (!hasEventsFeature(node)) {
             throw new IllegalArgumentException("Events 2.0 feature unavailable for node " + node);
         }
+    }
+
+    /**
+     *
+     * @param node
+     * <br>Not null
+     * @return {@code true} if {@code node} has the "events 2.0" feature
+     */
+    public static final boolean hasEventsFeature(final Node node) {
+        return XMLTools.getOwnerDocument(node).getImplementation().hasFeature("events", "2.0");
     }
 
     /**
