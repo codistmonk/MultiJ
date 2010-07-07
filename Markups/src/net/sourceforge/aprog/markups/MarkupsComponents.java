@@ -88,6 +88,7 @@ import net.sourceforge.jmacadapter.MacAdapterTools;
 
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.w3c.dom.events.Event;
 import org.w3c.dom.events.EventListener;
 
@@ -490,24 +491,30 @@ public final class MarkupsComponents {
 
         });
 
+        final EventListener domListener = new EventListener() {
+
+            @Override
+            public final void handleEvent(final Event event) {
+                result.repaint();
+            }
+
+        };
+
         final Variable<Node> selectedNodeVariable = context.getVariable(DOM);
 
         selectedNodeVariable.addListener(new Variable.Listener<Node>() {
 
             @Override
             public final void valueChanged(final ValueChangedEvent<Node, ?> event) {
+                if (event.getOldValue() != null) {
+                    removeDOMEventListener(event.getOldValue(), domListener);
+                }
+
                 final Node node = event.getNewValue();
 
                 debugPrint(node);
 
-                addDOMEventListener(node, new EventListener() {
-
-                    @Override
-                    public final void handleEvent(final Event event) {
-                        result.repaint();
-                    }
-
-                });
+                addDOMEventListener(node, domListener);
             }
 
         });
@@ -728,7 +735,7 @@ public final class MarkupsComponents {
 
                         debugPrint(node, text);
 
-                        if (node.getNodeValue().equals(text)) {
+                        if (node == null || node.getNodeValue().equals(text)) {
                             return;
                         }
 
@@ -903,24 +910,18 @@ public final class MarkupsComponents {
         final DefaultListModel model = new DefaultListModel();
         final JList result = new JList(model);
 
-        final Variable<String> xpathExpressionVariable = context.getVariable(XPATH_EXPRESSION);
+        final Variable<NodeList> xpathExpressionVariable = context.getVariable(XPATH_RESULT);
 
-        xpathExpressionVariable.addListener(new Variable.Listener<String>() {
+        xpathExpressionVariable.addListener(new Variable.Listener<NodeList>() {
 
             @Override
-            public final void valueChanged(final ValueChangedEvent<String, ?> event) {
+            public final void valueChanged(final ValueChangedEvent<NodeList, ?> event) {
                 model.clear();
 
-                final Node contextNode = context.get(SELECTED_NODE);
-
-                try {
-                    for (final Node node : toList(getNodes(contextNode, event.getNewValue()))) {
+                if (event.getNewValue() != null) {
+                    for (final Node node : toList(event.getNewValue())) {
                         model.addElement(node);
                     }
-
-                    context.set(XPATH_ERROR, null);
-                } catch (final Exception exception) {
-                    context.set(XPATH_ERROR, exception);
                 }
             }
 
@@ -997,26 +998,8 @@ public final class MarkupsComponents {
     public static final JButton newQuasiXPathCreateButton(final Context context) {
         final JButton result = translate(new JButton("Create Node"));
 
-        result.addActionListener(new ActionListener() {
-
-            private Color defaultBackground;
-
-            @Override
-            public final void actionPerformed(final ActionEvent event) {
-                if (this.defaultBackground == null) {
-                    this.defaultBackground = result.getParent().getBackground();
-                }
-
-                try {
-                    getOrCreateNode((Node) context.get(SELECTED_NODE), (String) context.get(QUASI_XPATH_EXPRESSION));
-
-                    context.set(QUASI_XPATH_ERROR, null);
-                } catch (final Exception exception) {
-                    context.set(QUASI_XPATH_ERROR, exception);
-                }
-            }
-
-        });
+        result.addActionListener(SwingTools.action(
+                MarkupsActions.class, "evaluateQuasiXPathExpression", context));
 
         return result;
     }

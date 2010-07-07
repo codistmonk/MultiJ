@@ -30,9 +30,15 @@ import static net.sourceforge.aprog.tools.Tools.*;
 import static net.sourceforge.aprog.swing.SwingTools.*;
 
 import net.sourceforge.aprog.context.Context;
+import net.sourceforge.aprog.events.Variable;
+import net.sourceforge.aprog.events.Variable.ValueChangedEvent;
 import net.sourceforge.aprog.tools.IllegalInstantiationException;
 import net.sourceforge.aprog.xml.XMLTools;
 import net.sourceforge.jmacadapter.MacAdapterTools;
+
+import org.w3c.dom.Node;
+import org.w3c.dom.events.Event;
+import org.w3c.dom.events.EventListener;
 
 /**
  *
@@ -79,9 +85,51 @@ public final class Markups {
         result.set(DOM, XMLTools.newDocument());
         result.set(SELECTED_NODE, null);
         result.set(XPATH_EXPRESSION, null);
+        result.set(XPATH_RESULT, null);
         result.set(XPATH_ERROR, null);
         result.set(QUASI_XPATH_EXPRESSION, null);
         result.set(QUASI_XPATH_ERROR, null);
+
+        final Variable<String> xPathExpressionVariable = result.getVariable(XPATH_EXPRESSION);
+
+        xPathExpressionVariable.addListener(new Variable.Listener<String>() {
+
+            @Override
+            public final void valueChanged(final ValueChangedEvent<String, ?> event) {
+                MarkupsActions.evaluateXPathExpression(result);
+            }
+
+        });
+
+        final EventListener domListener = new EventListener() {
+
+            @Override
+            public final void handleEvent(final Event evt) {
+                MarkupsActions.evaluateXPathExpression(result);
+            }
+
+        };
+
+        final Variable<Node> domVariable = result.getVariable(DOM);
+
+        domVariable.addListener(new Variable.Listener<Node>() {
+
+            @Override
+            public final void valueChanged(final ValueChangedEvent<Node, ?> event) {
+                if (event.getOldValue() != null) {
+                    XMLTools.removeDOMEventListener(event.getOldValue(), domListener);
+                }
+
+                final Node dom = event.getNewValue();
+
+                if (dom != null) {
+                    XMLTools.addDOMEventListener(dom, domListener);
+                }
+
+                MarkupsActions.evaluateXPathExpression(result);
+            }
+
+        });
 
         return result;
     }
