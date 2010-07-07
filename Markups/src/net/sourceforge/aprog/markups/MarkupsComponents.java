@@ -53,6 +53,7 @@ import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
+import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JList;
@@ -619,27 +620,10 @@ public final class MarkupsComponents {
 
         });
 
-        result.getDocument().addDocumentListener(new DocumentListener() {
+        result.getDocument().addDocumentListener(new AbstractDocumentHandler() {
 
             @Override
-            public final void insertUpdate(final DocumentEvent event) {
-                debugPrint(event);
-                this.tryToUpdateNodeName();
-            }
-
-            @Override
-            public final void removeUpdate(final DocumentEvent event) {
-                debugPrint(event);
-                this.tryToUpdateNodeName();
-            }
-
-            @Override
-            public final void changedUpdate(final DocumentEvent event) {
-                debugPrint(event);
-                this.tryToUpdateNodeName();
-            }
-
-            private final void tryToUpdateNodeName() {
+            protected final void eventReceived(final DocumentEvent event) {
                 SwingUtilities.invokeLater(new Runnable() {
 
                     @Override
@@ -649,7 +633,7 @@ public final class MarkupsComponents {
 
                         debugPrint(node, text);
 
-                        if (node.getNodeName().equals(text)) {
+                        if (node == null || node.getNodeName().equals(text)) {
                             return;
                         }
 
@@ -731,37 +715,10 @@ public final class MarkupsComponents {
 
         });
 
-//        result.addFocusListener(new FocusAdapter() {
-//
-//            @Override
-//            public final void focusLost(final FocusEvent event) {
-//                debugPrint(selectedNodeVariable.getValue(), result.getText());
-//                selectedNodeVariable.getValue().setNodeValue(result.getText());
-//            }
-//
-//        });
-
-        result.getDocument().addDocumentListener(new DocumentListener() {
+        result.getDocument().addDocumentListener(new AbstractDocumentHandler() {
 
             @Override
-            public final void insertUpdate(final DocumentEvent event) {
-                debugPrint(event);
-                this.tryToUpdateNodeValue();
-            }
-
-            @Override
-            public final void removeUpdate(final DocumentEvent event) {
-                debugPrint(event);
-                this.tryToUpdateNodeValue();
-            }
-
-            @Override
-            public final void changedUpdate(final DocumentEvent event) {
-                debugPrint(event);
-                this.tryToUpdateNodeValue();
-            }
-
-            private final void tryToUpdateNodeValue() {
+            protected final void eventReceived(final DocumentEvent event) {
                 SwingUtilities.invokeLater(new Runnable() {
 
                     @Override
@@ -824,20 +781,39 @@ public final class MarkupsComponents {
      */
     public static final JTextField newContextTextField(final Context context) {
         final Variable<Node> selectedNodeVariable = context.getVariable(SELECTED_NODE);
-        final JTextField result = new JTextField() {
+        final JTextField result = new JTextField();
+
+        final EventListener nodeListener = new EventListener() {
 
             @Override
-            public final void paint(final Graphics graphics) {
+            public final void handleEvent(final Event event) {
                 final Node node = selectedNodeVariable.getValue();
 
-                this.setText(node == null ? "" : getIdentifyingXPath(node));
-
-                super.paint(graphics);
+                if (event.getTarget() == node) {
+                    result.setText(node == null ? "" : getIdentifyingXPath(node));
+                }
             }
 
-            private static final long serialVersionUID = -8905486694141219276L;
-
         };
+
+        selectedNodeVariable.addListener(new Variable.Listener<Node>() {
+
+            @Override
+            public final void valueChanged(final ValueChangedEvent<Node, ?> event) {
+                if (event.getOldValue() != null) {
+                    removeDOMEventListener(event.getOldValue(), nodeListener);
+                }
+
+                final Node node = event.getNewValue();
+
+                if (node != null) {
+                    addDOMEventListener(node, nodeListener);
+                }
+
+                result.setText(node == null ? "" : getIdentifyingXPath(node));
+            }
+
+        });
 
         result.setEditable(false);
 
@@ -951,7 +927,14 @@ public final class MarkupsComponents {
     public static final JTextArea newXPathExpressionTextArea(final Context context) {
         final JTextArea result = new JTextArea();
 
-        // TODO
+        result.getDocument().addDocumentListener(new AbstractDocumentHandler() {
+
+            @Override
+            protected final void eventReceived(final DocumentEvent event) {
+                context.set(XPAH_EXPRESSION, result.getText());
+            }
+
+        });
 
         return result;
     }
@@ -965,9 +948,31 @@ public final class MarkupsComponents {
      * <br>New
      */
     public static final JList newXPathList(final Context context) {
-        final JList result = new JList();
+        final DefaultListModel model = new DefaultListModel();
+        final JList result = new JList(model);
 
-        // TODO
+        final Variable<String> xpathExpressionVariable = context.getVariable(XPAH_EXPRESSION);
+
+        xpathExpressionVariable.addListener(new Variable.Listener<String>() {
+
+            @Override
+            public final void valueChanged(final ValueChangedEvent<String, ?> event) {
+                model.clear();
+
+                final Node contextNode = context.get(SELECTED_NODE);
+
+                try {
+                    for (final Node node : toList(getNodes(contextNode, event.getNewValue()))) {
+                        model.addElement(node);
+                    }
+
+                    result.setBackground(Color.WHITE);
+                } catch (final Exception exception) {
+                    result.setBackground(Color.RED);
+                }
+            }
+
+        });
 
         return result;
     }
@@ -1218,6 +1223,63 @@ public final class MarkupsComponents {
 
             return result;
         }
+
+    }
+
+    /**
+     *
+     * @author codistmonk (ceration 2010-07-07)
+     */
+    public static abstract class AbstractDocumentHandler implements DocumentListener {
+
+        @Override
+        public final void insertUpdate(final DocumentEvent event) {
+            this.doInsertUpdate(event);
+        }
+
+        @Override
+        public final void removeUpdate(final DocumentEvent event) {
+            this.doRemoveUpdate(event);
+        }
+
+        @Override
+        public final void changedUpdate(final DocumentEvent event) {
+            this.doChangedUpdate(event);
+        }
+
+        /**
+         *
+         * @param event
+         * <br>Not null
+         */
+        protected void doInsertUpdate(final DocumentEvent event) {
+            this.eventReceived(event);
+        }
+
+        /**
+         *
+         * @param event
+         * <br>Not null
+         */
+        protected void doRemoveUpdate(final DocumentEvent event) {
+            this.eventReceived(event);
+        }
+
+        /**
+         *
+         * @param event
+         * <br>Not null
+         */
+        protected void doChangedUpdate(final DocumentEvent event) {
+            this.eventReceived(event);
+        }
+
+        /**
+         *
+         * @param event
+         * <br>Not null
+         */
+        protected abstract void eventReceived(DocumentEvent event);
 
     }
 
