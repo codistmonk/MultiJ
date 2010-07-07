@@ -236,56 +236,56 @@ public final class MarkupsTools {
         return -1;
     }
 
+}
+
+/**
+ *
+ * @author codistmonk (creation 2010-07-07)
+ */
+abstract class AbstractDOMListenerReattacher implements Variable.Listener<Node> {
+
+    private final EventListener domListener;
+
     /**
      *
-     * @author codistmonk (creation 2010-07-07)
+     * @param domListener
+     * <br>Not null
+     * <br>Shared
      */
-    public static abstract class AbstractDOMListenerReattacher implements Variable.Listener<Node> {
+    public AbstractDOMListenerReattacher(final EventListener domListener) {
+        this.domListener = domListener;
+    }
 
-        private final EventListener domListener;
+    /**
+     *
+     * @return
+     * <br>Not null
+     * <br>Shared
+     */
+    public final EventListener getDOMListener() {
+        return this.domListener;
+    }
 
-        /**
-         *
-         * @param domListener
-         * <br>Not null
-         * <br>Shared
-         */
-        public AbstractDOMListenerReattacher(final EventListener domListener) {
-            this.domListener = domListener;
+    @Override
+    public final void valueChanged(final ValueChangedEvent<Node, ?> event) {
+        if (event.getOldValue() != null) {
+            XMLTools.removeDOMEventListener(event.getOldValue(), this.getDOMListener());
         }
 
-        /**
-         *
-         * @return
-         * <br>Not null
-         * <br>Shared
-         */
-        public final EventListener getDOMListener() {
-            return this.domListener;
+        final Node dom = event.getNewValue();
+
+        if (dom != null) {
+            XMLTools.addDOMEventListener(dom, this.getDOMListener());
         }
+    }
 
-        @Override
-        public final void valueChanged(final ValueChangedEvent<Node, ?> event) {
-            if (event.getOldValue() != null) {
-                XMLTools.removeDOMEventListener(event.getOldValue(), this.getDOMListener());
-            }
-
-            final Node dom = event.getNewValue();
-
-            if (dom != null) {
-                XMLTools.addDOMEventListener(dom, this.getDOMListener());
-            }
-        }
-
-        /**
-         *
-         * @param event
-         * <br>Not null
-         */
-        protected void afterReattachment(final ValueChangedEvent<Node, ?> event) {
-            // Default implementation, do nothing
-        }
-
+    /**
+     *
+     * @param event
+     * <br>Not null
+     */
+    protected void afterReattachment(final ValueChangedEvent<Node, ?> event) {
+        // Default implementation, do nothing
     }
 
 }
