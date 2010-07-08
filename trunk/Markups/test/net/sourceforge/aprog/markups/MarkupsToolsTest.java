@@ -42,7 +42,7 @@ public final class MarkupsToolsTest {
     public final void testGetIdentifyingXPath() {
         final Document document = XMLTools.parse("<a><b/><b c='d'/></a>");
 
-        assertEquals("//a[1]/b[2]/@c", MarkupsTools.getIdentifyingXPath(XMLTools.getNode(document, "a/b/@c")));
+        assertEquals("/a[1]/b[2]/@c", MarkupsTools.getIdentifyingXPath(XMLTools.getNode(document, "a/b/@c")));
     }
 
 }
