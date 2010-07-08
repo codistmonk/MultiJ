@@ -185,16 +185,20 @@ public final class MarkupsTools {
 
 //        debugPrint("../" + selector);
 
-        if (set(Node.ATTRIBUTE_NODE, Node.DOCUMENT_NODE, Node.DOCUMENT_FRAGMENT_NODE,
+        final StringBuilder pathSelector = new StringBuilder(getIdentifyingXPath(XMLTools.getNode(node, "..")));
+
+        if (!pathSelector.toString().endsWith("/")) {
+            pathSelector.append("/");
+        }
+
+        if (set(Node.ATTRIBUTE_NODE, Node.DOCUMENT_FRAGMENT_NODE,
                 Node.ENTITY_NODE, Node.NOTATION_NODE).contains(node.getNodeType())) {
-            return getIdentifyingXPath(XMLTools.getNode(node, "..")) +
-                    "/" + selector;
+            return pathSelector + selector;
         }
 
         final NodeList siblings = XMLTools.getNodes(node, "../" + selector);
 
-        return getIdentifyingXPath(node.getParentNode()) +
-                "/" + selector + "[" + (indexOf(siblings, node) + 1) + "]";
+        return pathSelector + selector + "[" + (indexOf(siblings, node) + 1) + "]";
     }
 
     /**

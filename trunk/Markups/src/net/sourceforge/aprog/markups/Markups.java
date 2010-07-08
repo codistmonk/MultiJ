@@ -105,7 +105,8 @@ public final class Markups {
         final EventListener domListener = new EventListener() {
 
             @Override
-            public final void handleEvent(final Event evt) {
+            public final void handleEvent(final Event event) {
+                result.set(FILE_MODIFIED, true);
                 MarkupsActions.evaluateXPathExpression(result);
             }
 
@@ -114,7 +115,7 @@ public final class Markups {
         addListener(result, DOM, new AbstractDOMListenerReattacher(domListener) {
 
             @Override
-            protected final void afterReattachment(ValueChangedEvent<Node, ?> event) {
+            protected final void afterReattachment(final ValueChangedEvent<Node, ?> event) {
                 MarkupsActions.evaluateXPathExpression(result);
             }
 
