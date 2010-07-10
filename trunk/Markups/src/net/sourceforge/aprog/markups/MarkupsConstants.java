@@ -111,11 +111,6 @@ public final class MarkupsConstants {
         /**
          * {@value}.
          */
-        public static final String TREE_MODEL = "file.treeModel";
-
-        /**
-         * {@value}.
-         */
         public static final String DOM = "file.dom";
 
         /**
