@@ -296,11 +296,11 @@ public final class MarkupsActions {
             }
 
             if (index > 0) {
-                Tools.debugPrint(getNode(node, ".."));
                 parent.insertBefore(node, siblings.get(index - 1));
-                Tools.debugPrint(getNode(node, ".."));
             }
         }
+
+        parent.normalize();
 
         context.set(SELECTED_NODE, node);
     }
@@ -339,15 +339,14 @@ public final class MarkupsActions {
                 throw new IllegalStateException("Orphan node: " + node);
             }
 
-            Tools.debugPrint(getNode(node, ".."));
             if (index == siblings.size() - 2) {
-                Node result = parent.appendChild(node);
-                Tools.debugPrint(result == node);
+                parent.appendChild(node);
             } else {
                 parent.insertBefore(node, siblings.get(index + 2));
             }
-            Tools.debugPrint(getNode(node, ".."));
         }
+
+        parent.normalize();
 
         context.set(SELECTED_NODE, node);
     }
