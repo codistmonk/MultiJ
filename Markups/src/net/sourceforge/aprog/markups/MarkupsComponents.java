@@ -988,7 +988,7 @@ public final class MarkupsComponents {
             @Override
             public final void valueChanged(final ValueChangedEvent<Node, ?> event) {
                 final DOMTreeModel treeModel = (DOMTreeModel) result.getModel();
-                final DOMTreeModel.XMLTreeNode treeNode = treeModel.get(event.getNewValue());
+                final DOMTreeModel.DOMTreeNode treeNode = treeModel.get(event.getNewValue());
 
                 if (treeNode != null) {
                     result.setSelectionPath(new TreePath(treeModel.getPathToRoot(treeNode)));
@@ -1008,7 +1008,7 @@ public final class MarkupsComponents {
      */
     public static final class DOMTreeModel extends DefaultTreeModel {
 
-        private final WeakHashMap<Node, XMLTreeNode> xmlTreeNodes;
+        private final WeakHashMap<Node, DOMTreeNode> xmlTreeNodes;
 
         /**
          *
@@ -1018,9 +1018,9 @@ public final class MarkupsComponents {
          */
         public DOMTreeModel(final Node domNode) {
             super(new DefaultMutableTreeNode());
-            this.xmlTreeNodes = new WeakHashMap<Node, XMLTreeNode>();
+            this.xmlTreeNodes = new WeakHashMap<Node, DOMTreeNode>();
 
-            this.setRoot(this.new XMLTreeNode(domNode));
+            this.setRoot(this.new DOMTreeNode(domNode));
         }
 
         /**
@@ -1042,7 +1042,7 @@ public final class MarkupsComponents {
          * <br>Not null
          * <br>Shared
          */
-        final void put(final Node domNode, final XMLTreeNode xmlTreeNode) {
+        final void put(final Node domNode, final DOMTreeNode xmlTreeNode) {
             this.xmlTreeNodes.put(domNode, xmlTreeNode);
         }
 
@@ -1054,7 +1054,7 @@ public final class MarkupsComponents {
          * <br>Maybe null
          * <br>Shared
          */
-        final XMLTreeNode get(final Node domNode) {
+        final DOMTreeNode get(final Node domNode) {
             return this.xmlTreeNodes.get(domNode);
         }
 
@@ -1064,7 +1064,7 @@ public final class MarkupsComponents {
          *
          * @author codistmonk (creation 2010-07-10)
          */
-        public final class XMLTreeNode extends DefaultMutableTreeNode {
+        public final class DOMTreeNode extends DefaultMutableTreeNode {
 
             /**
              *
@@ -1072,7 +1072,7 @@ public final class MarkupsComponents {
              * <br>Not null
              * <br>Shared
              */
-            public XMLTreeNode(final Node domNode) {
+            public DOMTreeNode(final Node domNode) {
                 super(domNode);
 
                 this.getTreeModel().put(domNode, this);
@@ -1081,43 +1081,54 @@ public final class MarkupsComponents {
 
                     @Override
                     public final void handleEvent(final Event event) {
-//                        debugPrint("\ntype", event.getType(), "\ntarget", event.getTarget());
+                        debugPrint("\ntype", event.getType(), "\ntarget", event.getTarget());
                         if (event.getTarget() == domNode) {
                             if (DOM_EVENT_NODE_REMOVED.equals(event.getType())) {
-                                XMLTreeNode.this.getTreeModel().removeNodeFromParent(XMLTreeNode.this);
-                            }
-                            if (DOM_EVENT_NODE_INSERTED.equals(event.getType())) {
+                                DOMTreeNode.this.getTreeModel().removeNodeFromParent(DOMTreeNode.this);
+                            } else if (DOM_EVENT_NODE_INSERTED.equals(event.getType())) {
                                 final Node domParent = getNode(domNode, "..");
-                                final XMLTreeNode parent = XMLTreeNode.this.getTreeModel().get(domParent);
+                                final DOMTreeNode parent = DOMTreeNode.this.getTreeModel().get(domParent);
                                 final List<Node> siblings = getChildren(domParent);
 
-                                debugPrint(parent);
-                                debugPrint(siblings);
-                                debugPrint(siblings.indexOf(domNode));
-
-                                XMLTreeNode.this.getTreeModel().insertNodeInto(XMLTreeNode.this, parent, siblings.indexOf(domNode));
+                                DOMTreeNode.this.getTreeModel().insertNodeInto(DOMTreeNode.this, parent, siblings.indexOf(domNode));
+                            } else {
+                                DOMTreeNode.this.refresh();
                             }
-//                            debugPrint(event);
-//                            debugPrint("type", event.getType());
-//                            debugPrint("target", event.getTarget());
-//                            debugPrint("currentTarget", event.getCurrentTarget());
-//
-//                            if (event instanceof MutationEvent) {
-//                                debugPrint("relatedNode", ((MutationEvent) event).getRelatedNode());
-//                                debugPrint("attrChange", ((MutationEvent) event).getAttrChange());
-//                                debugPrint("attrName", ((MutationEvent) event).getAttrName());
-//                                debugPrint("prevValue", ((MutationEvent) event).getPrevValue());
-//                                debugPrint("newValue", ((MutationEvent) event).getNewValue());
-//                            }
-                            // TODO
                         }
                     }
 
                 });
 
                 for (final Node domChild : getChildren(domNode)) {
-                    this.add(new XMLTreeNode(domChild));
+                    this.add(new DOMTreeNode(domChild));
                 }
+            }
+
+            final void refresh() {
+                int i = 0;
+
+                for (final Node domChild : getChildren(this.getDomNode())) {
+                    DOMTreeModel.this.insertNodeInto(this.getOrCreate(domChild), DOMTreeNode.this, i++);
+                }
+            }
+
+            /**
+             *
+             * @param domNode
+             * <br>Not null
+             * @return
+             * <br>Not null
+             * <br>Maybe new
+             * <br>Shared
+             */
+            private final DOMTreeNode getOrCreate(final Node domNode) {
+                DOMTreeNode result = DOMTreeModel.this.get(domNode);
+
+                if (result == null) {
+                    result = DOMTreeModel.this.new DOMTreeNode(domNode);
+                }
+
+                return result;
             }
 
             /**
