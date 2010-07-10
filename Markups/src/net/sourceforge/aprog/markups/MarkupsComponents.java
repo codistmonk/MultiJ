@@ -51,7 +51,9 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowListener;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.WeakHashMap;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
@@ -75,6 +77,8 @@ import javax.swing.event.TreeSelectionListener;
 import javax.swing.text.JTextComponent;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreeModel;
+import javax.swing.tree.TreePath;
 
 import net.sourceforge.aprog.context.Context;
 import net.sourceforge.aprog.events.Variable;
@@ -93,6 +97,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.events.Event;
 import org.w3c.dom.events.EventListener;
+import org.w3c.dom.events.MutationEvent;
 
 /**
  *
@@ -123,6 +128,7 @@ public final class MarkupsComponents {
 
         result.setJMenuBar(newMenuBar(context));
         result.add(newMainPanel(context));
+        result.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 
         result.addWindowListener(newListener(WindowListener.class, "windowClosing",
                 MarkupsActions.class, "quit", context));
@@ -583,8 +589,6 @@ public final class MarkupsComponents {
             public final void handleEvent(final Event event) {
                 final Node node = selectedNodeVariable.getValue();
 
-                debugPrint(node);
-
                 result.setText(node == null ? "" : node.getNodeName());
             }
 
@@ -599,8 +603,6 @@ public final class MarkupsComponents {
                 }
 
                 final Node node = event.getNewValue();
-
-                debugPrint(node);
 
                 if (node != null) {
                     addDOMEventListener(node, nodeListener);
@@ -624,8 +626,6 @@ public final class MarkupsComponents {
                     public final void run() {
                         final Node node = selectedNodeVariable.getValue();
                         final String text = result.getText();
-
-                        debugPrint(node, text);
 
                         if (node == null || node.getNodeName().equals(text)) {
                             return;
@@ -719,8 +719,6 @@ public final class MarkupsComponents {
                     public final void run() {
                         final Node node = selectedNodeVariable.getValue();
                         final String text = result.getText();
-
-                        debugPrint(node, text);
 
                         if (node == null || emptyIfNull(node.getNodeValue()).equals(emptyIfNull(text))) {
                             return;
@@ -961,11 +959,7 @@ public final class MarkupsComponents {
 
             @Override
             public final void valueChanged(final ValueChangedEvent<Node, ?> event) {
-                final DOMTreeModel treeModel = new DOMTreeModel(event.getNewValue());
-
-                result.setModel(treeModel);
-
-                context.set(TREE_MODEL, treeModel);
+                result.setModel(new DOMTreeModel(event.getNewValue()));
             }
 
         });
@@ -989,6 +983,22 @@ public final class MarkupsComponents {
 
         });
 
+        addListener(context, SELECTED_NODE, new Variable.Listener<Node>() {
+
+            @Override
+            public final void valueChanged(final ValueChangedEvent<Node, ?> event) {
+                final DOMTreeModel treeModel = (DOMTreeModel) result.getModel();
+                final DOMTreeModel.XMLTreeNode treeNode = treeModel.get(event.getNewValue());
+
+                if (treeNode != null) {
+                    result.setSelectionPath(new TreePath(treeModel.getPathToRoot(treeNode)));
+                } else {
+                    result.setSelectionPath(null);
+                }
+            }
+
+        });
+
         return result;
     }
 
@@ -998,6 +1008,8 @@ public final class MarkupsComponents {
      */
     public static final class DOMTreeModel extends DefaultTreeModel {
 
+        private final WeakHashMap<Node, XMLTreeNode> xmlTreeNodes;
+
         /**
          *
          * @param domNode
@@ -1005,7 +1017,10 @@ public final class MarkupsComponents {
          * <br>Shared
          */
         public DOMTreeModel(final Node domNode) {
-            super(newTreeNode(domNode));
+            super(new DefaultMutableTreeNode());
+            this.xmlTreeNodes = new WeakHashMap<Node, XMLTreeNode>();
+
+            this.setRoot(this.new XMLTreeNode(domNode));
         }
 
         /**
@@ -1018,51 +1033,127 @@ public final class MarkupsComponents {
             return (Node) ((DefaultMutableTreeNode) this.getRoot()).getUserObject();
         }
 
-        private static final long serialVersionUID = 4264388285566053331L;
-
         /**
          *
          * @param domNode
          * <br>Not null
          * <br>Shared
-         * @return
+         * @param xmlTreeNode
          * <br>Not null
-         * <br>New
+         * <br>Shared
          */
-        public static final DefaultMutableTreeNode newTreeNode(final Node domNode) {
-            final DefaultMutableTreeNode result = new DefaultMutableTreeNode(domNode) {
+        final void put(final Node domNode, final XMLTreeNode xmlTreeNode) {
+            this.xmlTreeNodes.put(domNode, xmlTreeNode);
+        }
 
-                @Override
-                public final String toString() {
-                    switch (domNode.getNodeType()) {
-                        case Node.ATTRIBUTE_NODE:
-                            return domNode.getNodeName() +
-                                    (domNode.getNodeValue() == null ? "" : "=\"" + domNode.getNodeValue() + "\"");
-                        default:
-                            return domNode.getNodeName() +
-                                    (domNode.getNodeValue() == null ? "" : "[" + domNode.getNodeValue() + "]");
+        /**
+         *
+         * @param domNode
+         * <br>Not null
+         * @return
+         * <br>Maybe null
+         * <br>Shared
+         */
+        final XMLTreeNode get(final Node domNode) {
+            return this.xmlTreeNodes.get(domNode);
+        }
+
+        private static final long serialVersionUID = 4264388285566053331L;
+
+        /**
+         *
+         * @author codistmonk (creation 2010-07-10)
+         */
+        public final class XMLTreeNode extends DefaultMutableTreeNode {
+
+            /**
+             *
+             * @param domNode
+             * <br>Not null
+             * <br>Shared
+             */
+            public XMLTreeNode(final Node domNode) {
+                super(domNode);
+
+                this.getTreeModel().put(domNode, this);
+
+                addDOMEventListener(domNode, new EventListener() {
+
+                    @Override
+                    public final void handleEvent(final Event event) {
+//                        debugPrint("\ntype", event.getType(), "\ntarget", event.getTarget());
+                        if (event.getTarget() == domNode) {
+                            if (DOM_EVENT_NODE_REMOVED.equals(event.getType())) {
+                                XMLTreeNode.this.getTreeModel().removeNodeFromParent(XMLTreeNode.this);
+                            }
+                            if (DOM_EVENT_NODE_INSERTED.equals(event.getType())) {
+                                final Node domParent = getNode(domNode, "..");
+                                final XMLTreeNode parent = XMLTreeNode.this.getTreeModel().get(domParent);
+                                final List<Node> siblings = getChildren(domParent);
+
+                                debugPrint(parent);
+                                debugPrint(siblings);
+                                debugPrint(siblings.indexOf(domNode));
+
+                                XMLTreeNode.this.getTreeModel().insertNodeInto(XMLTreeNode.this, parent, siblings.indexOf(domNode));
+                            }
+//                            debugPrint(event);
+//                            debugPrint("type", event.getType());
+//                            debugPrint("target", event.getTarget());
+//                            debugPrint("currentTarget", event.getCurrentTarget());
+//
+//                            if (event instanceof MutationEvent) {
+//                                debugPrint("relatedNode", ((MutationEvent) event).getRelatedNode());
+//                                debugPrint("attrChange", ((MutationEvent) event).getAttrChange());
+//                                debugPrint("attrName", ((MutationEvent) event).getAttrName());
+//                                debugPrint("prevValue", ((MutationEvent) event).getPrevValue());
+//                                debugPrint("newValue", ((MutationEvent) event).getNewValue());
+//                            }
+                            // TODO
+                        }
                     }
-                }
 
-                private static final long serialVersionUID = 8090552131823122052L;
+                });
 
-            };
-            final NamedNodeMap attributes = domNode.getAttributes();
-
-            if (attributes != null) {
-                for (int i = 0; i < attributes.getLength(); ++i) {
-                    result.add(newTreeNode(attributes.item(i)));
+                for (final Node domChild : getChildren(domNode)) {
+                    this.add(new XMLTreeNode(domChild));
                 }
             }
 
-            if (domNode.getNodeType() != Node.ATTRIBUTE_NODE) {
-                for (final Node domChild : XMLTools.toList(domNode.getChildNodes())) {
-                    result.add(newTreeNode(domChild));
+            /**
+             *
+             * @return
+             * <br>Not null
+             * <br>Shared
+             */
+            public final Node getDomNode() {
+                return (Node) this.getUserObject();
+            }
+
+            /**
+             *
+             * @return
+             * <br>Not null
+             * <br>Shared
+             */
+            public final DOMTreeModel getTreeModel() {
+                return DOMTreeModel.this;
+            }
+
+            @Override
+            public final String toString() {
+                switch (this.getDomNode().getNodeType()) {
+                    case Node.ATTRIBUTE_NODE:
+                        return this.getDomNode().getNodeName() +
+                                (this.getDomNode().getNodeValue() == null ? "" : "=\"" + this.getDomNode().getNodeValue() + "\"");
+                    default:
+                        return this.getDomNode().getNodeName() +
+                                (this.getDomNode().getNodeValue() == null ? "" : "[" + this.getDomNode().getNodeValue() + "]");
                 }
             }
 
+            private static final long serialVersionUID = 8090552131823122052L;
 
-            return result;
         }
 
     }

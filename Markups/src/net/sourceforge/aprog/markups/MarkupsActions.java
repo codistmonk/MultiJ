@@ -25,6 +25,7 @@
 package net.sourceforge.aprog.markups;
 
 import static net.sourceforge.aprog.markups.MarkupsConstants.Variables.*;
+import static net.sourceforge.aprog.xml.XMLTools.*;
 
 import java.awt.Component;
 import java.io.FileNotFoundException;
@@ -32,11 +33,10 @@ import java.util.logging.Level;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.util.List;
 
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.TreeModel;
 
 import net.sourceforge.aprog.context.Context;
 import net.sourceforge.aprog.subtitlesadjuster.SubtitlesAdjusterActions;
@@ -45,6 +45,7 @@ import net.sourceforge.aprog.tools.Tools;
 import net.sourceforge.aprog.xml.XMLTools;
 
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
 /**
@@ -186,10 +187,8 @@ public final class MarkupsActions {
      */
     private static final void save(final Context context, final File file) {
         try {
-            final TreeModel treeModel = (TreeModel) context.get(TREE_MODEL);
-
             XMLTools.write(
-                    (Node) ((DefaultMutableTreeNode) treeModel.getRoot()).getUserObject(),
+                    (Node) context.get(DOM),
                     new FileOutputStream(file),
                     0);
             context.set(FILE, file);
@@ -271,9 +270,39 @@ public final class MarkupsActions {
      * <br>Not null
      */
     public static final void moveUp(final Context context) {
-        Tools.debugPrint("TODO");
+        final Node node = context.get(SELECTED_NODE);
+        final Node parent = getNode(node, "..");
 
-        SubtitlesAdjusterActions.showTODOMessage(context);
+        context.set(SELECTED_NODE, null);
+
+        {
+            final List<Node> siblings = MarkupsTools.getAttributeChildren(parent);
+            final int index = siblings.indexOf(node);
+
+            if (index >= 0) {
+                Tools.debugPrint("TODO");
+
+                return;
+            }
+        }
+
+        {
+            final List<Node> siblings = MarkupsTools.getNonattributeChildren(parent);
+            final int index = siblings.indexOf(node);
+
+            if (index < 0) {
+                Tools.debugPrint(siblings);
+                throw new IllegalStateException("Orphan node: " + node);
+            }
+
+            if (index > 0) {
+                Tools.debugPrint(getNode(node, ".."));
+                parent.insertBefore(node, siblings.get(index - 1));
+                Tools.debugPrint(getNode(node, ".."));
+            }
+        }
+
+        context.set(SELECTED_NODE, node);
     }
 
     /**
@@ -282,9 +311,45 @@ public final class MarkupsActions {
      * <br>Not null
      */
     public static final void moveDown(final Context context) {
-        Tools.debugPrint("TODO");
+        final Node node = context.get(SELECTED_NODE);
+        final Node parent = getNode(node, "..");
 
-        SubtitlesAdjusterActions.showTODOMessage(context);
+        {
+            final List<Node> siblings = MarkupsTools.getAttributeChildren(parent);
+            final int index = siblings.indexOf(node);
+
+            if (index >= 0) {
+                if (index == siblings.size() - 2) {
+                    parent.getAttributes().removeNamedItem(node.getNodeName());
+                    parent.getAttributes().setNamedItem(node);
+                } else if (index < siblings.size() - 2) {
+                    Tools.debugPrint("TODO");
+                }
+
+                return;
+            }
+        }
+
+        {
+            final List<Node> siblings = MarkupsTools.getNonattributeChildren(parent);
+            final int index = siblings.indexOf(node);
+
+            if (index < 0) {
+                Tools.debugPrint(siblings);
+                throw new IllegalStateException("Orphan node: " + node);
+            }
+
+            Tools.debugPrint(getNode(node, ".."));
+            if (index == siblings.size() - 2) {
+                Node result = parent.appendChild(node);
+                Tools.debugPrint(result == node);
+            } else {
+                parent.insertBefore(node, siblings.get(index + 2));
+            }
+            Tools.debugPrint(getNode(node, ".."));
+        }
+
+        context.set(SELECTED_NODE, node);
     }
 
     /**

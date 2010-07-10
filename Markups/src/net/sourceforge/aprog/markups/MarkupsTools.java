@@ -28,6 +28,8 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.io.ByteArrayOutputStream;
+import java.util.ArrayList;
+import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 import javax.swing.event.DocumentEvent;
@@ -41,6 +43,7 @@ import static net.sourceforge.aprog.tools.Tools.*;
 
 import net.sourceforge.aprog.tools.IllegalInstantiationException;
 import net.sourceforge.aprog.xml.XMLTools;
+import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.events.EventListener;
@@ -238,6 +241,64 @@ public final class MarkupsTools {
         }
 
         return -1;
+    }
+
+    /**
+     *
+     * @param node
+     * <br>Not null
+     * @return
+     * <br>Not null
+     * <br>New
+     */
+    public static final List<Node> getAttributeChildren(final Node node) {
+        final List<Node> result = new ArrayList<Node>();
+        final NamedNodeMap attributes = node.getAttributes();
+
+        if (attributes != null) {
+            for (int i = 0; i < attributes.getLength(); ++i) {
+                result.add(attributes.item(i));
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     *
+     * @param node
+     * <br>Not null
+     * @return
+     * <br>Not null
+     * <br>New
+     */
+    public static final List<Node> getNonattributeChildren(final Node node) {
+        final List<Node> result = new ArrayList<Node>();
+
+        if (node.getNodeType() != Node.ATTRIBUTE_NODE) {
+            for (final Node domChild : XMLTools.toList(node.getChildNodes())) {
+                result.add(domChild);
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     *
+     * @param node
+     * <br>Not null
+     * @return
+     * <br>Not null
+     * <br>New
+     */
+    public static final List<Node> getChildren(final Node node) {
+        final List<Node> result = new ArrayList<Node>();
+
+        result.addAll(getAttributeChildren(node));
+        result.addAll(getNonattributeChildren(node));
+
+        return result;
     }
 
 }
