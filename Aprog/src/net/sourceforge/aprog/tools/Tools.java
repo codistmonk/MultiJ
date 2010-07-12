@@ -54,6 +54,8 @@ public final class Tools {
         throw new IllegalInstantiationException();
     }
 
+    public static final int DEBUG_STACK_OFFSET = getDebugStackOffset();
+
     /**
      * Tries to create a temporary file and initialize it using {@code contents}.
      * {@code contents} is closed at the end of this method.
@@ -606,8 +608,8 @@ public final class Tools {
      * the string representations of the parameters separated by spaces.
      * <br>This is method helps to perform console debugging using System.out or System.err.
      *
-     * @param stackIndex 1 is the source of this method, 2 is the source of the call,
-     * 3 is the source of the call's caller, and so forth
+     * @param stackOffset {@link #DEBUG_STACK_OFFSET} is the source of the call,
+     * {@code DEBUG_STACK_OFFSET + 1} is the source of the call's caller, and so forth
      * <br>Range: {@code [O .. Integer.MAX_VALUE]}
      * @param objects
      * <br>Not null
@@ -616,9 +618,9 @@ public final class Tools {
      * <br>New
      * @throws IndexOutOfBoundsException if {@code stackIndex} is invalid
      */
-    public static final String debug(final int stackIndex, final Object... objects) {
+    public static final String debug(final int stackOffset, final Object... objects) {
         final StringBuilder builder = new StringBuilder(
-                Thread.currentThread().getStackTrace()[stackIndex].toString());
+                Thread.currentThread().getStackTrace()[stackOffset + 1].toString());
 
         for (final Object object : objects) {
             builder.append(" ").append(object);
@@ -635,7 +637,26 @@ public final class Tools {
      * <br>Not null
      */
     public static final void debugPrint(final Object... objects) {
-        System.out.println(debug(3, objects));
+        System.out.println(debug(DEBUG_STACK_OFFSET + 1, objects));
+    }
+
+    /**
+     *
+     * @return
+     * <br>Range: {@code [0 .. Integer.MAX_VALUE]}
+     */
+    public static final int getDebugStackOffset() {
+        int result = 0;
+
+        for (final StackTraceElement element : Thread.currentThread().getStackTrace()) {
+            if (element.getClassName().equals(getCallerClass().getName())) {
+                break;
+            }
+
+            ++ result;
+        }
+
+        return result;
     }
 
 }
