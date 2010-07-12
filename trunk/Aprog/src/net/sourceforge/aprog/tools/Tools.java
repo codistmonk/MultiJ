@@ -277,7 +277,10 @@ public final class Tools {
      * <br>New
      */
     public static final InputStream getResourceAsStream(final String resourcePath) {
-        return getCallerClass().getClassLoader().getResourceAsStream(resourcePath);
+        final Class<?> callerClass = getCallerClass();
+        final InputStream candidate = callerClass.getResourceAsStream(resourcePath);
+
+        return candidate != null ? candidate : getCallerClass().getClassLoader().getResourceAsStream(resourcePath);
     }
 
     /**
