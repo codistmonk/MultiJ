@@ -135,7 +135,7 @@ public final class SubtitlesAdjuster {
         public final void uncaughtException(final Thread thread, final Throwable throwable) {
             this.defaultUncaughtExceptionHandler.uncaughtException(thread, throwable);
 
-            SubtitlesAdjusterActions.showErrorMessage(context, throwable);
+            SubtitlesAdjusterActions.showErrorMessage(this.context, throwable);
         }
 
     }
