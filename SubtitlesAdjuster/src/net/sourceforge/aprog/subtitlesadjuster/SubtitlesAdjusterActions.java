@@ -84,6 +84,10 @@ public final class SubtitlesAdjusterActions {
      * <br>Not null
      */
     public static final void quit(final Context context) {
+        Tools.suppressWarningUnused(context);
+        
+        // TODO confirm
+        
         System.exit(0);
     }
 

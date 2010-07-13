@@ -27,7 +27,6 @@ package net.sourceforge.aprog.subtitlesadjuster;
 import static net.sourceforge.aprog.i18n.Messages.*;
 import static net.sourceforge.aprog.tools.Tools.*;
 
-import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.logging.Level;

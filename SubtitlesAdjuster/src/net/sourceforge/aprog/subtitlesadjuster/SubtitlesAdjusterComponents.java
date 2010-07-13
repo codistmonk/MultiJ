@@ -83,6 +83,7 @@ import net.sourceforge.aprog.events.Variable.ValueChangedEvent;
 import net.sourceforge.aprog.i18n.Translator;
 import net.sourceforge.aprog.swing.LanguageComboBox;
 import net.sourceforge.aprog.swing.SwingTools;
+import net.sourceforge.aprog.tools.Tools;
 import net.sourceforge.jmacadapter.MacAdapterTools;
 import net.sourceforge.jmacadapter.eawtwrappers.Application;
 
@@ -133,6 +134,8 @@ public final class SubtitlesAdjusterComponents {
      */
     public static final JPanel newPreferencesPanel(final Context context) {
 		checkAWT();
+		
+		Tools.suppressWarningUnused(context);
 
         final JPanel result = new JPanel();
         final GridBagConstraints constraints = new GridBagConstraints();
