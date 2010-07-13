@@ -98,6 +98,7 @@ public final class EventsTestingTools {
     /**
      *
      * @author codistmonk (creation 2010-06-18)
+     * @param <E> The events base type
      */
     private static class RecorderInvocationHandler<E> extends AbstractInvocationHandler implements EventRecorder<E> {
 

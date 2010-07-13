@@ -24,7 +24,6 @@
 
 package net.sourceforge.aprog.xml;
 
-import com.sun.org.apache.xerces.internal.dom.events.MutationEventImpl;
 import static net.sourceforge.aprog.events.EventsTestingTools.*;
 import static net.sourceforge.aprog.tools.Tools.*;
 import static net.sourceforge.aprog.xml.XMLTools.*;
@@ -36,15 +35,14 @@ import java.util.logging.Level;
 
 import javax.xml.transform.Result;
 import javax.xml.transform.stream.StreamResult;
+
 import net.sourceforge.aprog.events.EventsTestingTools.EventRecorder;
 
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-import org.w3c.dom.events.DocumentEvent;
 import org.w3c.dom.events.Event;
 import org.w3c.dom.events.EventListener;
-import org.w3c.dom.events.EventTarget;
 import org.w3c.dom.events.MutationEvent;
 
 /**

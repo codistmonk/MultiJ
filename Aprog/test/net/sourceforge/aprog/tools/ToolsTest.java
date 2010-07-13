@@ -24,13 +24,11 @@
 
 package net.sourceforge.aprog.tools;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import static org.junit.Assert.*;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.util.Set;
 import java.util.Vector;

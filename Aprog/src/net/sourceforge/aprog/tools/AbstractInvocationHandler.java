@@ -62,6 +62,8 @@ public abstract class AbstractInvocationHandler implements InvocationHandler {
      */
     protected final Object defaultInvoke(final Object proxy,
             final Method method, final Object[] arguments) throws Throwable {
+        Tools.suppressWarningUnused(proxy);
+        
         if (method.getDeclaringClass().isAssignableFrom(this.getClass())) {
             return method.invoke(this, arguments);
         }
