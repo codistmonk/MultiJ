@@ -42,6 +42,7 @@ import net.sourceforge.aprog.markups.MarkupsComponents.AbstractDocumentHandler;
 import static net.sourceforge.aprog.tools.Tools.*;
 
 import net.sourceforge.aprog.tools.IllegalInstantiationException;
+import net.sourceforge.aprog.tools.Tools;
 import net.sourceforge.aprog.xml.XMLTools;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -345,12 +346,13 @@ abstract class AbstractDOMListenerReattacher implements Variable.Listener<Node> 
     }
 
     /**
-     *
+     * The default implementation does nothing.
+     * 
      * @param event
      * <br>Not null
      */
     protected void afterReattachment(final ValueChangedEvent<Node, ?> event) {
-        // Default implementation, do nothing
+        Tools.suppressWarningUnused(event);
     }
 
 }
