@@ -55,6 +55,16 @@ public final class Tools {
     }
 
     public static final int DEBUG_STACK_OFFSET = getDebugStackOffset();
+    
+    /**
+     * Does nothing, but prevents the IDE from displaying "unused" warning.
+     * 
+     * @param object
+     * <br>Maybe null
+     */
+    public static final void suppressWarningUnused(final Object object) {
+        assert object == null || object != null;
+    }
 
     /**
      * Tries to create a temporary file and initialize it using {@code contents}.
