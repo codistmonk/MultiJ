@@ -187,9 +187,11 @@ public final class MarkupsTools {
 
         final String selector = getXPathSelector(node);
 
-//        debugPrint("../" + selector);
+        debugPrint("../" + selector);
+        debugPrint(node.getParentNode());
 
-        final StringBuilder pathSelector = new StringBuilder(getIdentifyingXPath(XMLTools.getNode(node, "..")));
+        final Node parent = node.getParentNode() != null ? node.getParentNode() : XMLTools.getNode(node, "..");
+        final StringBuilder pathSelector = new StringBuilder(getIdentifyingXPath(parent));
 
         if (!pathSelector.toString().endsWith("/")) {
             pathSelector.append("/");
@@ -200,7 +202,7 @@ public final class MarkupsTools {
             return pathSelector + selector;
         }
 
-        final NodeList siblings = XMLTools.getNodes(node, "../" + selector);
+        final NodeList siblings = XMLTools.getNodes(parent, selector);
 
         return pathSelector + selector + "[" + (indexOf(siblings, node) + 1) + "]";
     }
