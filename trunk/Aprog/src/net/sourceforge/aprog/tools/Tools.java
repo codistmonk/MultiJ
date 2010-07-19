@@ -475,9 +475,9 @@ public final class Tools {
     public static final Class<?> getCallerClass() {
         final StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
 
-        if (stackTrace.length > 3) {
+        if (stackTrace.length > DEBUG_STACK_OFFSET + 2) {
             try {
-                return Class.forName(stackTrace[3].getClassName());
+                return Class.forName(stackTrace[DEBUG_STACK_OFFSET + 2].getClassName());
             } catch (final ClassNotFoundException exception) {
                 // Do nothing
             }
@@ -655,11 +655,11 @@ public final class Tools {
      * @return
      * <br>Range: {@code [0 .. Integer.MAX_VALUE]}
      */
-    public static final int getDebugStackOffset() {
+    private static final int getDebugStackOffset() {
         int result = 0;
 
         for (final StackTraceElement element : Thread.currentThread().getStackTrace()) {
-            if (element.getClassName().equals(getCallerClass().getName())) {
+            if (element.getClassName().equals(Tools.class.getName())) {
                 break;
             }
 
