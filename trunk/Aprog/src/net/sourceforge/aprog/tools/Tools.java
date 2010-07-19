@@ -438,7 +438,7 @@ public final class Tools {
      * <br>Not null
      */
     public static final String getPackagePath(final Class<?> cls) {
-        return cls.getPackage().getName().replaceAll("\\.", "/") + "/";
+        return cls.getPackage().getName().replace(".", "/") + "/";
     }
 
     /**
