@@ -24,6 +24,8 @@
 
 package net.sourceforge.aprog.markups;
 
+import static net.sourceforge.aprog.tools.Tools.*;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -39,7 +41,6 @@ import net.sourceforge.aprog.events.Variable;
 import net.sourceforge.aprog.events.Variable.ValueChangedEvent;
 import net.sourceforge.aprog.i18n.Messages;
 import net.sourceforge.aprog.markups.MarkupsComponents.AbstractDocumentHandler;
-import static net.sourceforge.aprog.tools.Tools.*;
 
 import net.sourceforge.aprog.tools.IllegalInstantiationException;
 import net.sourceforge.aprog.tools.Tools;
@@ -185,6 +186,11 @@ public final class MarkupsTools {
             return "/";
         }
 
+        if (set(Node.DOCUMENT_FRAGMENT_NODE, Node.ENTITY_NODE, Node.ENTITY_REFERENCE_NODE,
+                Node.NOTATION_NODE, Node.CDATA_SECTION_NODE, Node.PROCESSING_INSTRUCTION_NODE).contains(node.getNodeType())) {
+            return "";
+        }
+
         final String selector = getXPathSelector(node);
 
         debugPrint("../" + selector);
@@ -197,8 +203,7 @@ public final class MarkupsTools {
             pathSelector.append("/");
         }
 
-        if (set(Node.ATTRIBUTE_NODE, Node.DOCUMENT_FRAGMENT_NODE,
-                Node.ENTITY_NODE, Node.NOTATION_NODE).contains(node.getNodeType())) {
+        if (set(Node.ATTRIBUTE_NODE).contains(node.getNodeType())) {
             return pathSelector + selector;
         }
 
@@ -320,7 +325,7 @@ abstract class AbstractDOMListenerReattacher implements Variable.Listener<Node> 
      * <br>Not null
      * <br>Shared
      */
-    public AbstractDOMListenerReattacher(final EventListener domListener) {
+    AbstractDOMListenerReattacher(final EventListener domListener) {
         this.domListener = domListener;
     }
 
