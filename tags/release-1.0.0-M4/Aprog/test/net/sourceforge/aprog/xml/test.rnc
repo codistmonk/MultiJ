@@ -1,0 +1,8 @@
+default namespace = ""
+
+start =
+  element a {
+    element b {
+      attribute c { xsd:NCName }
+    }
+  }
