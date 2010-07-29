@@ -191,7 +191,7 @@ public final class XMLToolsTest {
     }
 
     @Test
-    public final void testGetOrCreateNode() {
+    public final void testGetOrCreateNode1() {
         final Document document = newDocument();
 
         getOrCreateNode(document, "aa[]");
@@ -245,6 +245,17 @@ public final class XMLToolsTest {
                     "<b c=\"d\"><e f=\"\"/></b>" +
                     "<b/>" +
                 "</aa>"
+                , document);
+    }
+
+    @Test
+    public final void testGetOrCreateNode2() {
+        final Document document = newDocument();
+
+        getOrCreateNode(document, "a[@and='and' and @b='c']");
+
+        assertXMLEquals(
+                "<a and=\"and\" b=\"c\"/>"
                 , document);
     }
 
