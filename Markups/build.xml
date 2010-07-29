@@ -74,7 +74,7 @@
     <target name="single-jar" depends="clean,jar">
         <jar destfile="temporary.jar" filesetmanifest="skip">
             <zipgroupfileset dir="${dist.dir}" includes="*.jar"/>
-            <zipgroupfileset dir="${dist.dir}/lib" includes="*.jar"/>
+            <zipgroupfileset dir="lib" includes="*.jar"/>
 
             <manifest>
                 <attribute name="Main-Class" value="${main.class}"/>
@@ -86,7 +86,5 @@
         </zip>
 
         <delete file="temporary.jar"/>
-        <delete file="${dist.dir}/README.TXT"/>
-        <delete dir="${dist.dir}/lib"/>
     </target>
 </project>
