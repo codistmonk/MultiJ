@@ -33,7 +33,9 @@ import java.util.logging.Level;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
@@ -258,9 +260,45 @@ public final class MarkupsActions {
      * <br>Not null
      */
     public static final void appendNewNode(final Context context) {
-        Tools.debugPrint("TODO");
+        final Node node = context.get(SELECTED_NODE);
+        final Set<String> options = new LinkedHashSet<String>();
 
-        SubtitlesAdjusterActions.showTODOMessage(context);
+        switch (node.getNodeType()) {
+            case Node.DOCUMENT_NODE:
+                options.add("Element");
+                break;
+            case Node.ELEMENT_NODE:
+                options.add("Element");
+                options.add("Attribute");
+                options.add("Text");
+                options.add("Comment");
+                options.add("CDATA");
+                break;
+            default:
+                return;
+        }
+
+        final String nodeType = (String) JOptionPane.showInputDialog(
+                null,
+                "Node type",
+                "Add node",
+                JOptionPane.PLAIN_MESSAGE,
+                null,
+                options.toArray(),
+                "Element");
+
+
+        if ("Element".equals(nodeType)) {
+            getOrCreateNode(node, "new-element");
+        } else if ("Attribute".equals(nodeType)) {
+            getOrCreateNode(node, "@new-attribute");
+        } else if ("Text".equals(nodeType)) {
+            node.appendChild(getOwnerDocument(node).createTextNode(""));
+        } else if ("Comment".equals(nodeType)) {
+            node.appendChild(getOwnerDocument(node).createComment(""));
+        } else if ("CDATA".equals(nodeType)) {
+            node.appendChild(getOwnerDocument(node).createCDATASection(""));
+        }
     }
 
     /**
