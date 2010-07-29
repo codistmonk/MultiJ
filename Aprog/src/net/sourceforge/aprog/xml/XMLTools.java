@@ -39,6 +39,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.logging.Level;
 
 import javax.xml.XMLConstants;
@@ -725,6 +726,7 @@ public final class XMLTools {
 
                     if (result == null) {
                         final Map<String, String> attributes = getEqualityPredicates(pathElement);
+                        debugPrint(attributes);
                         final Integer nameEnd = pathElement.indexOf("[");
                         final String childName = nameEnd < 0 ? pathElement : pathElement.substring(0, nameEnd);
 
@@ -797,18 +799,60 @@ public final class XMLTools {
      */
     private static final Map<String, String> getEqualityPredicates(final String xPathElement) {
         final LinkedHashMap<String, String> result = new LinkedHashMap<String, String>();
+        final String trimmed = xPathElement.trim();
 
-        if (xPathElement.trim().endsWith("]")) {
-            final String[] keyValues = xPathElement
-                    .substring(xPathElement.indexOf("[") + 1, xPathElement.length() - 1)
-                    .split("=|and");
+        if (trimmed.endsWith("]")) {
+            final String constraints = trimmed.substring(trimmed.indexOf("[") + 1, trimmed.length() - 1).trim();
+            final StringBuilder buffer = new StringBuilder();
+            String attributeName = null;
+            int i = 0;
+            ScannerState state = ScannerState.ATTRIBUTE_NAME;
 
-            for (int i = 0; i < keyValues.length; i += 2) {
-                result.put(keyValues[i], getString(null, keyValues[i + 1]));
+            while (i < constraints.length()) {
+                final char c = constraints.charAt(i);
+
+                if (state == ScannerState.ATTRIBUTE_NAME && c == '=') {
+                    attributeName = buffer.toString().trim();
+
+                    buffer.setLength(0);
+
+                    state = ScannerState.ATTRIBUTE_VALUE;
+                } else if (state == ScannerState.ATTRIBUTE_VALUE && c == '\\') {
+                    buffer.append(c);
+                    buffer.append(constraints.charAt(++i));
+                } else {
+                    buffer.append(c);
+
+                    final String trimmedBuffer = buffer.toString().trim();
+
+                    if (state == ScannerState.ATTRIBUTE_VALUE && trimmedBuffer.length() > 1 && trimmedBuffer.charAt(0) == trimmedBuffer.charAt(trimmedBuffer.length() - 1)) {
+                        result.put(attributeName, getString(null, trimmedBuffer));
+
+                        buffer.setLength(0);
+
+                        state = ScannerState.AND;
+                    } else if (state == ScannerState.AND && "and".equalsIgnoreCase(trimmedBuffer)) {
+                        buffer.setLength(0);
+
+                        state = ScannerState.ATTRIBUTE_NAME;
+
+                    }
+                }
+
+                ++i;
             }
         }
 
         return result;
+    }
+
+    /**
+     * @author codistmonk (creation 2010-07-29)
+     */
+    private enum ScannerState {
+
+        ATTRIBUTE_NAME, ATTRIBUTE_VALUE, AND;
+
     }
 
 }
