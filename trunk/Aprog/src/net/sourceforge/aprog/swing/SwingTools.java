@@ -135,6 +135,8 @@ public final class SwingTools {
     }
 
     /**
+     * Returns the icon located at {@code getImageBase() + resourceName}.
+     * <br>Icons are cached using {@code resourceName} as a key.
      *
      * @param resourceName
      * <br>Not null
@@ -151,8 +153,7 @@ public final class SwingTools {
                 return cachedIcon;
             }
 
-            final ImageIcon icon = new ImageIcon(ImageIO.read(
-                    SwingTools.class.getClassLoader().getResourceAsStream(getImagesBase() + resourceName)));
+            final ImageIcon icon = new ImageIcon(ImageIO.read(getResourceAsStream(getImagesBase() + resourceName)));
 
             iconCache.put(resourceName, icon);
 
@@ -174,6 +175,8 @@ public final class SwingTools {
         try {
             return getIcon(resourceName);
         } catch (final Exception exception) {
+            suppressWarningUnused(exception);
+
             return null;
         }
     }
