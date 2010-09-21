@@ -39,7 +39,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Scanner;
 import java.util.logging.Level;
 
 import javax.xml.XMLConstants;
@@ -726,7 +725,6 @@ public final class XMLTools {
 
                     if (result == null) {
                         final Map<String, String> attributes = getEqualityPredicates(pathElement);
-                        debugPrint(attributes);
                         final Integer nameEnd = pathElement.indexOf("[");
                         final String childName = nameEnd < 0 ? pathElement : pathElement.substring(0, nameEnd);
 
