@@ -117,6 +117,16 @@ public final class ToolsTest {
     }
 
     @Test
+    public final void testGetResourceAsStream() {
+        assertNotNull(Tools.getResourceAsStream(Tools.getThisPackagePath() + "test.txt"));
+    }
+
+    @Test
+    public final void testGetResourceURL() {
+        assertNotNull(Tools.getResourceURL(Tools.getThisPackagePath() + "test.txt"));
+    }
+
+    @Test
     public final void testInvoke() {
         assertEquals(42, Tools.invoke(Integer.class, "parseInt", "42"));
         assertEquals(42, Tools.invoke(42L, "intValue"));
