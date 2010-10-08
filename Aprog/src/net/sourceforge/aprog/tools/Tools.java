@@ -25,6 +25,8 @@
 package net.sourceforge.aprog.tools;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,6 +34,7 @@ import java.io.OutputStream;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -64,6 +67,16 @@ public final class Tools {
      */
     public static final void suppressWarningUnused(final Object object) {
         assert object == null || object != null;
+    }
+
+    /**
+     * Does nothing, but prevents the IDE from displaying "unused" warning.
+     *
+     * @param throwable
+     * <br>Maybe null
+     */
+    public static final void ignore(final Throwable throwable) {
+        suppressWarningUnused(throwable);
     }
 
     /**
@@ -290,9 +303,48 @@ public final class Tools {
      */
     public static final InputStream getResourceAsStream(final String resourcePath) {
         final Class<?> callerClass = getCallerClass();
-        final InputStream candidate = callerClass.getResourceAsStream(resourcePath);
+        InputStream candidate = callerClass.getResourceAsStream(resourcePath);
 
-        return candidate != null ? candidate : getCallerClass().getClassLoader().getResourceAsStream(resourcePath);
+        if (candidate == null) {
+            candidate = getCallerClass().getClassLoader().getResourceAsStream(resourcePath);
+        }
+
+        if (candidate == null) {
+            try {
+                return new FileInputStream(resourcePath);
+            } catch (final FileNotFoundException exception) {
+                ignore(exception);
+            }
+        }
+
+        return candidate;
+    }
+
+    /**
+     *
+     * @param resourcePath
+     * <br>Not null
+     * @return
+     * <br>Maybe null
+     * <br>New
+     */
+    public static final URL getResourceURL(final String resourcePath) {
+        final Class<?> callerClass = getCallerClass();
+        URL candidate = callerClass.getResource(resourcePath);
+
+        if (candidate == null) {
+            candidate = getCallerClass().getClassLoader().getResource(resourcePath);
+        }
+
+        if (candidate == null) {
+            try {
+                return new File(resourcePath).toURI().toURL();
+            } catch (final MalformedURLException exception) {
+                ignore(exception);
+            }
+        }
+
+        return candidate;
     }
 
     /**
