@@ -116,7 +116,7 @@ public final class MacOSXTools {
 	}
 
 	/**
-	 * @param applicationName
+	 * @return
 	 * <br>Maybe null
 	 */
 	public static final String getApplicationName() {
