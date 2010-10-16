@@ -338,7 +338,9 @@ public final class Tools {
 
         if (candidate == null) {
             try {
-                return new File(resourcePath).toURI().toURL();
+                final File file = new File(resourcePath);
+
+                candidate = file.exists() ? file.toURI().toURL() : null;
             } catch (final MalformedURLException exception) {
                 ignore(exception);
             }
