@@ -124,6 +124,7 @@ public final class ToolsTest {
     @Test
     public final void testGetResourceURL() {
         assertNotNull(Tools.getResourceURL(Tools.getThisPackagePath() + "test.txt"));
+        assertEquals(null, Tools.getResourceURL("missing_resource"));
     }
 
     @Test
