@@ -222,7 +222,7 @@ public final class AFTools {
 
     /**
      * Creates a localized menu from the elements in {@code items}.
-     * <br>Uses {@link Messages#translate(java.lang.Object, java.lang.Object[])}
+     * <br>Uses {@link net.sourceforge.aprog.i18n.Messages#translate(java.lang.Object, java.lang.Object[])}
      * and {@link SwingTools#menu(java.lang.String, javax.swing.JMenuItem[])}.
      *
      * @param translationKey

@@ -83,8 +83,6 @@ public final class AFMainFrame extends JFrame {
      * @param context
      * <br>Not null
      * <br>Shared
-     * @param actionClass
-     * <br>Not null
      * @return
      * <br>Not null
      * <br>New
