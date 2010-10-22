@@ -169,7 +169,7 @@ public final class Tools {
     }
 
     /**
-     * Retrieves the aplication URL (it could be a folder, a compiled
+     * Retrieves the application URL (it could be a folder, a compiled
      * class file or a jar, depending on the packaging).
      *
      * @return
@@ -181,7 +181,7 @@ public final class Tools {
     }
 
     /**
-     * Retrieves the local file associated with the aplication URL (it could be a folder, a compiled
+     * Retrieves the local file associated with the application URL (it could be a folder, a compiled
      * class file or a jar, depending on the packaging).
      * 
      * @return
@@ -190,8 +190,7 @@ public final class Tools {
      */
     public static final File getApplicationFile() {
         try {
-            //        return new File(getApplicationURL().toString().replace("file:", ""));
-            return new File(getApplicationURL().toURI());
+            return new File(getCallerClass().getProtectionDomain().getCodeSource().getLocation().toURI());
         } catch (final URISyntaxException exception) {
             throw unchecked(exception);
         }

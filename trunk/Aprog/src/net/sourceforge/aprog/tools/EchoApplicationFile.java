@@ -25,7 +25,8 @@
 package net.sourceforge.aprog.tools;
 
 /**
- *
+ * Internal executable used to test {@link Tools#getApplicationFile()}.
+ * 
  * @author codistmonk (creation 2010-10-22)
  */
 final class EchoApplicationFile {
