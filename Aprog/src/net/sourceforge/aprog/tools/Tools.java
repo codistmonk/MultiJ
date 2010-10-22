@@ -35,6 +35,7 @@ import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -168,6 +169,18 @@ public final class Tools {
     }
 
     /**
+     * Retrieves the aplication URL (it could be a folder, a compiled
+     * class file or a jar, depending on the packaging).
+     *
+     * @return
+     * <br>Not null
+     * <br>New
+     */
+    public static final URL getApplicationURL() {
+        return getCallerClass().getProtectionDomain().getCodeSource().getLocation();
+    }
+
+    /**
      * Retrieves the local file associated with the aplication URL (it could be a folder, a compiled
      * class file or a jar, depending on the packaging).
      * 
@@ -176,9 +189,12 @@ public final class Tools {
      * <br>New
      */
     public static final File getApplicationFile() {
-        final URL applicationURL = getCallerClass().getProtectionDomain().getCodeSource().getLocation();
-
-        return new File(applicationURL.toString().replace("file:", ""));
+        try {
+            //        return new File(getApplicationURL().toString().replace("file:", ""));
+            return new File(getApplicationURL().toURI());
+        } catch (final URISyntaxException exception) {
+            throw unchecked(exception);
+        }
     }
 
     /**
