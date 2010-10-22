@@ -91,7 +91,7 @@ public final class Tools {
      * <br>Not null
      * <br>Input-output
      * @return a temporary file that is deleted when the program exits
-     * <br>Not null
+     * <br>Maybe null
      * <br>New
      * @throws RuntimeException if<ul>
      *  <li>the file cannot be created
