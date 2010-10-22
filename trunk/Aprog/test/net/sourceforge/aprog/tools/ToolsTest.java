@@ -24,12 +24,19 @@
 
 package net.sourceforge.aprog.tools;
 
+import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
 import static org.junit.Assert.*;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintStream;
 import java.lang.reflect.Method;
+import java.net.URL;
+import java.util.Scanner;
 import java.util.Set;
 import java.util.Vector;
 import java.util.concurrent.Callable;
@@ -42,6 +49,63 @@ import org.junit.Test;
  * @author codistmonk (creation 2010-06-11)
  */
 public final class ToolsTest {
+
+    @Test
+    public final void testGetApplicationFile() throws Exception {
+        assertTrue(Tools.getApplicationFile().exists());
+
+        final File tmpRoot = File.createTempFile("tmp dir", "");
+
+        assertTrue(tmpRoot.delete());
+        assertTrue(tmpRoot.mkdir());
+
+        Tools.debugPrint(tmpRoot);
+
+        copyToTmp(IllegalInstantiationException.class, tmpRoot);
+        copyToTmp(Tools.class, tmpRoot);
+        copyToTmp(EchoApplicationFile.class, tmpRoot);
+
+        final String[] command = Tools.array("java", "-cp", tmpRoot.toString(), EchoApplicationFile.class.getCanonicalName());
+
+        Tools.debugPrint((Object[]) command);
+
+        final Process process = Runtime.getRuntime().exec(command);
+
+        final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+
+        pipe(process.getInputStream(), new PrintStream(buffer));
+        pipe(process.getErrorStream(), System.err);
+
+        assertEquals(0, process.waitFor());
+
+        Tools.debugPrint(buffer);
+
+        assertEquals(tmpRoot.getCanonicalPath(), buffer.toString().trim());
+    }
+
+    /**
+     *
+     * @param process
+     * <br>Not null
+     */
+    public static final void pipe(final InputStream input, final PrintStream output) {
+        new Thread() {
+
+            @Override
+            public final void run() {
+                final Scanner errorScanner = new Scanner(input);
+
+                try {
+                    while (errorScanner.hasNext()) {
+                        output.println(errorScanner.nextLine());
+                    }
+                } catch (final Exception exception) {
+                    Tools.ignore(exception);
+                }
+            }
+
+        }.start();
+    }
 
     @Test
     public final void testCreateTemporaryFile() {
@@ -412,6 +476,33 @@ public final class ToolsTest {
      */
     private static final Class<?> getCallerClass() {
         return Tools.getCallerClass();
+    }
+
+    /**
+     *
+     * @param cls
+     * <br>Not null
+     * @param tmpRoot
+     * <br>Not null
+     * <br>Input-output
+     * @throws FileNotFoundException If an error occurs
+     */
+    private static final void copyToTmp(final Class<?> cls, final File tmpRoot) throws FileNotFoundException {
+        File file = tmpRoot;
+
+        for (final String pathElement : Tools.getThisPackagePath().split("/")) {
+            file = new File(file, pathElement);
+
+            assertTrue(file.isDirectory() || file.mkdir());
+        }
+
+        final String classFileName = cls.getSimpleName() + ".class";
+
+        file = new File(file, classFileName);
+
+        Tools.write(
+                new FileInputStream(Tools.getApplicationFile() + File.separator + Tools.getThisPackagePath() + classFileName),
+                new FileOutputStream(file));
     }
 
     /**
