@@ -24,18 +24,17 @@
 
 package net.sourceforge.aprog.tools;
 
-import java.io.ByteArrayOutputStream;
-import java.io.FileNotFoundException;
 import static org.junit.Assert.*;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.lang.reflect.Method;
-import java.net.URL;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.Vector;
