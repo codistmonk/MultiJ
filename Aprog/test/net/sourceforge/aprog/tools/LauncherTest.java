@@ -26,6 +26,12 @@ package net.sourceforge.aprog.tools;
 
 import static net.sourceforge.aprog.tools.Tools.*;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintStream;
+
 import static org.junit.Assert.*;
 
 import org.junit.Test;
@@ -33,11 +39,11 @@ import org.junit.Test;
 /**
  * Automated tests using JUnit 4 for {@link Launcher}.
  *
- * @author codistmonk (creation 2010-06-11)
+ * @author codistmonk (creation 2010-06-23)
  */
 public class LauncherTest {
 
-    @Test(timeout = 10000L)
+    @Test(timeout = TIMEOUT)
     public final void testLaunch() throws InterruptedException {
         assertEquals(0, Launcher.launch(EchoApplicationFile.class).waitFor());
     }
@@ -74,7 +80,7 @@ public class LauncherTest {
 
     @Test
     public final void testIsJar() {
-        debugPrint("TODO"); // TODO
+        assertTrue(Launcher.isJar(new File("aprog.jar")));
     }
 
     @Test
@@ -82,9 +88,19 @@ public class LauncherTest {
         debugPrint("TODO"); // TODO
     }
 
-    @Test
-    public final void testPipe() {
-        debugPrint("TODO"); // TODO
+    @Test(timeout = TIMEOUT)
+    public final void testPipe() throws IOException, InterruptedException {
+        final String string = "42\n";
+        final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+        final ByteArrayInputStream input = new ByteArrayInputStream(string.getBytes());
+        
+        final Thread pipe = Launcher.pipe(input, new PrintStream(buffer));
+        
+        input.close();
+        buffer.flush();
+        pipe.join();
+        
+        assertEquals(string, buffer.toString());
     }
 
     @Test
@@ -116,5 +132,10 @@ public class LauncherTest {
     public final void testNativeLibraryCollector() {
         debugPrint("TODO"); // TODO
     }
+
+    /**
+     * {@value}.
+     */
+    public static final long TIMEOUT = 10000L;
     
 }

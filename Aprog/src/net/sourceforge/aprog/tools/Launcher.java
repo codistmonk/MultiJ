@@ -103,7 +103,7 @@ public final class Launcher {
     }
 
     /**
-     * Creates a new {@link Thread} that scans {@code input} (with a {@link Scanner}) and writes each line to {@code output}.
+     * Creates and starts a new thread that scans {@code input} (with a {@link Scanner}) and writes each line to {@code output}.
      * 
      * @param input
      * <br>Not null
@@ -111,9 +111,11 @@ public final class Launcher {
      * @param output
      * <br>Not null
      * <br>Input-output
+     * @return 
+     * <br>Not null
      */
-    public static final void pipe(final InputStream input, final PrintStream output) {
-        new Thread() {
+    public static final Thread pipe(final InputStream input, final PrintStream output) {
+        final Thread result = new Thread() {
 
             @Override
             public final void run() {
@@ -128,7 +130,11 @@ public final class Launcher {
                 }
             }
 
-        }.start();
+        };
+        
+        result.start();
+        
+        return result;
     }
 
     /**
