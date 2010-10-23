@@ -26,6 +26,8 @@ package net.sourceforge.aprog.tools;
 
 import static org.junit.Assert.*;
 
+import static net.sourceforge.aprog.tools.Launcher.*;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -35,7 +37,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.lang.reflect.Method;
-import java.util.Scanner;
 import java.util.Set;
 import java.util.Vector;
 import java.util.concurrent.Callable;
@@ -97,34 +98,6 @@ public final class ToolsTest {
         assertEquals(tmpRoot.getCanonicalPath(), buffer.toString().trim());
         
         tmpRoot.delete();
-    }
-
-    /**
-     * 
-     * @param input
-     * <br>Not null
-     * <br>Input-output
-     * @param output
-     * <br>Not null
-     * <br>Input-output
-     */
-    public static final void pipe(final InputStream input, final PrintStream output) {
-        new Thread() {
-
-            @Override
-            public final void run() {
-                final Scanner errorScanner = new Scanner(input);
-
-                try {
-                    while (errorScanner.hasNext()) {
-                        output.println(errorScanner.nextLine());
-                    }
-                } catch (final Exception exception) {
-                    Tools.ignore(exception);
-                }
-            }
-
-        }.start();
     }
 
     @Test
