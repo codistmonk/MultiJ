@@ -167,6 +167,32 @@ public final class Tools {
                     .log(Level.WARNING, null, exception);
         }
     }
+    
+    /**
+     * 
+     * @param cls
+     * <br>Not null
+     * @return
+     * <br>Not null
+     */
+    public static final URL getClassRootURL(final Class<?> cls) {
+        return cls.getProtectionDomain().getCodeSource().getLocation();
+    }
+    
+    /**
+     * 
+     * @param cls
+     * <br>Not null
+     * @return
+     * <br>Not null
+     */
+    public static final File getClassRoot(final Class<?> cls) {
+        try {
+            return new File(getClassRootURL(cls).toURI());
+        } catch (final URISyntaxException exception) {
+            throw unchecked(exception);
+        }
+    }
 
     /**
      * Retrieves the application URL (it could be a folder, a compiled
@@ -177,7 +203,7 @@ public final class Tools {
      * <br>New
      */
     public static final URL getApplicationURL() {
-        return getCallerClass().getProtectionDomain().getCodeSource().getLocation();
+        return getClassRootURL(getCallerClass());
     }
 
     /**
@@ -189,11 +215,7 @@ public final class Tools {
      * <br>New
      */
     public static final File getApplicationFile() {
-        try {
-            return new File(getCallerClass().getProtectionDomain().getCodeSource().getLocation().toURI());
-        } catch (final URISyntaxException exception) {
-            throw unchecked(exception);
-        }
+        return getClassRoot(getCallerClass());
     }
 
     /**
