@@ -60,7 +60,14 @@ public final class SystemPropertiesTest {
     }
 
     @Test
-    public final void testJavaIOTemporaryDirectory() {
+    public final void testGetAvailableProcessorCount() {
+        final int processorCount = SystemProperties.getAvailableProcessorCount();
+        
+        assertTrue("Processor count " + processorCount, 0 <= SystemProperties.getAvailableProcessorCount());
+    }
+
+    @Test
+    public final void testGetJavaIOTemporaryDirectory() {
         assertNotNull(SystemProperties.getJavaIOTemporaryDirectory());
     }
 

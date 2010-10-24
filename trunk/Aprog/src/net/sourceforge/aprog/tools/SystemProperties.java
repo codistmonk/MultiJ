@@ -30,11 +30,13 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /**
+ * This class contains some of the keys used to retrieve information with {@link System#getProperty(String)}.
+ * It also contains some methods that retrieve some system information which are not available through {@link System#getProperty(String)}.
  * 
  * @author codistmonk (creation 2010-10-24)
  */
 public final class SystemProperties {
-    
+
     /**
      * @throws IllegalInstantiationException To prevent instantiation
      */
@@ -233,6 +235,16 @@ public final class SystemProperties {
      */
     public static final String USER_HOME = "user.home";
 
+    /**
+     * See {@link Runtime#availableProcessors()}.
+     *
+     * @return
+     * <br>Range: {@code [0 .. Integer.MAX_VALUE]}
+     */
+    public static final int getAvailableProcessorCount() {
+        return Runtime.getRuntime().availableProcessors();
+    }
+    
     /**
      * 
      * @return
