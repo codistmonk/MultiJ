@@ -494,7 +494,7 @@ public final class ToolsTest {
         file = new File(file, classFileName);
 
         Tools.write(
-                new FileInputStream(Tools.getApplicationFile() + File.separator + Tools.getThisPackagePath() + classFileName),
+                new FileInputStream(Tools.getClassRoot(cls) + File.separator + Tools.getThisPackagePath() + classFileName),
                 new FileOutputStream(file));
     }
 
