@@ -85,12 +85,23 @@ public class LauncherTest {
 
     @Test
     public final void testIsNativeLibrary() {
-        debugPrint("TODO"); // TODO
+        final String osName = SystemProperties.getOSName().toLowerCase();
+        
+        if (osName.startsWith("linux")) {
+            assertTrue(Launcher.isNativeLibrary(new File("library.so")));
+        } else if (osName.startsWith("mac os x")) {
+            assertTrue(Launcher.isNativeLibrary(new File("library.dylib")));
+            assertTrue(Launcher.isNativeLibrary(new File("library.jnilib")));
+        } else if (osName.startsWith("solaris")) {
+            assertTrue(Launcher.isNativeLibrary(new File("library.so")));
+        } else if (osName.startsWith("windows")) {
+            assertTrue(Launcher.isNativeLibrary(new File("library.dll")));
+        }
     }
 
     @Test(timeout = TIMEOUT)
     public final void testPipe() throws IOException, InterruptedException {
-        final String string = "42\n";
+        final String string = "42" + SystemProperties.getLineSeparator();
         final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         final ByteArrayInputStream input = new ByteArrayInputStream(string.getBytes());
         
@@ -134,7 +145,7 @@ public class LauncherTest {
     }
 
     /**
-     * {@value}.
+     * {@value} milliseconds.
      */
     public static final long TIMEOUT = 10000L;
     
