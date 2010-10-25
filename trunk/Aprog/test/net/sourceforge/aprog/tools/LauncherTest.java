@@ -31,6 +31,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.Locale;
 
 import static org.junit.Assert.*;
 
@@ -85,7 +86,7 @@ public class LauncherTest {
 
     @Test
     public final void testIsNativeLibrary() {
-        final String osName = SystemProperties.getOSName().toLowerCase();
+        final String osName = SystemProperties.getOSName().toLowerCase(Locale.ENGLISH);
         
         if (osName.startsWith("linux")) {
             assertTrue(Launcher.isNativeLibrary(new File("library.so")));
