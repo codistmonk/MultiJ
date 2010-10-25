@@ -34,6 +34,7 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.jar.JarEntry;
@@ -329,7 +330,7 @@ public final class Launcher {
      * <br>Range: any boolean
      */
     public static final boolean isJar(final File file) {
-        return file.getName().toLowerCase().endsWith(".jar");
+        return file.getName().toLowerCase(Locale.ENGLISH).endsWith(".jar");
     }
 
     /**
@@ -346,7 +347,7 @@ public final class Launcher {
      * <br>Range: any boolean
      */
     public static final boolean isNativeLibrary(final File file) {
-        final String osName = System.getProperty("os.name").toLowerCase();
+        final String osName = System.getProperty("os.name").toLowerCase(Locale.ENGLISH);
         final String fileName = file.getName().toLowerCase();
 
         if (osName.startsWith("linux")) {

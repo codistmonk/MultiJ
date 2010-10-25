@@ -38,6 +38,7 @@ import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.logging.Level;
 
@@ -521,7 +522,7 @@ public final class XMLTools {
      * a DTD or a schema (XSD or RNG)
      */
     public static final String getSchemaLanguage(final Source dtdOrSchema) {
-        final String dtdOrSchemaId = dtdOrSchema.getSystemId().toLowerCase();
+        final String dtdOrSchemaId = dtdOrSchema.getSystemId().toLowerCase(Locale.ENGLISH);
 
         if (dtdOrSchemaId.endsWith(".xsd")) {
             return XMLConstants.W3C_XML_SCHEMA_NS_URI;
