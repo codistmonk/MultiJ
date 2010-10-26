@@ -26,8 +26,6 @@ package net.sourceforge.aprog.tools;
 
 import static org.junit.Assert.*;
 
-import net.sourceforge.aprog.xml.XMLTools;
-
 import org.junit.Test;
 
 /**

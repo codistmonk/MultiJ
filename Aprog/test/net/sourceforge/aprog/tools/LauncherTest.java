@@ -31,6 +31,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.List;
 import java.util.Locale;
 
 import static org.junit.Assert.*;
@@ -86,17 +87,23 @@ public class LauncherTest {
 
     @Test
     public final void testIsNativeLibrary() {
-        final String osName = SystemProperties.getOSName().toLowerCase(Locale.ENGLISH);
-        
-        if (osName.startsWith("linux")) {
+        switch (OS.getCurrentOS()) {
+        case LINUX:
             assertTrue(Launcher.isNativeLibrary(new File("library.so")));
-        } else if (osName.startsWith("mac os x")) {
+            break;
+        case MAC_OS_X:
             assertTrue(Launcher.isNativeLibrary(new File("library.dylib")));
             assertTrue(Launcher.isNativeLibrary(new File("library.jnilib")));
-        } else if (osName.startsWith("solaris")) {
+            break;
+        case SOLARIS:
             assertTrue(Launcher.isNativeLibrary(new File("library.so")));
-        } else if (osName.startsWith("windows")) {
+            break;
+        case WINDOWS:
             assertTrue(Launcher.isNativeLibrary(new File("library.dll")));
+            break;
+        default:
+            debugPrint("TODO: " + SystemProperties.getOSName());
+            break;
         }
     }
 
@@ -137,17 +144,63 @@ public class LauncherTest {
 
     @Test
     public final void testJarCollector() {
-        debugPrint("TODO"); // TODO
+        assertEquals(1, new Launcher.JarCollector().collect(new File("test")).size());
     }
 
     @Test
     public final void testNativeLibraryCollector() {
-        debugPrint("TODO"); // TODO
+        final List<File> nativeLibraries = new Launcher.NativeLibraryCollector().collect(new File("test"));
+        
+        switch (OS.getCurrentOS()) {
+        case MAC_OS_X:
+            assertEquals(2, nativeLibraries.size());
+            break;
+        case LINUX:
+        case SOLARIS:
+        case WINDOWS:
+            assertEquals(1, nativeLibraries.size());
+            break;
+        default:
+            debugPrint("TODO: " + SystemProperties.getOSName());
+            break;
+        }
     }
 
     /**
      * {@value} milliseconds.
      */
     public static final long TIMEOUT = 10000L;
+
+    /**
+     * 
+     * @author codistmonk (creation 2010-10-26)
+     *
+     */
+    public static enum OS {
+
+        LINUX, MAC_OS_X, SOLARIS, WINDOWS;
+
+        /**
+         * 
+         * @return
+         * <br>Not null
+         */
+        public static final OS getCurrentOS() {
+            final String osName = SystemProperties.getOSName().toLowerCase(Locale.ENGLISH);
+
+            if (osName.startsWith("linux")) {
+                return LINUX;
+            } else if (osName.startsWith("mac os x")) {
+                return MAC_OS_X;
+            } else if (osName.startsWith("solaris")) {
+                return SOLARIS;
+            } else if (osName.startsWith("windows")) {
+                return WINDOWS;
+            }
+
+            return null;
+        }
+        
+    }
     
 }
