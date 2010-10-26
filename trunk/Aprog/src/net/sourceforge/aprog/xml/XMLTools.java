@@ -552,7 +552,7 @@ public final class XMLTools {
     }
 
     /**
-     * Calls {@link #getNodes(java.lang.Object, java.lang.String)}.
+     * Calls {@link #getNodeSet(java.lang.Object, java.lang.String)}.
      *
      * @param context
      * <br>Maybe null
@@ -562,8 +562,23 @@ public final class XMLTools {
      * <br>Maybe null
      * <br>Not New
      */
-    public static final NodeList getNodes(final Node context, final String xPath) {
-        return getNodes((Object) context, xPath);
+    public static final NodeList getNodeList(final Node context, final String xPath) {
+        return getNodeSet((Object) context, xPath);
+    }
+
+    /**
+     * Calls {@link #toList(NodeList)} with the value returned by {@link #getNodeList(Node, String)}.
+     *
+     * @param context
+     * <br>Maybe null
+     * @param xPath
+     * <br>Not null
+     * @return
+     * <br>Maybe null
+     * <br>Not New
+     */
+    public static final List<Node> getNodes(final Node context, final String xPath) {
+        return toList(getNodeList(context, xPath));
     }
 
     /**
@@ -598,7 +613,7 @@ public final class XMLTools {
      * <br>Not New
      */
     @SuppressWarnings("unchecked")
-    public static final <S> S getNodes(final Object context, final String xPath) {
+    public static final <S> S getNodeSet(final Object context, final String xPath) {
         return (S) get(context, xPath, XPathConstants.NODESET);
     }
 

@@ -53,6 +53,11 @@ import org.w3c.dom.events.MutationEvent;
 public final class XMLToolsTest {
 
     @Test
+    public final void testGetNodes() {
+        assertEquals(2, getNodes(parse("<a b='' c=''/>"), "a/@*").size());
+    }
+
+    @Test
     public final <R extends EventRecorder<Event> & EventListener> void testEvents() {
         final Document document = parse("<a><b c='d'/></a>");
         @SuppressWarnings("unchecked")
