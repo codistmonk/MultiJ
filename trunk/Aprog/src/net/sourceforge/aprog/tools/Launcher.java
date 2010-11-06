@@ -152,8 +152,8 @@ public final class Launcher {
     public static final Process startApplicationFromJar(final File applicationJar,
             final Class<?> mainClass, final String... commandLineArguments) {
         return execute(
-                createLibraryPath(applicationJar),
                 applicationJar.toString(),
+                createLibraryPath(applicationJar),
                 mainClass,
                 commandLineArguments);
     }
