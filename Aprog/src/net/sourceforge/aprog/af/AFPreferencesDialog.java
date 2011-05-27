@@ -113,7 +113,7 @@ public final class AFPreferencesDialog extends JDialog {
     public static final JPanel newPreferencesPanel(final Context context) {
 		checkAWT();
 
-		Tools.suppressWarningUnused(context);
+		Tools.ignore(context);
 
         final JPanel result = new JPanel();
         final GridBagConstraints constraints = new GridBagConstraints();

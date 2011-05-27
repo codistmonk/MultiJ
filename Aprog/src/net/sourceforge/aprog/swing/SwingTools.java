@@ -175,7 +175,7 @@ public final class SwingTools {
         try {
             return getIcon(resourceName);
         } catch (final Exception exception) {
-            suppressWarningUnused(exception);
+            ignore(exception);
 
             return null;
         }

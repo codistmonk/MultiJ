@@ -30,7 +30,6 @@ import static net.sourceforge.aprog.swing.SwingTools.*;
 
 import java.awt.Component;
 import java.awt.event.WindowListener;
-import java.io.IOException;
 import java.util.logging.Level;
 
 import javax.imageio.ImageIO;
@@ -61,7 +60,7 @@ public final class AFMainFrame extends JFrame {
 
         try {
             this.setIconImage(ImageIO.read(Tools.getResourceAsStream(context.get(APPLICATION_ICON_PATH).toString())));
-        } catch (final IOException exception) {
+        } catch (final Exception exception) {
             Tools.getLoggerForThisMethod().log(Level.WARNING, null, exception);
         }
     }
@@ -96,12 +95,18 @@ public final class AFMainFrame extends JFrame {
 
         result.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 
+        if (context.get(ACTIONS_QUIT) == null) {
+            new QuitAction(context);
+        }
+        
         result.addWindowListener(newListener(WindowListener.class, "windowClosing",
                 AFTools.class, "perform", context, ACTIONS_QUIT));
-        
-        result.setJMenuBar((JMenuBar) context.get(MAIN_MENU_BAR));
 
-        result.add((Component) context.get(MAIN_PANEL));
+        result.setJMenuBar((JMenuBar) context.get(MAIN_MENU_BAR));
+        
+        if (context.get(MAIN_PANEL) != null) {
+            result.add((Component) context.get(MAIN_PANEL));
+        }
 
         return packAndCenter(result);
     }
