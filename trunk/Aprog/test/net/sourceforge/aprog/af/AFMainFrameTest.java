@@ -22,53 +22,42 @@
  *  THE SOFTWARE.
  */
 
-package net.sourceforge.aprog.tools;
+package net.sourceforge.aprog.af;
 
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
+import static net.sourceforge.aprog.swing.SwingTools.canInvokeThisMethodInAWT;
+import static org.junit.Assert.*;
+
+import net.sourceforge.aprog.context.Context;
+
+import org.junit.Test;
 
 /**
  *
- * @author codistmonk (creation 2010-07-03)
+ * @author codistmonk (creation 2010-10-16)
  */
-public abstract class AbstractInvocationHandler implements InvocationHandler {
+public final class AFMainFrameTest {
 
-    @Override
-    public final boolean equals(final Object object) {
-        return this == object ||
-                object != null &&
-                Proxy.isProxyClass(object.getClass()) &&
-                this == Proxy.getInvocationHandler(object);
-    }
-
-    @Override
-    public final int hashCode() {
-        return super.hashCode();
+    @Test
+    public final void testNewMainFrame() {
+        final Context context = AFTools.newContext();
+        
+        assertNull(context.get(AFConstants.Variables.ACTIONS_QUIT));
+        
+        newMainFrame(context);
+        
+        assertNotNull(context.get(AFConstants.Variables.ACTIONS_QUIT));
     }
 
     /**
-     * Invokes {@code method} if it belongs to this class, otherwise returns {@code null}.
-     *
-     * @param proxy
-     * <br>Unused
-     * @param method
+     * @param context
      * <br>Not null
-     * @param arguments
-     * <br>Not null
+     * <br>Input-output
      * @return
-     * <br>Maybe null
-     * @throws Throwable If an error occurs
+     * <br>Not null
+     * <br>New
      */
-    protected final Object defaultInvoke(final Object proxy,
-            final Method method, final Object[] arguments) throws Throwable {
-        Tools.ignore(proxy);
-        
-        if (method.getDeclaringClass().isAssignableFrom(this.getClass())) {
-            return method.invoke(this, arguments);
-        }
-
-        return null;
+    public static final AFMainFrame newMainFrame(final Context context) {
+        return canInvokeThisMethodInAWT(null, context) ? AFMainFrame.newMainFrame(context) : null;
     }
 
 }

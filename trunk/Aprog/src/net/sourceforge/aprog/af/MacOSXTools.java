@@ -163,8 +163,8 @@ public final class MacOSXTools {
     private static final Class<?> getApplicationClass() {
         try {
             return Class.forName("com.apple.eawt.Application");
-        } catch (final ClassNotFoundException ignoredException) {
-            suppressWarningUnused(ignoredException);
+        } catch (final ClassNotFoundException exception) {
+            ignore(exception);
 
             return null;
         }

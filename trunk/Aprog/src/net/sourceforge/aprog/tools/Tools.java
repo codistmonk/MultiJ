@@ -59,25 +59,15 @@ public final class Tools {
     }
 
     public static final int DEBUG_STACK_OFFSET = getDebugStackOffset();
-    
-    /**
-     * Does nothing, but prevents the IDE from displaying "unused" warning.
-     * 
-     * @param object
-     * <br>Maybe null
-     */
-    public static final void suppressWarningUnused(final Object object) {
-        assert object == null || object != null;
-    }
 
     /**
      * Does nothing, but prevents the IDE from displaying "unused" warning.
      *
-     * @param throwable
+     * @param object
      * <br>Maybe null
      */
-    public static final void ignore(final Throwable throwable) {
-        suppressWarningUnused(throwable);
+    public static final void ignore(final Object object) {
+        assert object == null || object != null;
     }
 
     /**
