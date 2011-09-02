@@ -231,14 +231,12 @@ public final class SwingToolsTest {
     public static final long TEST_TIMEOUT = 2000L;
 
     /**
-     * XXX this method should be private, but Tools.invoke() doesn't seem to work as expected.
-     *
      * @param semaphore
      * <br>Not null
      * <br>Input-output
      * <br>Shared
      */
-    public static final void releaseInAWT(final Semaphore semaphore) {
+    private static final void releaseInAWT(final Semaphore semaphore) {
         if (SwingTools.canInvokeLaterThisMethodInAWT(null, semaphore)) {
             SwingTools.checkAWT();
 
