@@ -37,8 +37,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.Set;
-import java.util.Vector;
+import java.util.StringTokenizer;
 import java.util.concurrent.Callable;
 
 import org.junit.Test;
@@ -140,12 +141,7 @@ public final class ToolsTest {
 
     @Test
     public final void testListAndIterable() {
-        final Vector<Object> vector = new Vector<Object>();
-
-        vector.add(42);
-        vector.add(33);
-
-        assertEquals(vector, Tools.list(Tools.iterable(vector.elements())));
+        assertEquals(Arrays.asList("42", "33"), Tools.list(Tools.iterable(new StringTokenizer("42 33"))));
     }
 
     @Test
@@ -188,6 +184,13 @@ public final class ToolsTest {
     public final void testInvoke() {
         assertEquals(42, Tools.invoke(Integer.class, "parseInt", "42"));
         assertEquals(42, Tools.invoke(42L, "intValue"));
+
+        {
+            final ObjectWithArbitraryProperties objectWithArbitraryProperties = new ObjectWithArbitraryProperties();
+
+            assertEquals(null, Tools.invoke(objectWithArbitraryProperties, "setPrivateStringProperty", "42"));
+            assertEquals("42", Tools.invoke(objectWithArbitraryProperties, "getPrivateStringProperty"));
+        }
     }
 
     @Test
@@ -223,6 +226,12 @@ public final class ToolsTest {
 
             assertNotNull(getter);
             assertEquals("getPackagePrivateStringProperty", getter.getName());
+        }
+        {
+            final Method getter = Tools.getGetter(objectWithArbitraryProperties, "privateStringProperty");
+
+            assertNotNull(getter);
+            assertEquals("getPrivateStringProperty", getter.getName());
         }
     }
 
@@ -273,6 +282,12 @@ public final class ToolsTest {
             assertNotNull(setter);
             assertEquals("setPackagePrivateStringProperty", setter.getName());
         }
+        {
+            final Method setter = Tools.getSetter(objectWithArbitraryProperties, "privateStringProperty", String.class);
+
+            assertNotNull(setter);
+            assertEquals("setPrivateStringProperty", setter.getName());
+        }
     }
 
     @Test
@@ -286,7 +301,7 @@ public final class ToolsTest {
 
                 fail("getSetter() should have failed but instead returned " + setter);
             } catch (final RuntimeException expectedException) {
-                // Do nothing
+                Tools.ignore(expectedException);
             }
 
         }
@@ -297,7 +312,7 @@ public final class ToolsTest {
 
                 fail("getSetter() should have failed but instead returned " + setter);
             } catch (final RuntimeException expectedException) {
-                // Do nothing
+                Tools.ignore(expectedException);
             }
         }
         {
@@ -307,7 +322,7 @@ public final class ToolsTest {
 
                 fail("getSetter() should have failed but instead returned " + setter);
             } catch (final RuntimeException expectedException) {
-                // Do nothing
+                Tools.ignore(expectedException);
             }
         }
     }
@@ -498,98 +513,122 @@ public final class ToolsTest {
                 new FileOutputStream(file));
     }
 
+}
+
+/**
+ * @author codistmonk (creation 2010-05-19)
+ */
+class ObjectWithArbitraryProperties {
+
+    private int intProperty;
+
+    private boolean booleanProperty1;
+
+    private boolean booleanProperty2;
+
+    private boolean booleanProperty3;
+
+    private String packagePrivateStringProperty;
+
+    private String privateStringProperty;
+
+    {
+        // The following instruction removes "unused" warnings
+        this.setPrivateStringProperty(this.getPrivateStringProperty());
+    }
+
     /**
-     * This class is package-private to suppress visibility and usage warnings.
      *
-     * @author codistmonk (creation 2010-05-19)
-     *
+     * @return
+     * <br>Range: Any integer
      */
-    static class ObjectWithArbitraryProperties {
+    public final int getIntProperty() {
+        return this.intProperty;
+    }
 
-        private int intProperty;
+    /**
+     *
+     * @param intProperty an arbitrary integer
+     * <br>Range: Any integer
+     */
+    public final void setIntProperty(final int intProperty) {
+        this.intProperty = intProperty;
+    }
 
-        private boolean booleanProperty1;
+    public final boolean isBooleanProperty1() {
+        return this.booleanProperty1;
+    }
 
-        private boolean booleanProperty2;
+    /**
+     *
+     * @param booleanProperty1 an arbitrary boolean
+     */
+    public final void setBooleanProperty1(final boolean booleanProperty1) {
+        this.booleanProperty1 = booleanProperty1;
+    }
 
-        private boolean booleanProperty3;
+    public final boolean hasBooleanProperty2() {
+        return this.booleanProperty2;
+    }
 
-        private String packagePrivateStringProperty;
+    /**
+     *
+     * @param booleanProperty2 an arbitrary boolean
+     */
+    public final void setBooleanProperty2(final boolean booleanProperty2) {
+        this.booleanProperty2 = booleanProperty2;
+    }
 
-        /**
-         *
-         * @return
-         * <br>Range: Any integer
-         */
-        public final int getIntProperty() {
-            return this.intProperty;
-        }
+    public final boolean getBooleanProperty3() {
+        return this.booleanProperty3;
+    }
 
-        /**
-         *
-         * @param intProperty an arbitrary integer
-         * <br>Range: Any integer
-         */
-        public final void setIntProperty(final int intProperty) {
-            this.intProperty = intProperty;
-        }
+    /**
+     *
+     * @param booleanProperty3 an arbitrary boolean
+     */
+    public final void setBooleanProperty3(final boolean booleanProperty3) {
+        this.booleanProperty3 = booleanProperty3;
+    }
 
-        public final boolean isBooleanProperty1() {
-            return this.booleanProperty1;
-        }
+    /**
+     *
+     * @return
+     * <br>A possibly null value
+     * <br>A shared value
+     */
+    final String getPackagePrivateStringProperty() {
+        return this.packagePrivateStringProperty;
+    }
 
-        /**
-         *
-         * @param booleanProperty1 an arbitrary boolean
-         */
-        public final void setBooleanProperty1(final boolean booleanProperty1) {
-            this.booleanProperty1 = booleanProperty1;
-        }
+    /**
+     *
+     * @param packagePrivateStringProperty
+     * <br>Can be null
+     * <br>Shared parameter
+     */
+    final void setPackagePrivateStringProperty(final String packagePrivateStringProperty) {
+        this.packagePrivateStringProperty = packagePrivateStringProperty;
+    }
 
-        public final boolean hasBooleanProperty2() {
-            return this.booleanProperty2;
-        }
+    /**
+     *
+     * @return
+     * <br>A possibly null value
+     * <br>A shared value
+     */
+    private final String getPrivateStringProperty() {
+        return this.privateStringProperty;
+    }
 
-        /**
-         *
-         * @param booleanProperty2 an arbitrary boolean
-         */
-        public final void setBooleanProperty2(final boolean booleanProperty2) {
-            this.booleanProperty2 = booleanProperty2;
-        }
-
-        public final boolean getBooleanProperty3() {
-            return this.booleanProperty3;
-        }
-
-        /**
-         *
-         * @param booleanProperty3 an arbitrary boolean
-         */
-        public final void setBooleanProperty3(final boolean booleanProperty3) {
-            this.booleanProperty3 = booleanProperty3;
-        }
-
-        /**
-         *
-         * @return
-         * <br>A possibly null value
-         * <br>A shared value
-         */
-        final String getPackagePrivateStringProperty() {
-            return this.packagePrivateStringProperty;
-        }
-
-        /**
-         *
-         * @param packagePrivateStringProperty
-         * <br>Can be null
-         * <br>Shared parameter
-         */
-        final void setPackagePrivateStringProperty(final String packagePrivateStringProperty) {
-            this.packagePrivateStringProperty = packagePrivateStringProperty;
-        }
-
+    /**
+     *
+     * @param privateStringProperty
+     * <br>Can be null
+     * <br>Shared parameter
+     */
+    private final void setPrivateStringProperty(final String privateStringProperty) {
+        this.privateStringProperty = privateStringProperty;
     }
 
 }

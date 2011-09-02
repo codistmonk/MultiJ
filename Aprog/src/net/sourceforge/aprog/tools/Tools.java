@@ -60,6 +60,8 @@ public final class Tools {
 
     public static final int DEBUG_STACK_OFFSET = getDebugStackOffset();
 
+    public static final String LINE_SEPARATOR = System.getProperty("line.separator");
+
     /**
      * Does nothing, but prevents the IDE from displaying "unused" warning.
      *
@@ -67,7 +69,22 @@ public final class Tools {
      * <br>Maybe null
      */
     public static final void ignore(final Object object) {
-        assert object == null || object != null;
+        if (false) {
+            ignore(object);
+        }
+    }
+
+    /**
+     * This method can be used to determine if a particular compiler performs tail-recursion elimination.
+     * <br>If this particular derecursifiation isn't performed, calling this method will result in an {@link StackOverflowError}.
+     * <br>Otherwise, the program won't terminate.
+     *
+     * @throws StackOverflowError If tail-recursion elimination isn't performed by the compiler
+     */
+    public static final void tailRecursiveInfiniteLoop() {
+        if (Tools.class != null) {
+            tailRecursiveInfiniteLoop();
+        }
     }
 
     /**
@@ -396,14 +413,16 @@ public final class Tools {
         final Object object = objectOrClass instanceof Class<?> ? null : objectOrClass;
         final Class<?> objectClass = (Class<?>) (objectOrClass instanceof Class<?> ? objectOrClass : objectOrClass.getClass());
 
-        for (final Method method : Tools.append(objectClass.getMethods(), objectClass.getDeclaredMethods())) {
+        for (final Method method : append(objectClass.getMethods(), objectClass.getDeclaredMethods())) {
             if (method.getName().equals(methodName)) {
                 try {
+                    method.setAccessible(true);
+
                     return (T) method.invoke(object, arguments);
                 } catch (final InvocationTargetException exception) {
                     throwUnchecked(exception.getCause());
                 } catch (final Exception exception) {
-                    // Ignore
+                    ignore(exception);
                 }
             }
         }
@@ -658,7 +677,7 @@ public final class Tools {
     }
 
     /**
-     *
+     * Warning: calling this method is much slower than using its equivalent <code>cast(this.getClass(), object)</code>.
      * @param <T> the caller type
      * @param object
      * <br>Maybe null
