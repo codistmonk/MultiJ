@@ -47,11 +47,13 @@ import java.util.logging.Level;
 
 import javax.imageio.ImageIO;
 import javax.swing.AbstractButton;
+import javax.swing.Box;
 import javax.swing.ImageIcon;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
@@ -560,6 +562,78 @@ public final class SwingTools {
             }
 
         };
+    }
+
+    /**
+     * @param components
+     * <br>Not null
+     * @return
+     * <br>Not null
+     * <br>New
+     */
+    public static final Box horizontalBox(final Component... components) {
+        checkAWT();
+
+        final Box result = Box.createHorizontalBox();
+
+        for (final Component component : components) {
+            result.add(component);
+        }
+
+        return result;
+    }
+
+    /**
+     * @param components
+     * <br>Not null
+     * @return
+     * <br>Not null
+     * <br>New
+     */
+    public static final Box verticalBox(final Component... components) {
+        checkAWT();
+
+        final Box result = Box.createVerticalBox();
+
+        for (final Component component : components) {
+            result.add(component);
+        }
+
+        return result;
+    }
+
+    /**
+     * @param leftComponent
+     * <br>Maybe null
+     * <br>Will become reference
+     * @param rightComponent
+     * <br>Maybe null
+     * <br>Will become reference
+     * @return
+     * <br>Not null
+     * <br>New
+     */
+    public static final JSplitPane horizontalSplit(final Component leftComponent, final Component rightComponent) {
+        checkAWT();
+
+        return new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftComponent, rightComponent);
+    }
+
+    /**
+     * @param leftComponent
+     * <br>Maybe null
+     * <br>Will become reference
+     * @param rightComponent
+     * <br>Maybe null
+     * <br>Will become reference
+     * @return
+     * <br>Not null
+     * <br>New
+     */
+    public static final JSplitPane verticalSplit(final Component leftComponent, final Component rightComponent) {
+        checkAWT();
+
+        return new JSplitPane(JSplitPane.VERTICAL_SPLIT, leftComponent, rightComponent);
     }
 
 }
