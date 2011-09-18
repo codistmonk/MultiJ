@@ -35,6 +35,7 @@ import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.concurrent.Semaphore;
+import javax.swing.Box;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -43,6 +44,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
 import javax.swing.SwingUtilities;
 
 import org.junit.Test;
@@ -144,6 +146,58 @@ public final class SwingToolsTest {
             assertEquals("item1", menu.getItem(0).getText());
             assertNull(menu.getItem(1));
             assertEquals("item2", menu.getItem(2).getText());
+        }
+    }
+
+    @Test
+    public final void testHorizontalBox() {
+        if (SwingTools.canInvokeThisMethodInAWT(this)) {
+            final JLabel component1 = new JLabel("1");
+            final JLabel component2 = new JLabel("2");
+            final Box box = SwingTools.horizontalBox(component1, component2);
+
+            assertNotNull(box);
+            assertArrayEquals(array(component1, component2), box.getComponents());
+        }
+    }
+
+    @Test
+    public final void testVerticalBox() {
+        if (SwingTools.canInvokeThisMethodInAWT(this)) {
+            final JLabel component1 = new JLabel("1");
+            final JLabel component2 = new JLabel("2");
+            final Box box = SwingTools.verticalBox(component1, component2);
+
+            assertNotNull(box);
+            assertArrayEquals(array(component1, component2), box.getComponents());
+        }
+    }
+
+    @Test
+    public final void testHorizontalSplit() {
+        if (SwingTools.canInvokeThisMethodInAWT(this)) {
+            final JLabel component1 = new JLabel("1");
+            final JLabel component2 = new JLabel("2");
+            final JSplitPane splitPane = SwingTools.horizontalSplit(component1, component2);
+
+            assertNotNull(splitPane);
+            assertEquals(JSplitPane.HORIZONTAL_SPLIT, splitPane.getOrientation());
+            assertEquals(splitPane, component1.getParent());
+            assertEquals(splitPane, component2.getParent());
+        }
+    }
+
+    @Test
+    public final void testVerticalSplit() {
+        if (SwingTools.canInvokeThisMethodInAWT(this)) {
+            final JLabel component1 = new JLabel("1");
+            final JLabel component2 = new JLabel("2");
+            final JSplitPane splitPane = SwingTools.verticalSplit(component1, component2);
+
+            assertNotNull(splitPane);
+            assertEquals(JSplitPane.VERTICAL_SPLIT, splitPane.getOrientation());
+            assertEquals(splitPane, component1.getParent());
+            assertEquals(splitPane, component2.getParent());
         }
     }
 
