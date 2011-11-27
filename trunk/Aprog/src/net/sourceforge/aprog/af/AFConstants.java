@@ -25,6 +25,7 @@
 package net.sourceforge.aprog.af;
 
 import net.sourceforge.aprog.tools.IllegalInstantiationException;
+import net.sourceforge.aprog.tools.Tools;
 
 /**
  *
@@ -57,7 +58,7 @@ public final class AFConstants {
     /**
      * {@value}.
      */
-    public static final String APPLICATION_ICON_PATH = null;
+    public static final String APPLICATION_ICON_PATH = Tools.getThisPackagePath() + "af_default_icon.png";
 
     /**
      * This class defines constants used to identify the application context variables.
