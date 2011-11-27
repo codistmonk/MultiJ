@@ -69,7 +69,9 @@ public final class Tools {
      * <br>Maybe null
      */
     public static final void ignore(final Object object) {
-        if (false) {
+        final boolean FALSE = false;
+        
+        if (FALSE) {
             ignore(object);
         }
     }
