@@ -24,6 +24,8 @@
 
 package net.sourceforge.aprog.tools;
 
+import static java.lang.Math.min;
+
 /**
  * @author codistmonk (creation 2011-06-11)
  */
@@ -118,15 +120,21 @@ public final class MathTools {
      * @param n
      * <br>Range: <code>[0L .. Long.MAX_VALUE]</code>
      * @param k
-     * <br>Range: <code>[0L .. k]</code>
+     * <br>Range: <code>[0L .. n]</code>
      * @return <code>n!/(k!(n-k)!)</code>
      * <br>Range: <code>[0L .. Long.MAX_VALUE]</code>
      */
     public static final long nCk(final long n, final long k) {
-        long numerator = n - k + 1L;
+        final long m = min(k, n - k);
+        
+        if (m == 0) {
+            return 1L;
+        }
+        
+        long numerator = n - m + 1L;
         long result = numerator;
         
-        for (long i = 2L; i <= k; ++i) {
+        for (long i = 2L; i <= m; ++i) {
             result = result * (++numerator) / i;
         }
         
