@@ -64,7 +64,10 @@ public final class MathToolsTest {
 
     @Test
     public final void testNCk() {
+        assertEquals(1L, MathTools.nCk(0L, 0L));
+        assertEquals(1L, MathTools.nCk(4L, 0L));
         assertEquals(6L, MathTools.nCk(4L, 2L));
+        assertEquals(1L, MathTools.nCk(4L, 4L));
     }
 
 }
