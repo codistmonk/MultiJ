@@ -24,27 +24,24 @@
 
 package net.sourceforge.aprog.tools;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * @author codistmonk (creation 2011-06-11)
  */
 public final class MathTools {
-
+    
     /**
      * @throws IllegalInstantiationException To prevent instantiation
      */
     private MathTools() {
         throw new IllegalInstantiationException();
     }
-
+    
     // TODO Add tests
-
+    
     private static final long[] FIRST_FACTORIALS = {
         1L, 1L, 2L, 6L, 24L, 120L, 720L, 5040L, 40320L, 362880L, 3628800L
     };
-
+    
     /**
      * @param a
      * <br>Range: any long
@@ -56,7 +53,7 @@ public final class MathTools {
     public static final long gcd(final long a, final long b) {
         return b == 0 ? a : gcd(b, a % b);
     }
-
+    
     /**
      * @param a
      * <br>Range: any long
@@ -68,7 +65,7 @@ public final class MathTools {
     public static final long lcm(final long a, final long b) {
         return a * b / gcd(a, b);
     }
-
+    
     /**
      * @param n
      * <br>Range: any long
@@ -78,7 +75,7 @@ public final class MathTools {
     public static final long factorial(final long n) {
         return n < FIRST_FACTORIALS.length ? FIRST_FACTORIALS[(int) n] : nPk(n, n);
     }
-
+    
     /**
      * @param n
      * <br>Range: any long
@@ -100,7 +97,7 @@ public final class MathTools {
 
         return result;
     }
-
+    
     /**
      * "gamma nk" or "n multichoose k".
      *
@@ -114,48 +111,26 @@ public final class MathTools {
     public static final long multichoose(final long n, final long k) {
         return nCk(n + k - 1, k);
     }
-
+    
     /**
      * "n choose k".
-     *
+     * 
      * @param n
-     * <br>Range: any long
+     * <br>Range: <code>[0L .. Long.MAX_VALUE]</code>
      * @param k
-     * <br>Range: any long
+     * <br>Range: <code>[0L .. k]</code>
      * @return <code>n!/(k!(n-k)!)</code>
-     * <br>Range: <code>[0 .. Long.MAX_VALUE]</code>
+     * <br>Range: <code>[0L .. Long.MAX_VALUE]</code>
      */
     public static final long nCk(final long n, final long k) {
-        List<Long> values = new ArrayList<Long>((int) n + 1);
-        List<Long> newValues = new ArrayList<Long>((int) n + 1);
-
-        values.add(1L);
-
-        for (long i = 1; i <= n; ++i) {
-            newValues.clear();
-
-            for (long j = 0; j <= i; ++j) {
-                newValues.add(get(values, j - 1) + get(values, j));
-            }
-
-            final List<Long> tmp = values;
-            values = newValues;
-            newValues = tmp;
+        long numerator = n - k + 1L;
+        long result = numerator;
+        
+        for (long i = 2L; i <= k; ++i) {
+            result = result * (++numerator) / i;
         }
-
-        return get(values, k);
+        
+        return result;
     }
-
-    /**
-     * @param values
-     * <br>Not null
-     * @param index
-     * <br>Range: any long
-     * @return
-     * <br>Range: any long
-     */
-    private static final long get(final List<Long> values, final long index) {
-        return index < 0 || values.size() <= index ? 0 : values.get((int) index);
-    }
-
+    
 }
