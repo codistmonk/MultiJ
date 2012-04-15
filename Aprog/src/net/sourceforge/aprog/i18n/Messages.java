@@ -134,7 +134,6 @@ public final class Messages {
      * This method tries to translate {@code component}'s properties found in {@link #getPropertyNames()}.
      * <br>If the property doesn't exist or is not accessible with a getter and setter, nothing happens.
      * <br>The translation key for each property is the value of the property before the call.
-     * <br>Warning: {@code parameters} will be used for all 3 properties if they are accessible.
      * <br>The message bundle is the one retrieved from {@link #getMessagesBase()}.
      *
      * @param <T> The actual type of {@code component}
