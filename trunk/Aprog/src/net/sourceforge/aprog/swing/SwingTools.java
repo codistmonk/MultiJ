@@ -24,6 +24,7 @@
 
 package net.sourceforge.aprog.swing;
 
+import static net.sourceforge.aprog.i18n.Messages.translate;
 import static net.sourceforge.aprog.tools.Tools.*;
 
 import java.awt.Component;
@@ -54,9 +55,12 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
+import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
+import net.sourceforge.aprog.af.MacOSXTools;
+import net.sourceforge.aprog.i18n.Messages;
 import net.sourceforge.aprog.tools.IllegalInstantiationException;
 
 /**
@@ -69,24 +73,29 @@ import net.sourceforge.aprog.tools.IllegalInstantiationException;
  * @author codistmonk (creation 2010-06-26)
  */
 public final class SwingTools {
-
+    
     /**
      * @throws IllegalInstantiationException To prevent instantiation
      */
     private SwingTools() {
         throw new IllegalInstantiationException();
     }
-
+    
+    /**
+     * {@value}.
+     */
+    public static final String META = MacOSXTools.MAC_OS_X ? "meta" : "control";
+    
     /**
      * {@value}.
      */
     public static final String DEFAULT_IMAGES_BASE = "images/";
-
+    
     /**
      * {@value}.
      */
     public static final String ICON_FORMAT = "png";
-
+    
     /**
      * {@value}.
      */
@@ -635,5 +644,87 @@ public final class SwingTools {
 
         return new JSplitPane(JSplitPane.VERTICAL_SPLIT, leftComponent, rightComponent);
     }
-
+    
+    /**
+     * The methods in this class create localized menu elements using {@link Messages#translate(java.lang.Object, java.lang.Object[])}.
+     * 
+     * @author codistmonk (creation 2012-04-15)
+     */
+    public static final class I18N {
+        
+        /**
+         * @throws IllegalInstantiationException To prevent instantiation
+         */
+        private I18N() {
+            throw new IllegalInstantiationException();
+        }
+        
+        /**
+         * @param translationKey
+         * <br>Not null
+         * <br>Will become reference
+         * @param items
+         * <br>Not null
+         * @return
+         * <br>Not null
+         * <br>New
+         */
+        public static final JMenu menu(final String translationKey, final JMenuItem... items) {
+            return translate(SwingTools.menu(translationKey, items));
+        }
+        
+        /**
+         * @param translationKey
+         * <br>Not null
+         * <br>Will become reference
+         * @param objectOrClass
+         * <br>Not null
+         * <br>Will become reference
+         * @param methodName
+         * <br>Not null
+         * <br>Will become reference
+         * @param arguments
+         * <br>Not null
+         * <br>Will become reference
+         * @return
+         * <br>Not null
+         * <br>New
+         */
+        public static final JMenuItem item(final String translationKey,
+                final Object objectOrClass, final String methodName, final Object... arguments) {
+            return translate(new JMenuItem(
+                    action(objectOrClass, methodName, arguments)
+                    .setName(translationKey)));
+        }
+        
+        /**
+         * @param translationKey
+         * <br>Not null
+         * <br>Will become reference
+         * @param shortcut
+         * <br>Not null
+         * <br>Will become reference
+         * @param objectOrClass
+         * <br>Not null
+         * <br>Will become reference
+         * @param methodName
+         * <br>Not null
+         * <br>Will become reference
+         * @param arguments
+         * <br>Not null
+         * <br>Will become reference
+         * @return
+         * <br>Not null
+         * <br>New
+         */
+        public static final JMenuItem item(final String translationKey, final KeyStroke shortcut,
+                final Object objectOrClass, final String methodName, final Object... arguments) {
+            return translate(new JMenuItem(
+                    action(objectOrClass, methodName, arguments)
+                    .setName(translationKey)
+                    .setShortcut(shortcut)));
+        }
+        
+    }
+    
 }
