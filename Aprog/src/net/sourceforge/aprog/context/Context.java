@@ -72,12 +72,11 @@ public final class Context extends AbstractObservable<Context.Listener> implemen
      * @return The old value
      * <br>Maybe null
      */
-    @SuppressWarnings("unchecked")
-    public final <T> T set(final String variableName, final T value) {
+    public final <T> T set(final String variableName, final T value, final Class<T> variableType) {
         final Variable<T> variable = this.getVariable(variableName);
 
         if (variable == null) {
-            this.putVariable(new AtomicVariable<T>((Class<T>) (value == null ? Object.class : value.getClass()), variableName, value));
+            this.putVariable(new AtomicVariable<T>(variableType, variableName, value));
 
             return null;
         }
@@ -87,6 +86,22 @@ public final class Context extends AbstractObservable<Context.Listener> implemen
         variable.setValue(value);
 
         return oldValue;
+    }
+
+    /**
+     *
+     * @param <T> The type of the variable value
+     * @param variableName
+     * <br>Not null
+     * @param value
+     * <br>Maybe null
+     * <br>Shared
+     * @return The old value
+     * <br>Maybe null
+     */
+    @SuppressWarnings("unchecked")
+    public final <T> T set(final String variableName, final T value) {
+        return this.set(variableName, value, (Class<T>) (value == null ? Object.class : value.getClass()));
     }
 
     /**
