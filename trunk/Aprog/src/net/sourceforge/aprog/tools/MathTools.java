@@ -24,6 +24,7 @@
 
 package net.sourceforge.aprog.tools;
 
+import static java.lang.Math.max;
 import static java.lang.Math.min;
 
 /**
@@ -139,6 +140,87 @@ public final class MathTools {
         }
         
         return result;
+    }
+    
+    /**
+     * @author codistmonk (creation 2012-06-20)
+     */
+    public static final class Statistics {
+        
+        private double sum;
+        
+        private double sumOfSquares;
+        
+        private int count;
+        
+        private double minimum;
+        
+        private double maximum;
+        
+        public Statistics() {
+            this.reset();
+        }
+        
+        public final void reset() {
+            this.sum = +0.0;
+            this.sumOfSquares = +0.0;
+            this.count = 0;
+            this.minimum = Double.POSITIVE_INFINITY;
+            this.maximum = Double.NEGATIVE_INFINITY;
+        }
+        
+        public final void addValue(final double value) {
+            this.sum += value;
+            this.sumOfSquares += square(value);
+            ++this.count;
+            this.minimum = min(this.getMinimum(), value);
+            this.maximum = max(this.getMaximum(), value);
+        }
+        
+        public final double getSum() {
+            return this.sum;
+        }
+        
+        public final double getSumOfSquares() {
+            return this.sumOfSquares;
+        }
+        
+        public final int getCount() {
+            return this.count;
+        }
+        
+        public final double getMinimum() {
+            return this.minimum;
+        }
+        
+        public final double getMaximum() {
+            return this.maximum;
+        }
+        
+        public final double getAmplitude() {
+            return this.getMaximum() - this.getMinimum();
+        }
+        
+        public final double getDenormalizedValue(final double value) {
+            return value * this.getAmplitude() + this.getMinimum();
+        }
+        
+        public final double getNormalizedValue(final double value) {
+            return (value - this.getMinimum()) / this.getAmplitude();
+        }
+        
+        public final double getMean() {
+            return this.getSum() / this.getCount();
+        }
+        
+        public final double getVariance() {
+            return this.getSumOfSquares() / this.getCount() - square(this.getMean());
+        }
+        
+        public static final double square(final double value) {
+            return value * value;
+        }
+        
     }
     
 }

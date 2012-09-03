@@ -26,6 +26,8 @@ package net.sourceforge.aprog.tools;
 
 import static org.junit.Assert.*;
 
+import net.sourceforge.aprog.tools.MathTools.Statistics;
+
 import org.junit.Test;
 
 /**
@@ -68,6 +70,43 @@ public final class MathToolsTest {
         assertEquals(1L, MathTools.nCk(4L, 0L));
         assertEquals(6L, MathTools.nCk(4L, 2L));
         assertEquals(1L, MathTools.nCk(4L, 4L));
+    }
+    
+    @Test
+    public final void testStatistics() {
+        final Statistics statistics = new Statistics();
+        
+        assertEquals(0, statistics.getCount());
+        assertEquals(+0.0, statistics.getSum(), +0.0);
+        assertEquals(+0.0, statistics.getSumOfSquares(), +0.0);
+        assertEquals(Double.NaN, statistics.getMean(), +0.0);
+        assertEquals(Double.POSITIVE_INFINITY, statistics.getMinimum(), +0.0);
+        assertEquals(Double.NEGATIVE_INFINITY, statistics.getMaximum(), +0.0);
+        
+        statistics.addValue(+1.0);
+        statistics.addValue(+2.0);
+        
+        assertEquals(2, statistics.getCount());
+        assertEquals(+3.0, statistics.getSum(), +0.0);
+        assertEquals(+5.0, statistics.getSumOfSquares(), +0.0);
+        assertEquals(+1.5, statistics.getMean(), +0.0);
+        assertEquals(+1.0, statistics.getMinimum(), +0.0);
+        assertEquals(+2.0, statistics.getMaximum(), +0.0);
+        assertEquals(+1.0, statistics.getAmplitude(), +0.0);
+        assertEquals(+0.0, statistics.getNormalizedValue(+1.0), +0.0);
+        assertEquals(+1.0, statistics.getNormalizedValue(+2.0), +0.0);
+        assertEquals(+1.0, statistics.getDenormalizedValue(+0.0), +0.0);
+        assertEquals(+2.0, statistics.getDenormalizedValue(+1.0), +0.0);
+        assertEquals(+0.25, statistics.getVariance(), +0.0);
+        
+        statistics.reset();
+        
+        assertEquals(0, statistics.getCount());
+        assertEquals(+0.0, statistics.getSum(), +0.0);
+        assertEquals(+0.0, statistics.getSumOfSquares(), +0.0);
+        assertEquals(Double.NaN, statistics.getMean(), +0.0);
+        assertEquals(Double.POSITIVE_INFINITY, statistics.getMinimum(), +0.0);
+        assertEquals(Double.NEGATIVE_INFINITY, statistics.getMaximum(), +0.0);
     }
 
 }
