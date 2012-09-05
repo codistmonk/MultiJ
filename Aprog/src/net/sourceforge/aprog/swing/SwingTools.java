@@ -25,8 +25,15 @@
 package net.sourceforge.aprog.swing;
 
 import static net.sourceforge.aprog.i18n.Messages.translate;
-import static net.sourceforge.aprog.tools.Tools.*;
+import static net.sourceforge.aprog.tools.Tools.getCallerClass;
+import static net.sourceforge.aprog.tools.Tools.getCallerMethodName;
+import static net.sourceforge.aprog.tools.Tools.getLoggerForThisMethod;
+import static net.sourceforge.aprog.tools.Tools.getResourceAsStream;
+import static net.sourceforge.aprog.tools.Tools.ignore;
+import static net.sourceforge.aprog.tools.Tools.invoke;
+import static net.sourceforge.aprog.tools.Tools.unchecked;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
@@ -36,6 +43,9 @@ import java.awt.Window;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.dnd.DnDConstants;
 import java.awt.dnd.DropTargetDropEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -50,6 +60,9 @@ import javax.imageio.ImageIO;
 import javax.swing.AbstractButton;
 import javax.swing.Box;
 import javax.swing.ImageIcon;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -58,6 +71,7 @@ import javax.swing.JSplitPane;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
+import javax.swing.WindowConstants;
 
 import net.sourceforge.aprog.af.MacOSXTools;
 import net.sourceforge.aprog.i18n.Messages;
@@ -189,6 +203,79 @@ public final class SwingTools {
             ignore(exception);
 
             return null;
+        }
+    }
+    
+    /**
+     * @param image
+      * <br>Not null
+     * @param title
+     * <br>Not null
+     * @param modal
+     * <br>Range: any boolean
+    */
+    public static final void show(final BufferedImage image, final String title, final boolean modal) {
+        SwingUtilities.invokeLater(new Runnable() {
+            
+            @Override
+            public final void run() {
+                final JLabel imageLabel = new JLabel(new ImageIcon(image));
+                
+                imageLabel.addMouseMotionListener(new MouseAdapter() {
+                    
+                    @Override
+                    public final void mouseMoved(final MouseEvent event) {
+                        final int x = event.getX();
+                        final int y = event.getY();
+                        
+                        if (0 <= x && x < image.getWidth() && 0 <= y && y < image.getHeight()) {
+                            final Color color = new Color(image.getRGB(x, y));
+                            
+                            invoke(imageLabel.getRootPane().getParent(), "setTitle",
+                                    title + " (x: " + x + ") (y: " + y + ") (r: " + color.getRed() +
+                                    ") (g: " + color.getGreen() + ") (b: " + color.getBlue() + ") (a: " + color.getAlpha() + ")");
+                        }
+                    }
+                    
+                });
+                
+                show(scrollable(imageLabel), title, modal);
+            }
+            
+        });
+    }
+    
+    /**
+     * @param component
+     * <br>Not null
+     * @param title
+     * <br>Not null
+     * @param modal
+     * <br>Range: any boolean
+     */
+    public static final void show(final Component component, final String title, final boolean modal) {
+        final Runnable runnable = new Runnable() {
+            
+            @Override
+            public final void run() {
+                final JDialog frame = new JDialog((JFrame) null, title, true);
+                
+                frame.add(component);
+                frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+                
+                packAndCenter(frame).setVisible(true);
+            }
+            
+        };
+        
+        if (modal) {
+            try {
+                SwingUtilities.invokeAndWait(runnable);
+            } catch (final Exception exception) {
+                throw unchecked(exception);
+            }
+        } else {
+            SwingUtilities.invokeLater(runnable);
         }
     }
 
