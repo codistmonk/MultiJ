@@ -53,23 +53,29 @@ public final class CommandLineArgumentsParser {
 			return defaultValue;
 		}
 		
-		final String[] rangeParameters = valueRepresentation.split(":");
-		final int first = Integer.parseInt(rangeParameters[0]);
-		final int step;
-		final int last;
+		final List<Integer> values = new ArrayList<Integer>();
 		
-		if (rangeParameters.length == 2) {
-			step = 1;
-			last = Integer.parseInt(rangeParameters[1]);
-		} else if (rangeParameters.length == 3) {
-			step = Integer.parseInt(rangeParameters[1]);
-			last = Integer.parseInt(rangeParameters[2]);
-		} else {
-			step = 1;
-			last = first;
+		for (final String rangeRepresentation : valueRepresentation.split(",")) {
+	        final String[] rangeParameters = rangeRepresentation.split(":");
+	        final int first = Integer.parseInt(rangeParameters[0]);
+	        final int step;
+	        final int last;
+	        
+	        if (rangeParameters.length == 2) {
+	            step = 1;
+	            last = Integer.parseInt(rangeParameters[1]);
+	        } else if (rangeParameters.length == 3) {
+	            step = Integer.parseInt(rangeParameters[1]);
+	            last = Integer.parseInt(rangeParameters[2]);
+	        } else {
+	            step = 1;
+	            last = first;
+	        }
+	        
+	        values.addAll(newRange(first, step, last));
 		}
 		
-		return toIntArray(newRange(first, step, last));
+		return toIntArray(values);
 	}
 	
 //	public final long get(final String key, final long defaultValue) {
