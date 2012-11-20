@@ -169,6 +169,10 @@ public final class MathTools {
             this.maximum = Double.NEGATIVE_INFINITY;
         }
         
+        /**
+         * @param value
+         * <br>Range: <code>[-Double.MAX_VALUE .. Double.MAX_VALUE]</code>
+         */
         public final void addValue(final double value) {
             this.sum += value;
             this.sumOfSquares += square(value);
@@ -177,46 +181,96 @@ public final class MathTools {
             this.maximum = max(this.getMaximum(), value);
         }
         
+        /**
+         * @return
+         * <br>Range: <code>[-Double.MAX_VALUE .. Double.MAX_VALUE]</code>
+         */
         public final double getSum() {
             return this.sum;
         }
         
+        /**
+         * @return
+         * <br>Range: <code>[-Double.MAX_VALUE .. Double.MAX_VALUE]</code>
+         */
         public final double getSumOfSquares() {
             return this.sumOfSquares;
         }
         
+        /**
+         * @return
+         * <br>Range: <code>[0 .. Integer.MAX_VALUE]</code>
+         */
         public final int getCount() {
             return this.count;
         }
         
+        /**
+         * @return
+         * <br>Range: <code>[-Double.MAX_VALUE .. Double.POSITIVE_INFINITY]</code>
+         */
         public final double getMinimum() {
             return this.minimum;
         }
         
+        /**
+         * @return
+         * <br>Range: <code>[Double.NEGATIVE_INFINITY .. Double.MAX_VALUE]</code>
+         */
         public final double getMaximum() {
             return this.maximum;
         }
         
+        /**
+         * @return
+         * <br>Range: <code>[0 .. Double.POSITIVE_INFINITY]</code>
+         */
         public final double getAmplitude() {
             return this.getMaximum() - this.getMinimum();
         }
         
+        /**
+         * @param value
+         * <br>Range: <code>[0.0 .. 1.0]</code>
+         * @return
+         * <br>Range: <code>[this.getMinimum() .. this.getMaximum()]</code>
+         */
         public final double getDenormalizedValue(final double value) {
             return value * this.getAmplitude() + this.getMinimum();
         }
         
+        /**
+         * @param value
+         * <br>Range: <code>[this.getMinimum() .. this.getMaximum()]</code>
+         * @return
+         * <br>Range: <code>[0.0 .. 1.0]</code>
+         */
         public final double getNormalizedValue(final double value) {
             return (value - this.getMinimum()) / this.getAmplitude();
         }
         
+        /**
+         * @return
+         * <br>Range: <code>[this.getMinimum() .. this.getMaximum()]</code>
+         */
         public final double getMean() {
             return this.getSum() / this.getCount();
         }
         
+        /**
+         * @return
+         * <br>Range: <code>[0 .. Double.MAX_VALUE]</code>
+         */
         public final double getVariance() {
             return this.getSumOfSquares() / this.getCount() - square(this.getMean());
         }
         
+        /**
+         * @param value
+         * <br>Range: any double
+         * @return
+         * <br>Range: any double
+         */
         public static final double square(final double value) {
             return value * value;
         }
