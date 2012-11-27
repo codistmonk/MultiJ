@@ -215,34 +215,27 @@ public final class SwingTools {
      * <br>Range: any boolean
     */
     public static final void show(final BufferedImage image, final String title, final boolean modal) {
-        SwingUtilities.invokeLater(new Runnable() {
+        final JLabel imageLabel = new JLabel(new ImageIcon(image));
+        
+        imageLabel.addMouseMotionListener(new MouseAdapter() {
             
             @Override
-            public final void run() {
-                final JLabel imageLabel = new JLabel(new ImageIcon(image));
+            public final void mouseMoved(final MouseEvent event) {
+                final int x = event.getX();
+                final int y = event.getY();
                 
-                imageLabel.addMouseMotionListener(new MouseAdapter() {
+                if (0 <= x && x < image.getWidth() && 0 <= y && y < image.getHeight()) {
+                    final Color color = new Color(image.getRGB(x, y));
                     
-                    @Override
-                    public final void mouseMoved(final MouseEvent event) {
-                        final int x = event.getX();
-                        final int y = event.getY();
-                        
-                        if (0 <= x && x < image.getWidth() && 0 <= y && y < image.getHeight()) {
-                            final Color color = new Color(image.getRGB(x, y));
-                            
-                            invoke(imageLabel.getRootPane().getParent(), "setTitle",
-                                    title + " (x: " + x + ") (y: " + y + ") (r: " + color.getRed() +
-                                    ") (g: " + color.getGreen() + ") (b: " + color.getBlue() + ") (a: " + color.getAlpha() + ")");
-                        }
-                    }
-                    
-                });
-                
-                show(scrollable(imageLabel), title, modal);
+                    invoke(imageLabel.getRootPane().getParent(), "setTitle",
+                            title + " (x: " + x + ") (y: " + y + ") (r: " + color.getRed() +
+                            ") (g: " + color.getGreen() + ") (b: " + color.getBlue() + ") (a: " + color.getAlpha() + ")");
+                }
             }
             
         });
+        
+        show(new JScrollPane(imageLabel), title, modal);
     }
     
     /**
