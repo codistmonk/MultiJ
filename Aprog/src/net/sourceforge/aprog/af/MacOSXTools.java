@@ -24,11 +24,21 @@
 
 package net.sourceforge.aprog.af;
 
-import static net.sourceforge.aprog.tools.Tools.*;
+import static net.sourceforge.aprog.tools.Tools.array;
+import static net.sourceforge.aprog.tools.Tools.cast;
+import static net.sourceforge.aprog.tools.Tools.getCallerClass;
+import static net.sourceforge.aprog.tools.Tools.getLoggerForThisMethod;
+import static net.sourceforge.aprog.tools.Tools.getResourceAsStream;
+import static net.sourceforge.aprog.tools.Tools.ignore;
+import static net.sourceforge.aprog.tools.Tools.invoke;
 
+import java.awt.Image;
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.logging.Level;
+
+import javax.imageio.ImageIO;
 
 import net.sourceforge.aprog.tools.AbstractInvocationHandler;
 import net.sourceforge.aprog.tools.IllegalInstantiationException;
@@ -48,6 +58,33 @@ public final class MacOSXTools {
     }
     
 	public static final boolean MAC_OS_X = System.getProperty("os.name").equalsIgnoreCase("mac os x");
+	
+	/**
+	 * Sets up the GUI with:<ul>
+	 *     <li>{@link #setApplicationName(String)};
+	 *     <li>{@link #setApplicationDockIcon(String)};
+	 *     <li>{@link #useScreenMenuBar()};
+	 *     <li>{@link #enableAboutMenu()};
+	 *     <li>{@link #enablePreferencesMenu()}.
+	 * </ul>
+	 * @param applicationName
+	 * <br>Maybe null
+	 * @param applicationIconPath
+	 * <br>Maybe null
+	 */
+	public static final void setupUI(final String applicationName, final String applicationIconPath) {
+	    if (applicationName != null) {
+	        setApplicationName(applicationName);
+	    }
+	    
+	    if (applicationIconPath != null) {
+	        setApplicationDockIcon(applicationIconPath);
+	    }
+	    
+        useScreenMenuBar();
+        enableAboutMenu();
+        enablePreferencesMenu();
+	}
 
     /**
      *
@@ -101,6 +138,34 @@ public final class MacOSXTools {
 
             return false;
         }
+    }
+    
+    /**
+     * Sets the application dock icon that will be displayed in the Mac OS X Dock.
+     *
+     * <br>This must be invoked before loading any UI-related class (AWT, Swing, ...).
+     *
+     * @param iconResourcePath
+     * <br>Not null
+     */
+    public static void setApplicationDockIcon(final String iconResourcePath) {
+        try {
+            setApplicationDockIcon(ImageIO.read(getResourceAsStream(iconResourcePath)));
+        } catch (final IOException exception) {
+            exception.printStackTrace();
+        }
+    }
+    
+    /**
+     * Sets the application dock icon that will be displayed in the Mac OS X Dock.
+     *
+     * <br>This must be invoked before loading any UI-related class (AWT, Swing, ...).
+     *
+     * @param icon
+     * <br>Not null
+     */
+    public static void setApplicationDockIcon(final Image icon) {
+        invoke(invoke(getApplicationClass(), "getApplication"), "setDockIconImage", icon);
     }
 
 	/**
@@ -156,11 +221,10 @@ public final class MacOSXTools {
     }
 
     /**
-     *
      * @return
      * <br>Maybe null
      */
-    private static final Class<?> getApplicationClass() {
+    public static final Class<?> getApplicationClass() {
         try {
             return Class.forName("com.apple.eawt.Application");
         } catch (final ClassNotFoundException exception) {
