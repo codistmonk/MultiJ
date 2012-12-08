@@ -73,17 +73,19 @@ public final class MacOSXTools {
 	 * <br>Maybe null
 	 */
 	public static final void setupUI(final String applicationName, final String applicationIconPath) {
-	    if (applicationName != null) {
-	        setApplicationName(applicationName);
+	    if (MAC_OS_X) {
+	        if (applicationName != null) {
+	            setApplicationName(applicationName);
+	        }
+	        
+	        if (applicationIconPath != null) {
+	            setApplicationDockIcon(applicationIconPath);
+	        }
+	        
+	        useScreenMenuBar();
+	        enableAboutMenu();
+	        enablePreferencesMenu();
 	    }
-	    
-	    if (applicationIconPath != null) {
-	        setApplicationDockIcon(applicationIconPath);
-	    }
-	    
-        useScreenMenuBar();
-        enableAboutMenu();
-        enablePreferencesMenu();
 	}
 
     /**
