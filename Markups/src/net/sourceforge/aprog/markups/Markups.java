@@ -24,18 +24,29 @@
 
 package net.sourceforge.aprog.markups;
 
-import static net.sourceforge.aprog.markups.MarkupsConstants.Variables.*;
-import static net.sourceforge.aprog.markups.MarkupsTools.*;
-import static net.sourceforge.aprog.i18n.Messages.*;
-import static net.sourceforge.aprog.tools.Tools.*;
-import static net.sourceforge.aprog.swing.SwingTools.*;
-
+import static net.sourceforge.aprog.i18n.Messages.setMessagesBase;
+import static net.sourceforge.aprog.markups.MarkupsConstants.Variables.APPLICATION_COPYRIGHT;
+import static net.sourceforge.aprog.markups.MarkupsConstants.Variables.APPLICATION_NAME;
+import static net.sourceforge.aprog.markups.MarkupsConstants.Variables.APPLICATION_VERSION;
+import static net.sourceforge.aprog.markups.MarkupsConstants.Variables.DOM;
+import static net.sourceforge.aprog.markups.MarkupsConstants.Variables.FILE;
+import static net.sourceforge.aprog.markups.MarkupsConstants.Variables.FILE_MODIFIED;
+import static net.sourceforge.aprog.markups.MarkupsConstants.Variables.QUASI_XPATH_ERROR;
+import static net.sourceforge.aprog.markups.MarkupsConstants.Variables.QUASI_XPATH_EXPRESSION;
+import static net.sourceforge.aprog.markups.MarkupsConstants.Variables.SELECTED_NODE;
+import static net.sourceforge.aprog.markups.MarkupsConstants.Variables.XPATH_ERROR;
+import static net.sourceforge.aprog.markups.MarkupsConstants.Variables.XPATH_EXPRESSION;
+import static net.sourceforge.aprog.markups.MarkupsConstants.Variables.XPATH_RESULT;
+import static net.sourceforge.aprog.markups.MarkupsTools.addListener;
+import static net.sourceforge.aprog.swing.SwingTools.canInvokeLaterThisMethodInAWT;
+import static net.sourceforge.aprog.swing.SwingTools.useSystemLookAndFeel;
+import static net.sourceforge.aprog.tools.Tools.getThisPackagePath;
+import net.sourceforge.aprog.af.MacOSXTools;
 import net.sourceforge.aprog.context.Context;
 import net.sourceforge.aprog.events.Variable;
 import net.sourceforge.aprog.events.Variable.ValueChangedEvent;
 import net.sourceforge.aprog.tools.IllegalInstantiationException;
 import net.sourceforge.aprog.xml.XMLTools;
-import net.sourceforge.jmacadapter.MacAdapterTools;
 
 import org.w3c.dom.Node;
 import org.w3c.dom.events.Event;
@@ -55,7 +66,7 @@ public final class Markups {
     }
 
     static {
-        MacAdapterTools.setApplicationName(MarkupsConstants.APPLICATION_NAME);
+        MacOSXTools.setApplicationName(MarkupsConstants.APPLICATION_NAME);
         useSystemLookAndFeel();
         setMessagesBase(getThisPackagePath() + "Messages");
     }

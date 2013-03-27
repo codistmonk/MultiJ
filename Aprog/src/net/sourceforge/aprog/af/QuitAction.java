@@ -24,8 +24,8 @@
 
 package net.sourceforge.aprog.af;
 
-import static net.sourceforge.aprog.af.AFConstants.Variables.*;
-
+import static net.sourceforge.aprog.af.AFConstants.Variables.ACTIONS_QUIT;
+import static net.sourceforge.aprog.tools.Tools.ignore;
 import net.sourceforge.aprog.context.Context;
 
 /**
@@ -46,7 +46,9 @@ public final class QuitAction extends AbstractAFAction {
     }
 
     @Override
-    public final void perform() {
+    public final void perform(final Object object) {
+    	ignore(object);
+    	
         System.exit(0);
     }
 

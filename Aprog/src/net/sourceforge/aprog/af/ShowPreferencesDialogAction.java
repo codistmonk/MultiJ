@@ -24,16 +24,16 @@
 
 package net.sourceforge.aprog.af;
 
-import static net.sourceforge.aprog.af.AFConstants.Variables.*;
+import static net.sourceforge.aprog.af.AFConstants.Variables.ACTIONS_SHOW_PREFERENCES_DIALOG;
+import static net.sourceforge.aprog.tools.Tools.ignore;
 
 import net.sourceforge.aprog.context.Context;
 
 /**
- *
  * @author codistmonk (creation 2010-09-24)
  */
 public final class ShowPreferencesDialogAction extends AbstractAFAction {
-
+	
     /**
      *
      * @param context
@@ -44,10 +44,12 @@ public final class ShowPreferencesDialogAction extends AbstractAFAction {
     public ShowPreferencesDialogAction(final Context context) {
         super(context, ACTIONS_SHOW_PREFERENCES_DIALOG);
     }
-
+    
     @Override
-    public final void perform() {
+    public final void perform(final Object object) {
+    	ignore(object);
+    	
         AFPreferencesDialog.newPreferencesDialog(this.getContext()).setVisible(true);
     }
-
+    
 }

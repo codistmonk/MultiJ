@@ -25,17 +25,43 @@
 package net.sourceforge.aprog.markups;
 
 import static javax.swing.KeyStroke.getKeyStroke;
-
-import static net.sourceforge.aprog.i18n.Messages.*;
-import static net.sourceforge.aprog.markups.MarkupsConstants.Variables.*;
-import static net.sourceforge.aprog.markups.MarkupsTools.*;
-import static net.sourceforge.aprog.subtitlesadjuster.SubtitlesAdjusterTools.*;
+import static net.sourceforge.aprog.i18n.Messages.translate;
+import static net.sourceforge.aprog.markups.MarkupsConstants.Variables.DOM;
+import static net.sourceforge.aprog.markups.MarkupsConstants.Variables.FILE;
+import static net.sourceforge.aprog.markups.MarkupsConstants.Variables.FILE_MODIFIED;
+import static net.sourceforge.aprog.markups.MarkupsConstants.Variables.MAIN_FRAME;
+import static net.sourceforge.aprog.markups.MarkupsConstants.Variables.QUASI_XPATH_ERROR;
+import static net.sourceforge.aprog.markups.MarkupsConstants.Variables.QUASI_XPATH_EXPRESSION;
+import static net.sourceforge.aprog.markups.MarkupsConstants.Variables.SELECTED_NODE;
+import static net.sourceforge.aprog.markups.MarkupsConstants.Variables.XPATH_ERROR;
+import static net.sourceforge.aprog.markups.MarkupsConstants.Variables.XPATH_EXPRESSION;
+import static net.sourceforge.aprog.markups.MarkupsConstants.Variables.XPATH_RESULT;
+import static net.sourceforge.aprog.markups.MarkupsTools.addListener;
+import static net.sourceforge.aprog.markups.MarkupsTools.getChildren;
+import static net.sourceforge.aprog.markups.MarkupsTools.getIdentifyingXPath;
+import static net.sourceforge.aprog.markups.MarkupsTools.highlightBackgroundOnError;
+import static net.sourceforge.aprog.markups.MarkupsTools.newTitledPanel;
+import static net.sourceforge.aprog.markups.MarkupsTools.updateVariableOnTextChanged;
+import static net.sourceforge.aprog.subtitlesadjuster.SubtitlesAdjusterTools.META;
+import static net.sourceforge.aprog.subtitlesadjuster.SubtitlesAdjusterTools.invokeOnVariableChanged;
+import static net.sourceforge.aprog.subtitlesadjuster.SubtitlesAdjusterTools.item;
+import static net.sourceforge.aprog.subtitlesadjuster.SubtitlesAdjusterTools.menu;
+import static net.sourceforge.aprog.subtitlesadjuster.SubtitlesAdjusterTools.newListener;
+import static net.sourceforge.aprog.subtitlesadjuster.SubtitlesAdjusterTools.registerMacOSXApplicationListener;
 import static net.sourceforge.aprog.swing.SwingTools.checkAWT;
 import static net.sourceforge.aprog.swing.SwingTools.menuBar;
 import static net.sourceforge.aprog.swing.SwingTools.packAndCenter;
 import static net.sourceforge.aprog.swing.SwingTools.scrollable;
-import static net.sourceforge.aprog.tools.Tools.*;
-import static net.sourceforge.aprog.xml.XMLTools.*;
+import static net.sourceforge.aprog.tools.Tools.debugPrint;
+import static net.sourceforge.aprog.tools.Tools.emptyIfNull;
+import static net.sourceforge.aprog.tools.Tools.set;
+import static net.sourceforge.aprog.xml.XMLTools.DOM_EVENT_NODE_INSERTED;
+import static net.sourceforge.aprog.xml.XMLTools.DOM_EVENT_NODE_REMOVED;
+import static net.sourceforge.aprog.xml.XMLTools.addDOMEventListener;
+import static net.sourceforge.aprog.xml.XMLTools.getNode;
+import static net.sourceforge.aprog.xml.XMLTools.removeDOMEventListener;
+import static net.sourceforge.aprog.xml.XMLTools.rename;
+import static net.sourceforge.aprog.xml.XMLTools.toList;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -73,6 +99,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 
+import net.sourceforge.aprog.af.MacOSXTools;
 import net.sourceforge.aprog.context.Context;
 import net.sourceforge.aprog.events.Variable;
 import net.sourceforge.aprog.events.Variable.ValueChangedEvent;
@@ -81,7 +108,6 @@ import net.sourceforge.aprog.subtitlesadjuster.SubtitlesAdjusterActions;
 import net.sourceforge.aprog.subtitlesadjuster.SubtitlesAdjusterComponents;
 import net.sourceforge.aprog.swing.SwingTools;
 import net.sourceforge.aprog.tools.IllegalInstantiationException;
-import net.sourceforge.jmacadapter.MacAdapterTools;
 
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -145,8 +171,8 @@ public final class MarkupsComponents {
     public static final JMenuBar newMenuBar(final Context context) {
 		checkAWT();
 
-        if (MacAdapterTools.isMacOSX()) {
-            MacAdapterTools.setUseScreenMenuBar(true);
+        if (MacOSXTools.MAC_OS_X) {
+            MacOSXTools.setUseScreenMenuBar(true);
         }
 
         return menuBar(
@@ -226,7 +252,7 @@ public final class MarkupsComponents {
     public static final JMenuItem newQuitMenuItem(final Context context) {
 		checkAWT();
 
-        if (MacAdapterTools.isMacOSX() && MacAdapterTools.getUseScreenMenuBar()) {
+        if (MacOSXTools.MAC_OS_X && MacOSXTools.getUseScreenMenuBar()) {
             if (registerMacOSXApplicationListener("handleQuit",
                     MarkupsActions.class, "quit", context)) {
                 return null;

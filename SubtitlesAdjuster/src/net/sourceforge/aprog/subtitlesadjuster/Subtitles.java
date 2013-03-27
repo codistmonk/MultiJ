@@ -24,8 +24,13 @@
 
 package net.sourceforge.aprog.subtitlesadjuster;
 
-import static net.sourceforge.aprog.subtitlesadjuster.SubtitlesAdjusterConstants.Variables.*;
-import static net.sourceforge.aprog.tools.Tools.*;
+import static net.sourceforge.aprog.subtitlesadjuster.SubtitlesAdjusterConstants.Variables.FILE;
+import static net.sourceforge.aprog.subtitlesadjuster.SubtitlesAdjusterConstants.Variables.FILE_MODIFIED;
+import static net.sourceforge.aprog.subtitlesadjuster.SubtitlesAdjusterConstants.Variables.FIRST_TIME;
+import static net.sourceforge.aprog.subtitlesadjuster.SubtitlesAdjusterConstants.Variables.LAST_TIME;
+import static net.sourceforge.aprog.subtitlesadjuster.SubtitlesAdjusterConstants.Variables.SUBTITLES;
+import static net.sourceforge.aprog.tools.Tools.debugPrint;
+import static net.sourceforge.aprog.tools.Tools.unchecked;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -36,6 +41,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Scanner;
 
 import net.sourceforge.aprog.context.Context;
@@ -48,280 +54,284 @@ import net.sourceforge.aprog.i18n.Messages;
  */
 public final class Subtitles {
 
-    private final Context context;
+	private final Context context;
 
-    private final List<Subtitle> subtitles;
+	private final List<Subtitle> subtitles;
 
-    private long offset;
+	private long offset;
 
-    private long newOffset;
+	private long newOffset;
 
-    private double timeWarp;
+	private double timeWarp;
 
-    /**
-     *
-     * @param context
-     * <br>Not null
-     * <br>Shared
-     */
-    public Subtitles(final Context context) {
-        this.context = context;
-        this.subtitles = new ArrayList<Subtitle>();
+	/**
+	 *
+	 * @param context
+	 * <br>Not null
+	 * <br>Shared
+	 */
+	public Subtitles(final Context context) {
+		this.context = context;
+		this.subtitles = new ArrayList<Subtitle>();
 
-        this.context.set(SUBTITLES, this);
-    }
+		this.context.set(SUBTITLES, this);
+	}
+	
+	/**
+	 * Adjusts the subtitles and updates the file.
+	 */
+	public final void save() {
+		this.offset = this.subtitles.get(0).getBeginTime();
 
-    public final void save() {
-        this.offset = this.subtitles.get(0).getBeginTime();
+		final long duration = this.subtitles.get(this.subtitles.size() - 1).getBeginTime() - this.offset;
 
-        final long duration = this.subtitles.get(this.subtitles.size() - 1).getBeginTime() - this.offset;
+		this.newOffset = ((Date) this.context.get(FIRST_TIME)).getTime();
 
-        this.newOffset = ((Date) this.context.get(FIRST_TIME)).getTime();
+		final long newDuration = ((Date) this.context.get(LAST_TIME)).getTime() - this.newOffset;
 
-        final long newDuration = ((Date) this.context.get(LAST_TIME)).getTime() - this.newOffset;
+		this.timeWarp = (double) newDuration / duration;
 
-        this.timeWarp = (double) newDuration / duration;
+		this.writeWithTimeWarp();
+	}
 
-        this.writeWithTimeWarp();
-    }
+	/**
+	 *
+	 * @param srtFile
+	 * <br>Not null
+	 * <br>Shared
+	 */
+	public final void load(final File srtFile) {
+		debugPrint(srtFile);
+		
+		Scanner scanner = null;
+		
+		try {
+			scanner = new Scanner(new FileInputStream(srtFile));
+			
+			scanner.useLocale(Locale.ENGLISH);
+			
+			this.updateSubtitles(scanner);
+			this.updateContext(srtFile);
+		} catch (final Exception exception) {
+			this.context.set(FILE, null);
+			
+			throw unchecked(exception);
+		} finally {
+			if (scanner != null) {
+				scanner.close();
+			}
+		}
+	}
+	
+	/**
+	 *
+	 * @param scanner
+	 * <br>Not null
+	 * <br>Input-output
+	 * @throws ParseException If the input is malformed
+	 */
+	private final void updateSubtitles(final Scanner scanner) throws ParseException {
+		this.subtitles.clear();
 
-    /**
-     *
-     * @param srtFile
-     * <br>Not null
-     * <br>Shared
-     */
-    public final void load(final File srtFile) {
-        debugPrint(srtFile);
+		while (scanner.hasNextInt()) {
+			this.subtitles.add(new Subtitle(scanner.nextInt(), scanner));
+		}
+	}
 
-        Scanner scanner = null;
+	private final void writeWithTimeWarp() {
+		PrintStream output = null;
 
-        try {
-            scanner = new Scanner(new FileInputStream(srtFile));
+		try {
+			output = new PrintStream((File) this.context.get(FILE));
 
-            this.updateSubtitles(scanner);
+			for (final Subtitle subtitle : this.subtitles) {
+				this.writeWithTimeWarp(subtitle, output);
+			}
 
-            this.updateContext(srtFile);
-        } catch (final Exception exception) {
-            this.context.set(FILE, null);
+			this.context.set(FILE_MODIFIED, false);
+		} catch (final Exception exception) {
+			throw unchecked(exception);
+		} finally {
+			if (output != null) {
+				output.close();
+			}
+		}
+	}
 
-            throw unchecked(exception);
-        } finally {
-            if (scanner != null) {
-                scanner.close();
-            }
-        }
-    }
+	/**
+	 *
+	 * @param subtitle
+	 * <br>Not null
+	 * @param output
+	 * <br>Not null
+	 * <br>Input-output
+	 */
+	private final void writeWithTimeWarp(final Subtitle subtitle, final PrintStream output) {
+		final long newBeginTime = this.newOffset + Math.round((subtitle.getBeginTime() - this.offset) * this.timeWarp);
 
-    /**
-     *
-     * @param scanner
-     * <br>Not null
-     * <br>Input-output
-     * @throws ParseException If the input is malformed
-     */
-    private final void updateSubtitles(final Scanner scanner) throws ParseException {
-        this.subtitles.clear();
+		output.println(subtitle.getIndex());
+		output.println(format(new Date(newBeginTime), new Date(newBeginTime + subtitle.getDuration()), subtitle.getLines()));
+	}
 
-        while (scanner.hasNextInt()) {
-            this.subtitles.add(new Subtitle(scanner.nextInt(), scanner));
-        }
-    }
+	/**
+	 *
+	 * @param srtFile
+	 * <br>Not null
+	 * <br>Shared
+	 */
+	private void updateContext(final File srtFile) {
+		if (this.subtitles.isEmpty()) {
+			throw Messages.newLocalizedException("Invalid file $0", srtFile);
+		}
 
-    private final void writeWithTimeWarp() {
-        PrintStream output = null;
+		this.context.set(FILE, srtFile);
+		this.context.set(FIRST_TIME, this.subtitles.get(0).getBegin());
+		this.context.set(LAST_TIME, this.subtitles.get(this.subtitles.size() - 1).getBegin());
+		this.context.set(FILE_MODIFIED, false);
+	}
 
-        try {
-            output = new PrintStream((File) this.context.get(FILE));
+	/**
+	 *
+	 * @author codistmonk (creation 2010-06-28)
+	 */
+	private static final class Subtitle {
 
-            for (final Subtitle subtitle : this.subtitles) {
-                this.writeWithTimeWarp(subtitle, output);
-            }
+		private final int index;
 
-            this.context.set(FILE_MODIFIED, false);
-        } catch (final Exception exception) {
-            throw unchecked(exception);
-        } finally {
-            if (output != null) {
-                output.close();
-            }
-        }
-    }
+		private Date begin;
 
-    /**
-     *
-     * @param subtitle
-     * <br>Not null
-     * @param output
-     * <br>Not null
-     * <br>Input-output
-     */
-    private final void writeWithTimeWarp(final Subtitle subtitle, final PrintStream output) {
-        final long newBeginTime = this.newOffset + Math.round((subtitle.getBeginTime() - this.offset) * this.timeWarp);
+		private Date end;
 
-        output.println(subtitle.getIndex());
-        output.println(format(new Date(newBeginTime), new Date(newBeginTime + subtitle.getDuration()), subtitle.getLines()));
-    }
+		private String lines;
 
-    /**
-     *
-     * @param srtFile
-     * <br>Not null
-     * <br>Shared
-     */
-    private void updateContext(final File srtFile) {
-        if (this.subtitles.isEmpty()) {
-            throw Messages.newLocalizedException("Invalid file $0", srtFile);
-        }
+		/**
+		 * @param index
+		 * <br>Range: {@code [1 .. Integer.MAX_VALUE]}
+		 * @param scanner
+		 * <br>Not null
+		 * <br>Input-output
+		 * @throws ParseException If the input is malformed
+		 */
+		Subtitle(final int index, final Scanner scanner) throws ParseException {
+			this.index = index;
+			this.lines = "";
 
-        this.context.set(FILE, srtFile);
-        this.context.set(FIRST_TIME, this.subtitles.get(0).getBegin());
-        this.context.set(LAST_TIME, this.subtitles.get(this.subtitles.size() - 1).getBegin());
-        this.context.set(FILE_MODIFIED, false);
-    }
+			// Parse: begin --> end
+			{
+				this.begin = TIME_FORMAT.parse(scanner.next(TIME_PATTERN));
 
-    /**
-     *
-     * @author codistmonk (creation 2010-06-28)
-     */
-    private static final class Subtitle {
+				scanner.findInLine(ARROW_PATTERN);
 
-        private final int index;
+				this.end = TIME_FORMAT.parse(scanner.next(TIME_PATTERN));
 
-        private Date begin;
+				scanner.nextLine();
+			}
 
-        private Date end;
+			// Parse: lines
+			{
+				String line;
 
-        private String lines;
+				while (!"".equals(line = scanner.nextLine())) {
+					this.lines += line + "\n";
+				}
+			}
+		}
 
-        /**
-         * @param index
-         * <br>Range: {@code [1 .. Integer.MAX_VALUE]}
-         * @param scanner
-         * <br>Not null
-         * <br>Input-output
-         * @throws ParseException If the input is malformed
-         */
-        Subtitle(final int index, final Scanner scanner) throws ParseException {
-            this.index = index;
-            this.lines = "";
+		/**
+		 *
+		 * @return
+		 * <br>Range: {@code [1 .. Integer.MAX_VALUE]}
+		 */
+		public final int getIndex() {
+			return this.index;
+		}
 
-            // Parse: begin --> end
-            {
-                this.begin = TIME_FORMAT.parse(scanner.next(TIME_PATTERN));
+		/**
+		 *
+		 * @return
+		 * <br>Not null
+		 * <br>Shared
+		 */
+		public final Date getBegin() {
+			return this.begin;
+		}
 
-                scanner.findInLine(ARROW_PATTERN);
+		/**
+		 *
+		 * @return
+		 * <br>Not null
+		 * <br>Shared
+		 */
+		public final Date getEnd() {
+			return this.end;
+		}
 
-                this.end = TIME_FORMAT.parse(scanner.next(TIME_PATTERN));
+		/**
+		 *
+		 * @return Time in milliseconds
+		 * <br>Range: {@code [0L .. Long.MAX_VALUE]}
+		 */
+		public final long getBeginTime() {
+			return this.getBegin().getTime();
+		}
 
-                scanner.nextLine();
-            }
+		/**
+		 *
+		 * @return Time in milliseconds
+		 * <br>Range: {@code [0L .. Long.MAX_VALUE]}
+		 */
+		public final long getDuration() {
+			return this.getEnd().getTime() - this.getBeginTime();
+		}
 
-            // Parse: lines
-            {
-                String line;
+		/**
+		 *
+		 * @return
+		 * <br>Not null
+		 * <br>Shared
+		 */
+		public final String getLines() {
+			return this.lines;
+		}
 
-                while (!"".equals(line = scanner.nextLine())) {
-                    this.lines += line + "\n";
-                }
-            }
-        }
+		@Override
+		public final String toString() {
+			return format(this.getBegin(), this.getEnd(), this.getLines());
+		}
 
-        /**
-         *
-         * @return
-         * <br>Range: {@code [1 .. Integer.MAX_VALUE]}
-         */
-        public final int getIndex() {
-            return this.index;
-        }
+	}
 
-        /**
-         *
-         * @return
-         * <br>Not null
-         * <br>Shared
-         */
-        public final Date getBegin() {
-            return this.begin;
-        }
+	/**
+	 * {@value}.
+	 */
+	public static final String TIME_PATTERN = "\\d\\d:\\d\\d:\\d\\d,\\d\\d\\d";
 
-        /**
-         *
-         * @return
-         * <br>Not null
-         * <br>Shared
-         */
-        public final Date getEnd() {
-            return this.end;
-        }
+	/**
+	 * {@value}.
+	 */
+	public static final String ARROW_PATTERN = "\\-\\->";
 
-        /**
-         *
-         * @return Time in milliseconds
-         * <br>Range: {@code [0L .. Long.MAX_VALUE]}
-         */
-        public final long getBeginTime() {
-            return this.getBegin().getTime();
-        }
+	/**
+	 * Simple date format "HH:mm:ss,SSS".
+	 */
+	public static final DateFormat TIME_FORMAT = new SimpleDateFormat("HH:mm:ss,SSS");
 
-        /**
-         *
-         * @return Time in milliseconds
-         * <br>Range: {@code [0L .. Long.MAX_VALUE]}
-         */
-        public final long getDuration() {
-            return this.getEnd().getTime() - this.getBeginTime();
-        }
-
-        /**
-         *
-         * @return
-         * <br>Not null
-         * <br>Shared
-         */
-        public final String getLines() {
-            return this.lines;
-        }
-
-        @Override
-        public final String toString() {
-            return format(this.getBegin(), this.getEnd(), this.getLines());
-        }
-
-    }
-
-    /**
-     * {@value}.
-     */
-    public static final String TIME_PATTERN = "\\d\\d:\\d\\d:\\d\\d,\\d\\d\\d";
-
-    /**
-     * {@value}.
-     */
-    public static final String ARROW_PATTERN = "\\-\\->";
-
-    /**
-     * Simple date format "HH:mm:ss,SSS".
-     */
-    public static final DateFormat TIME_FORMAT = new SimpleDateFormat("HH:mm:ss,SSS");
-
-    /**
-     *
-     * @param begin
-     * <br>Not null
-     * @param end
-     * <br>Not null
-     * @param lines
-     * <br>Not null
-     * @return
-     * <br>Not null
-     * <br>New
-     */
-    public static final String format(final Date begin, final Date end, final String lines) {
-        return
-                TIME_FORMAT.format(begin) + " --> " + TIME_FORMAT.format(end) + "\n" +
-                lines;
-    }
+	/**
+	 *
+	 * @param begin
+	 * <br>Not null
+	 * @param end
+	 * <br>Not null
+	 * @param lines
+	 * <br>Not null
+	 * @return
+	 * <br>Not null
+	 * <br>New
+	 */
+	public static final String format(final Date begin, final Date end, final String lines) {
+		return
+				TIME_FORMAT.format(begin) + " --> " + TIME_FORMAT.format(end) + "\n" +
+				lines;
+	}
 
 }

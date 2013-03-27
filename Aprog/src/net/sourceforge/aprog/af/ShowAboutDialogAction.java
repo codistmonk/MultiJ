@@ -25,6 +25,7 @@
 package net.sourceforge.aprog.af;
 
 import static net.sourceforge.aprog.i18n.Messages.*;
+import static net.sourceforge.aprog.tools.Tools.ignore;
 import static net.sourceforge.aprog.af.AFConstants.Variables.*;
 
 import java.awt.Component;
@@ -35,37 +36,37 @@ import net.sourceforge.aprog.context.Context;
 import net.sourceforge.aprog.swing.SwingTools;
 
 /**
- *
  * @author codistmonk (creation 2010-09-24)
  */
 public final class ShowAboutDialogAction extends AbstractAFAction {
-
-    /**
-     *
-     * @param context
-     * <br>Not null
-     * <br>Shared
-     * <br>Input-output
-     */
-    public ShowAboutDialogAction(final Context context) {
-        super(context, ACTIONS_SHOW_ABOUT_DIALOG);
-    }
-
-    @Override
-    public final void perform() {
-        final Context context = this.getContext();
-        final String iconPath = context.get(APPLICATION_ICON_PATH);
-
-        SwingTools.setImagesBase("");
-
-        JOptionPane.showMessageDialog(
-                (Component) context.get(MAIN_FRAME),
-                context.get(APPLICATION_NAME) + "\n" +
-                        context.get(APPLICATION_VERSION) + "\n" +
-                        context.get(APPLICATION_COPYRIGHT),
-                translate("About {0}", context.get(APPLICATION_NAME)),
-                JOptionPane.INFORMATION_MESSAGE,
-                iconPath == null ? null : SwingTools.getIcon(context.get(APPLICATION_ICON_PATH).toString()));
-    }
-
+	
+	/**
+	 * @param context
+	 * <br>Not null
+	 * <br>Shared
+	 * <br>Input-output
+	 */
+	public ShowAboutDialogAction(final Context context) {
+		super(context, ACTIONS_SHOW_ABOUT_DIALOG);
+	}
+	
+	@Override
+	public final void perform(final Object object) {
+		ignore(object);
+		
+		final Context context = this.getContext();
+		final String iconPath = context.get(APPLICATION_ICON_PATH);
+		
+		SwingTools.setImagesBase("");
+		
+		JOptionPane.showMessageDialog(
+				(Component) context.get(MAIN_FRAME),
+				context.get(APPLICATION_NAME) + "\n" +
+						context.get(APPLICATION_VERSION) + "\n" +
+						context.get(APPLICATION_COPYRIGHT),
+				translate("About {0}", context.get(APPLICATION_NAME)),
+				JOptionPane.INFORMATION_MESSAGE,
+				iconPath == null ? null : SwingTools.getIcon(context.get(APPLICATION_ICON_PATH).toString()));
+	}
+	
 }

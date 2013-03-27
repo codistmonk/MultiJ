@@ -24,8 +24,12 @@
 
 package net.sourceforge.aprog.subtitlesadjuster;
 
-import static net.sourceforge.aprog.i18n.Messages.*;
-import static net.sourceforge.aprog.tools.Tools.*;
+import static net.sourceforge.aprog.i18n.Messages.translate;
+import static net.sourceforge.aprog.tools.Tools.array;
+import static net.sourceforge.aprog.tools.Tools.cast;
+import static net.sourceforge.aprog.tools.Tools.getCallerClass;
+import static net.sourceforge.aprog.tools.Tools.getLoggerForThisMethod;
+import static net.sourceforge.aprog.tools.Tools.invoke;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -35,6 +39,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.KeyStroke;
 
+import net.sourceforge.aprog.af.MacOSXTools;
 import net.sourceforge.aprog.context.Context;
 import net.sourceforge.aprog.events.Variable;
 import net.sourceforge.aprog.events.Variable.Listener;
@@ -42,7 +47,6 @@ import net.sourceforge.aprog.i18n.Messages;
 import net.sourceforge.aprog.swing.SwingTools;
 import net.sourceforge.aprog.tools.AbstractInvocationHandler;
 import net.sourceforge.aprog.tools.Tools;
-import net.sourceforge.jmacadapter.MacAdapterTools;
 
 /**
  * Utility class.
@@ -59,9 +63,12 @@ public final class SubtitlesAdjusterTools {
     private SubtitlesAdjusterTools() {
         // Do nothing
     }
-
-    public static final String META = MacAdapterTools.isMacOSX() ? "meta" : "control";
-
+    
+    /**
+     * <code>"meta"</code> if Mac OS X, <code>"control"</code> otherwise.
+     */
+    public static final String META = MacOSXTools.MAC_OS_X ? "meta" : "control";
+    
     /**
      *
      * @param listenerMethodName

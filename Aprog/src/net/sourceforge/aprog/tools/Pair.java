@@ -24,12 +24,14 @@
 
 package net.sourceforge.aprog.tools;
 
+import java.io.Serializable;
+
 /**
  * @author codistmonk (creation 2012-06-16)
  * @param <F> The first element type
  * @param <S> The second element type
  */
-public final class Pair<F, S> {
+public final class Pair<F, S> implements Serializable {
 	
 	private final F first;
 	
@@ -61,5 +63,10 @@ public final class Pair<F, S> {
 	public final S getSecond() {
 		return this.second;
 	}
+	
+	/**
+	 * {@value}.
+	 */
+	private static final long serialVersionUID = -628218309847037531L;
 	
 }
