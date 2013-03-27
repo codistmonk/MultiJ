@@ -31,49 +31,51 @@ import net.sourceforge.aprog.context.Context;
  * @author codistmonk (creation 2010-09-24)
  */
 public abstract class AbstractAFAction {
-
-    private final Context context;
-
-    private final String actionKey;
-
-    /**
-     * Registers this action into {@code context} using {@code actionKey}.
-     *
-     * @param context
-     * <br>Not null
-     * <br>Shared
-     * <br>Input-output
-     * @param actionKey
-     * <br>Not null
-     * <br>Shared
-     */
-    public AbstractAFAction(final Context context, final String actionKey) {
-        this.context = context;
-        this.actionKey = actionKey;
-
-        this.getContext().set(this.getActionKey(), this);
-    }
-
-    /**
-     *
-     * @return
-     * <br>Not null
-     * <br>Shared
-     */
-    public final Context getContext() {
-        return this.context;
-    }
-
-    /**
-     *
-     * @return
-     * <br>Not null
-     * <br>Shared
-     */
-    public final String getActionKey() {
-        return this.actionKey;
-    }
-
-    public abstract void perform();
-
+	
+	private final Context context;
+	
+	private final String actionKey;
+	
+	/**
+	 * Registers this action into {@code context} using {@code actionKey}.
+	 *
+	 * @param context
+	 * <br>Not null
+	 * <br>Shared
+	 * <br>Input-output
+	 * @param actionKey
+	 * <br>Not null
+	 * <br>Shared
+	 */
+	public AbstractAFAction(final Context context, final String actionKey) {
+		this.context = context;
+		this.actionKey = actionKey;
+		
+		this.getContext().set(this.getActionKey(), this);
+	}
+	
+	/**
+	 * @return
+	 * <br>Not null
+	 * <br>Shared
+	 */
+	public final Context getContext() {
+		return this.context;
+	}
+	
+	/**
+	 * @return
+	 * <br>Not null
+	 * <br>Shared
+	 */
+	public final String getActionKey() {
+		return this.actionKey;
+	}
+	
+	/**
+	 * @param object
+	 * <br>Maybe null
+	 */
+	public abstract void perform(Object object);
+	
 }

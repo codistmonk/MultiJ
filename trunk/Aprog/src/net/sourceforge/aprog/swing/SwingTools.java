@@ -49,11 +49,14 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.net.URLDecoder;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.logging.Level;
 
 import javax.imageio.ImageIO;
@@ -87,250 +90,252 @@ import net.sourceforge.aprog.tools.IllegalInstantiationException;
  * @author codistmonk (creation 2010-06-26)
  */
 public final class SwingTools {
+	
+	/**
+	 * @throws IllegalInstantiationException To prevent instantiation
+	 */
+	private SwingTools() {
+		throw new IllegalInstantiationException();
+	}
     
-    /**
-     * @throws IllegalInstantiationException To prevent instantiation
-     */
-    private SwingTools() {
-        throw new IllegalInstantiationException();
-    }
-    
-    /**
-     * {@value}.
-     */
-    public static final String META = MacOSXTools.MAC_OS_X ? "meta" : "control";
-    
-    /**
-     * {@value}.
-     */
-    public static final String DEFAULT_IMAGES_BASE = "images/";
-    
-    /**
-     * {@value}.
-     */
-    public static final String ICON_FORMAT = "png";
-    
-    /**
-     * {@value}.
-     */
-    public static final String ROLLOVER_DISABLED_ICON_SUFFIX = "_disabled." + ICON_FORMAT;
+    private static DataFlavor uriListAsStringFlavor = null;
+	
+	/**
+	 * {@value}.
+	 */
+	public static final String META = MacOSXTools.MAC_OS_X ? "meta" : "control";
+	
+	/**
+	 * {@value}.
+	 */
+	public static final String DEFAULT_IMAGES_BASE = "images/";
+	
+	/**
+	 * {@value}.
+	 */
+	public static final String ICON_FORMAT = "png";
+	
+	/**
+	 * {@value}.
+	 */
+	public static final String ROLLOVER_DISABLED_ICON_SUFFIX = "_disabled." + ICON_FORMAT;
 
-    /**
-     * {@value}.
-     */
-    public static final String ROLLOVER_NORMAL_ICON_SUFFIX = "." + ICON_FORMAT;
+	/**
+	 * {@value}.
+	 */
+	public static final String ROLLOVER_NORMAL_ICON_SUFFIX = "." + ICON_FORMAT;
 
-    /**
-     * {@value}.
-     */
-    public static final String ROLLOVER_SELECTED_ICON_SUFFIX = "_selected." + ICON_FORMAT;
+	/**
+	 * {@value}.
+	 */
+	public static final String ROLLOVER_SELECTED_ICON_SUFFIX = "_selected." + ICON_FORMAT;
 
-    /**
-     * {@value}.
-     */
-    public static final String ROLLOVER_ROLLOVER_ICON_SUFFIX = "_rollover." + ICON_FORMAT;
+	/**
+	 * {@value}.
+	 */
+	public static final String ROLLOVER_ROLLOVER_ICON_SUFFIX = "_rollover." + ICON_FORMAT;
 
-    /**
-     * {@value}.
-     */
-    public static final String ROLLOVER_ROLLOVER_SELECTED_ICON_SUFFIX = "_rollover_selected." + ICON_FORMAT;
+	/**
+	 * {@value}.
+	 */
+	public static final String ROLLOVER_ROLLOVER_SELECTED_ICON_SUFFIX = "_rollover_selected." + ICON_FORMAT;
 
-    private static final Map<String, ImageIcon> iconCache = new HashMap<String, ImageIcon>();
+	private static final Map<String, ImageIcon> iconCache = new HashMap<String, ImageIcon>();
 
-    private static String imagesBase = DEFAULT_IMAGES_BASE;
+	private static String imagesBase = DEFAULT_IMAGES_BASE;
 
-    /**
-     *
-     * @return
-     * <br>Not null
-     * <br>Shared
-     */
-    public static final String getImagesBase() {
-        return imagesBase;
-    }
+	/**
+	 *
+	 * @return
+	 * <br>Not null
+	 * <br>Shared
+	 */
+	public static final String getImagesBase() {
+		return imagesBase;
+	}
 
-    /**
-     *
-     * @param imagesBase
-     * <br>Not null
-     * <br>Shared
-     */
-    public static final void setImagesBase(final String imagesBase) {
-        SwingTools.imagesBase = imagesBase;
-    }
+	/**
+	 *
+	 * @param imagesBase
+	 * <br>Not null
+	 * <br>Shared
+	 */
+	public static final void setImagesBase(final String imagesBase) {
+		SwingTools.imagesBase = imagesBase;
+	}
 
-    /**
-     * Returns the icon located at {@code getImageBase() + resourceName}.
-     * <br>Icons are cached using {@code resourceName} as a key.
-     *
-     * @param resourceName
-     * <br>Not null
-     * @return
-     * <br>Not null
-     * <br>New
-     * @throws RuntimeException if the resource cannot be loaded
-     */
-    public static final ImageIcon getIcon(final String resourceName) {
-        try {
-            final ImageIcon cachedIcon = iconCache.get(resourceName);
+	/**
+	 * Returns the icon located at {@code getImageBase() + resourceName}.
+	 * <br>Icons are cached using {@code resourceName} as a key.
+	 *
+	 * @param resourceName
+	 * <br>Not null
+	 * @return
+	 * <br>Not null
+	 * <br>New
+	 * @throws RuntimeException if the resource cannot be loaded
+	 */
+	public static final ImageIcon getIcon(final String resourceName) {
+		try {
+			final ImageIcon cachedIcon = iconCache.get(resourceName);
 
-            if (cachedIcon != null) {
-                return cachedIcon;
-            }
+			if (cachedIcon != null) {
+				return cachedIcon;
+			}
 
-            final ImageIcon icon = new ImageIcon(ImageIO.read(getResourceAsStream(getImagesBase() + resourceName)));
+			final ImageIcon icon = new ImageIcon(ImageIO.read(getResourceAsStream(getImagesBase() + resourceName)));
 
-            iconCache.put(resourceName, icon);
+			iconCache.put(resourceName, icon);
 
-            return icon;
-        } catch (final IOException exception) {
-            throw unchecked(exception);
-        }
-    }
+			return icon;
+		} catch (final IOException exception) {
+			throw unchecked(exception);
+		}
+	}
 
-    /**
-     *
-     * @param resourceName
-     * <br>Not null
-     * @return
-     * <br>Maybe null
-     * <br>New
-     */
-    public static final ImageIcon getIconOrNull(final String resourceName) {
-        try {
-            return getIcon(resourceName);
-        } catch (final Exception exception) {
-            ignore(exception);
+	/**
+	 *
+	 * @param resourceName
+	 * <br>Not null
+	 * @return
+	 * <br>Maybe null
+	 * <br>New
+	 */
+	public static final ImageIcon getIconOrNull(final String resourceName) {
+		try {
+			return getIcon(resourceName);
+		} catch (final Exception exception) {
+			ignore(exception);
 
-            return null;
-        }
-    }
-    
-    /**
-     * @param image
-      * <br>Not null
-     * @param title
-     * <br>Not null
-     * @param modal
-     * <br>Range: any boolean
-    */
-    public static final void show(final BufferedImage image, final String title, final boolean modal) {
-        final JLabel imageLabel = new JLabel(new ImageIcon(image));
-        
-        imageLabel.addMouseMotionListener(new MouseAdapter() {
-            
-            @Override
-            public final void mouseMoved(final MouseEvent event) {
-                final int x = event.getX();
-                final int y = event.getY();
-                
-                if (0 <= x && x < image.getWidth() && 0 <= y && y < image.getHeight()) {
-                    final Color color = new Color(image.getRGB(x, y));
-                    
-                    invoke(imageLabel.getRootPane().getParent(), "setTitle",
-                            title + " (x: " + x + ") (y: " + y + ") (r: " + color.getRed() +
-                            ") (g: " + color.getGreen() + ") (b: " + color.getBlue() + ") (a: " + color.getAlpha() + ")");
-                }
-            }
-            
-        });
-        
-        show(new JScrollPane(imageLabel), title, modal);
-    }
-    
-    /**
-     * @param component
-     * <br>Not null
-     * @param title
-     * <br>Not null
-     * @param modal
-     * <br>Range: any boolean
-     */
-    public static final void show(final Component component, final String title, final boolean modal) {
-        final Runnable runnable = new Runnable() {
-            
-            @Override
-            public final void run() {
-                final JDialog frame = new JDialog((JFrame) null, title, true);
-                
-                frame.add(component);
-                frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-                
-                packAndCenter(frame).setVisible(true);
-            }
-            
-        };
-        
-        if (modal) {
-            try {
-                SwingUtilities.invokeAndWait(runnable);
-            } catch (final Exception exception) {
-                throw unchecked(exception);
-            }
-        } else {
-            SwingUtilities.invokeLater(runnable);
-        }
-    }
+			return null;
+		}
+	}
+	
+	/**
+	 * @param image
+	  * <br>Not null
+	 * @param title
+	 * <br>Not null
+	 * @param modal
+	 * <br>Range: any boolean
+	*/
+	public static final void show(final BufferedImage image, final String title, final boolean modal) {
+		final JLabel imageLabel = new JLabel(new ImageIcon(image));
+		
+		imageLabel.addMouseMotionListener(new MouseAdapter() {
+			
+			@Override
+			public final void mouseMoved(final MouseEvent event) {
+				final int x = event.getX();
+				final int y = event.getY();
+				
+				if (0 <= x && x < image.getWidth() && 0 <= y && y < image.getHeight()) {
+					final Color color = new Color(image.getRGB(x, y));
+					
+					invoke(imageLabel.getRootPane().getParent(), "setTitle",
+							title + " (x: " + x + ") (y: " + y + ") (r: " + color.getRed() +
+							") (g: " + color.getGreen() + ") (b: " + color.getBlue() + ") (a: " + color.getAlpha() + ")");
+				}
+			}
+			
+		});
+		
+		show(new JScrollPane(imageLabel), title, modal);
+	}
+	
+	/**
+	 * @param component
+	 * <br>Not null
+	 * @param title
+	 * <br>Not null
+	 * @param modal
+	 * <br>Range: any boolean
+	 */
+	public static final void show(final Component component, final String title, final boolean modal) {
+		final Runnable runnable = new Runnable() {
+			
+			@Override
+			public final void run() {
+				final JDialog frame = new JDialog((JFrame) null, title, true);
+				
+				frame.add(component);
+				frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+				
+				packAndCenter(frame).setVisible(true);
+			}
+			
+		};
+		
+		if (modal) {
+			try {
+				SwingUtilities.invokeAndWait(runnable);
+			} catch (final Exception exception) {
+				throw unchecked(exception);
+			}
+		} else {
+			SwingUtilities.invokeLater(runnable);
+		}
+	}
 
-    /**
-     *
-     * @param container
-     * <br>Not null
-     * <br>Input-output
-     * @param component
-     * <br>Not null
-     * <br>Input-output
-     * <br>Shared
-     * @param constraints
-     * <br>Not null
-     */
-    public static final void add(final Container container, final Component component, final GridBagConstraints constraints) {
-        checkAWT();
+	/**
+	 *
+	 * @param container
+	 * <br>Not null
+	 * <br>Input-output
+	 * @param component
+	 * <br>Not null
+	 * <br>Input-output
+	 * <br>Shared
+	 * @param constraints
+	 * <br>Not null
+	 */
+	public static final void add(final Container container, final Component component, final GridBagConstraints constraints) {
+		checkAWT();
 
-        if (!(container.getLayout() instanceof GridBagLayout)) {
-            container.setLayout(new GridBagLayout());
-        }
+		if (!(container.getLayout() instanceof GridBagLayout)) {
+			container.setLayout(new GridBagLayout());
+		}
 
-        final GridBagLayout layout = (GridBagLayout) container.getLayout();
+		final GridBagLayout layout = (GridBagLayout) container.getLayout();
 
-        layout.setConstraints(component, constraints);
+		layout.setConstraints(component, constraints);
 
-        container.add(component);
-    }
+		container.add(component);
+	}
 
-    /**
-     *
-     * @param <T> the actual type of {@code button}
-     * @param button
-     * <br>Not null
-     * <br>Input-output
-     * @param imageName
-     * <br>Not null
-     * @param borderPainted if {@code false}, then the preferred size is set to the size of the image,
-     * and the background and border are not drawn; if {@code true}, then {@code button} is left in its current state
-     * @return {@code button}
-     * <br>Not null
-     */
-    public static final <T extends AbstractButton> T rollover(final T button, final String imageName, final boolean borderPainted) {
-        checkAWT();
+	/**
+	 *
+	 * @param <T> the actual type of {@code button}
+	 * @param button
+	 * <br>Not null
+	 * <br>Input-output
+	 * @param imageName
+	 * <br>Not null
+	 * @param borderPainted if {@code false}, then the preferred size is set to the size of the image,
+	 * and the background and border are not drawn; if {@code true}, then {@code button} is left in its current state
+	 * @return {@code button}
+	 * <br>Not null
+	 */
+	public static final <T extends AbstractButton> T rollover(final T button, final String imageName, final boolean borderPainted) {
+		checkAWT();
 
-        button.setRolloverEnabled(true);
-        button.setDisabledIcon(getIconOrNull(imageName + ROLLOVER_DISABLED_ICON_SUFFIX));
-        button.setIcon(getIconOrNull(imageName + ROLLOVER_NORMAL_ICON_SUFFIX));
-        button.setSelectedIcon(getIconOrNull(imageName + ROLLOVER_SELECTED_ICON_SUFFIX));
-        button.setRolloverIcon(getIconOrNull(imageName + ROLLOVER_ROLLOVER_ICON_SUFFIX));
-        button.setRolloverSelectedIcon(getIconOrNull(imageName + ROLLOVER_ROLLOVER_SELECTED_ICON_SUFFIX));
+		button.setRolloverEnabled(true);
+		button.setDisabledIcon(getIconOrNull(imageName + ROLLOVER_DISABLED_ICON_SUFFIX));
+		button.setIcon(getIconOrNull(imageName + ROLLOVER_NORMAL_ICON_SUFFIX));
+		button.setSelectedIcon(getIconOrNull(imageName + ROLLOVER_SELECTED_ICON_SUFFIX));
+		button.setRolloverIcon(getIconOrNull(imageName + ROLLOVER_ROLLOVER_ICON_SUFFIX));
+		button.setRolloverSelectedIcon(getIconOrNull(imageName + ROLLOVER_ROLLOVER_SELECTED_ICON_SUFFIX));
 
-        if (!borderPainted) {
-            if (button.getIcon() != null) {
-                button.setPreferredSize(new Dimension(button.getIcon().getIconWidth(), button.getIcon().getIconHeight()));
-            }
+		if (!borderPainted) {
+			if (button.getIcon() != null) {
+				button.setPreferredSize(new Dimension(button.getIcon().getIconWidth(), button.getIcon().getIconHeight()));
+			}
 
-            button.setBorderPainted(false);
-        }
+			button.setBorderPainted(false);
+		}
 
-        return button;
-    }
+		return button;
+	}
 
 	/**
 	 * Encloses {@code component} in a scroll pane.
@@ -348,25 +353,25 @@ public final class SwingTools {
 		return new JScrollPane(component);
 	}
 
-    /**
-     * Packs and updates {@code window}'s minimum size so that it cannot be resized to be smaller than its packed size.
-     *
-     * @param <W> The actual type of {@code window}
-     * @param window
+	/**
+	 * Packs and updates {@code window}'s minimum size so that it cannot be resized to be smaller than its packed size.
+	 *
+	 * @param <W> The actual type of {@code window}
+	 * @param window
 	 * <br>Not null
 	 * <br>input-output
-     * @return {@code window}
+	 * @return {@code window}
 	 * <br>Not null
-     */
-    public static final <W extends Window> W packAndUpdateMinimumSize(final W window) {
+	 */
+	public static final <W extends Window> W packAndUpdateMinimumSize(final W window) {
 		checkAWT();
 
-        window.setMinimumSize(null);
-        window.pack();
-        window.setMinimumSize(window.getSize());
+		window.setMinimumSize(null);
+		window.pack();
+		window.setMinimumSize(window.getSize());
 
-        return window;
-    }
+		return window;
+	}
 
 	/**
 	 * Packs and centers {@code window} on the screen.
@@ -381,7 +386,7 @@ public final class SwingTools {
 	public static final <W extends Window> W packAndCenter(final W window) {
 		checkAWT();
 
-        window.pack();
+		window.pack();
 
 		return center(window);
 	}
@@ -406,43 +411,43 @@ public final class SwingTools {
 		return window;
 	}
 
-    /**
-     * Creates a menu bar from the nonnull elements of {@code menus}.
-     *
-     * @param menus
-     * <br>Not null
-     * @return
-     * <br>Not null
-     * <br>New
-     */
-    public static final JMenuBar menuBar(final JMenu... menus) {
-        checkAWT();
+	/**
+	 * Creates a menu bar from the nonnull elements of {@code menus}.
+	 *
+	 * @param menus
+	 * <br>Not null
+	 * @return
+	 * <br>Not null
+	 * <br>New
+	 */
+	public static final JMenuBar menuBar(final JMenu... menus) {
+		checkAWT();
 
-        final JMenuBar result = new JMenuBar();
+		final JMenuBar result = new JMenuBar();
 
-        for (final JMenu menu : menus) {
-            if (menu != null) {
-                boolean menuHasNonnullItems = false;
+		for (final JMenu menu : menus) {
+			if (menu != null) {
+				boolean menuHasNonnullItems = false;
 
-                for (int i = 0; i < menu.getItemCount(); ++i) {
-                    menuHasNonnullItems |= menu.getItem(i) != null;
-                }
+				for (int i = 0; i < menu.getItemCount(); ++i) {
+					menuHasNonnullItems |= menu.getItem(i) != null;
+				}
 
-                if (menuHasNonnullItems) {
-                    result.add(menu);
-                }
-            }
-        }
+				if (menuHasNonnullItems) {
+					result.add(menu);
+				}
+			}
+		}
 
-        return result;
-    }
+		return result;
+	}
 
 	/**
-     * Creates a menu from the elements in {@code items}.
-     * <br>A null element generates a separator.
-     * <br>Consecutive null elements are coalesced into only one null element.
-     * <br>If all the elements are null, then the generated menu is empty
-     * (it doesn't even contain a separator).
+	 * Creates a menu from the elements in {@code items}.
+	 * <br>A null element generates a separator.
+	 * <br>Consecutive null elements are coalesced into only one null element.
+	 * <br>If all the elements are null, then the generated menu is empty
+	 * (it doesn't even contain a separator).
 	 *
 	 * @param title
 	 * <br>Not null
@@ -457,21 +462,37 @@ public final class SwingTools {
 
 		final JMenu result = new JMenu(title);
 
-        boolean lastItemWasNull = true;
+		boolean lastItemWasNull = true;
 
-        for (final JMenuItem item : items) {
-            if (item != null) {
-                result.add(item);
-            } else if (!lastItemWasNull) {
-                result.addSeparator();
-            }
+		for (final JMenuItem item : items) {
+			if (item != null) {
+				result.add(item);
+			} else if (!lastItemWasNull) {
+				result.addSeparator();
+			}
 
-            lastItemWasNull = item == null;
-        }
+			lastItemWasNull = item == null;
+		}
 
 		return result;
 	}
-
+    
+    /**
+     * @return
+     * <br>Not null
+     */
+    public static final DataFlavor getURIListAsStringFlavor() {
+        if (uriListAsStringFlavor == null) {
+            try {
+                uriListAsStringFlavor = new DataFlavor("text/uri-list; class=java.lang.String");
+            } catch (final ClassNotFoundException exception) {
+                getLoggerForThisMethod().log(Level.SEVERE, "", exception);
+            }
+        }
+        
+        return uriListAsStringFlavor;
+    }
+    
 	/**
 	 *
 	 * @param event
@@ -480,331 +501,347 @@ public final class SwingTools {
 	 * @return a list of files, or an empty list if {@code event} cannot provide a list of files or a string
 	 * <br>Not null
 	 * <br>Maybe new
-     * @throws RuntimeException if an error occurs
+	 * @throws RuntimeException if an error occurs
 	 */
 	@SuppressWarnings("unchecked")
 	public static final List<File> getFiles(final DropTargetDropEvent event) {
 		event.acceptDrop(DnDConstants.ACTION_COPY_OR_MOVE);
-
+		
 		try {
-			if (event.getCurrentDataFlavorsAsList().contains(DataFlavor.javaFileListFlavor)) {
-				return (List<File>)event.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
+			if (event.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
+				return (List<File>) event.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
 			}
-
-			if (event.getCurrentDataFlavorsAsList().contains(DataFlavor.stringFlavor)) {
-				return Arrays.asList(new File((String)event.getTransferable().getTransferData(DataFlavor.stringFlavor)));
+			
+			final String transferDataString = (String) event.getTransferable().getTransferData(DataFlavor.stringFlavor);
+			
+			if (event.isDataFlavorSupported(getURIListAsStringFlavor())) {
+				final Scanner scanner = new Scanner(transferDataString);
+				final List<File> result = new ArrayList<File>();
+				
+				while (scanner.hasNext()) {
+					final String fileURL = URLDecoder.decode(scanner.nextLine(), "UTF-8");
+					final String protocol = "file:";
+					
+                    result.add(new File(fileURL.startsWith(protocol) ? fileURL.substring(protocol.length()) : fileURL));
+				}
+				
+				return result;
 			}
-
+			
+			if (event.isDataFlavorSupported(DataFlavor.stringFlavor)) {
+				return Arrays.asList(new File(transferDataString));
+			}
+			
 			return Collections.emptyList();
 		} catch (final Exception exception) {
-            throw unchecked(exception);
+			throw unchecked(exception);
 		}
 	}
-    
-    public static final void useSystemLookAndFeel() {
+	
+	public static final void useSystemLookAndFeel() {
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch (final Exception exception) {
-            getLoggerForThisMethod().log(Level.WARNING, "", exception);
+			getLoggerForThisMethod().log(Level.WARNING, "", exception);
+		}
+	}
+	
+	/**
+	 * Executes in the AWT Event Dispatching Thread a runnable invoking
+	 * the caller method with the specified arguments,
+	 * or does nothing if the method is called in that thread.
+	 * <br>This method can be used to simplify code that needs to be executed in AWT
+	 * by taking care of generating an anonymous inner class implementing {@link Runnable}.
+	 * <br>Example:
+	 * <pre>
+	 * public final void f() {
+	 *	 // Warning: this section might get executed 2 times in different threads
+	 *
+	 *	 if (SwingTools.canInvokeThisMethodInAWT(this)) {
+	 *		 // This section is executed only once in the AWT Event Dispatching Thread
+	 *		 // For instance, the following instruction doesn't throw
+	 *		 SwingTools.checkAWT();
+	 *	 }
+	 *
+	 *	 // Warning: this section might get executed 2 times in different threads
+	 * }
+	 * </pre>
+	 *
+	 * @param object The caller object or {@code null} if the caller is static
+	 * <br>Maybe null
+	 * <br>Shared
+	 * @param arguments
+	 * <br>Not null
+	 * <br>Shared
+	 * @return {@code true} if and only if the method is called in the AWT Event Dispatching Thread
+	 * @throws RuntimeException if an error occurs
+	 */
+	public static final boolean canInvokeThisMethodInAWT(final Object object, final Object... arguments) {
+		if (SwingUtilities.isEventDispatchThread()) {
+			return true;
+		}
+
+		final Class<?> callerClass = getCallerClass();
+		final String callerMethodName = getCallerMethodName();
+
+		try {
+			SwingUtilities.invokeAndWait(createInvoker(object, callerClass, callerMethodName, arguments));
+		} catch (final InterruptedException exception) {
+			getLoggerForThisMethod().log(Level.WARNING, null, exception);
+		} catch (final InvocationTargetException exception) {
+			throw unchecked(exception.getCause());
+		}
+
+		return false;
+	}
+
+	/**
+	 * Non-blocking version of {@link #canInvokeThisMethodInAWT(java.lang.Object, java.lang.Object[])}.
+	 *
+	 * @param object
+	 * <br>Maybe null
+	 * <br>Shared
+	 * @param arguments
+	 * <br>Not null
+	 * <br>Shared
+	 * @return {@code true} if and only if the method is called in the AWT Event Dispatching Thread
+	 */
+	public static final boolean canInvokeLaterThisMethodInAWT(final Object object, final Object... arguments) {
+		if (SwingUtilities.isEventDispatchThread()) {
+			return true;
+		}
+
+		final Class<?> callerClass = getCallerClass();
+		final String callerMethodName = getCallerMethodName();
+
+		SwingUtilities.invokeLater(createInvoker(object, callerClass, callerMethodName, arguments));
+
+		return false;
+	}
+
+	/**
+	 * Creates an action that will invoke the specified method with
+	 * the specified arguments when it is performed.
+	 *
+	 * @param objectOrClass
+	 * <br>Not null
+	 * <br>Shared
+	 * @param methodName
+	 * <br>Not null
+	 * <br>Shared
+	 * @param arguments
+	 * <br>Not null
+	 * <br>Shared
+	 * @return
+	 * <br>Not null
+	 * <br>New
+	 */
+	public static final InvokerAction action(final Object objectOrClass,
+			final String methodName, final Object... arguments) {
+		return new InvokerAction(objectOrClass, methodName, arguments);
+	}
+
+	/**
+	 *
+	 * @throws IllegalStateException if the current thread is not the AWT Event Dispatching Thread
+	 */
+	public static final void checkAWT() {
+		if (!SwingUtilities.isEventDispatchThread()) {
+			throw new IllegalStateException("This section must be executed in the AWT Event Dispatching Thread");
 		}
 	}
 
-    /**
-     * Executes in the AWT Event Dispatching Thread a runnable invoking
-     * the caller method with the specified arguments,
-     * or does nothing if the method is called in that thread.
-     * <br>This method can be used to simplify code that needs to be executed in AWT
-     * by taking care of generating an anonymous inner class implementing {@link Runnable}.
-     * <br>Example:
-     * <pre>
-     * public final void f() {
-     *     // Warning: this section might get executed 2 times in different threads
-     *
-     *     if (SwingTools.canInvokeThisMethodInAWT(this)) {
-     *         // This section is executed only once in the AWT Event Dispatching Thread
-     *         // For instance, the following instruction doesn't throw
-     *         SwingTools.checkAWT();
-     *     }
-     *
-     *     // Warning: this section might get executed 2 times in different threads
-     * }
-     * </pre>
-     *
-     * @param object The caller object or {@code null} if the caller is static
-     * <br>Maybe null
-     * <br>Shared
-     * @param arguments
-     * <br>Not null
-     * <br>Shared
-     * @return {@code true} if and only if the method is called in the AWT Event Dispatching Thread
-     * @throws RuntimeException if an error occurs
-     */
-    public static final boolean canInvokeThisMethodInAWT(final Object object, final Object... arguments) {
-        if (SwingUtilities.isEventDispatchThread()) {
-            return true;
-        }
+	/**
+	 *
+	 * @throws IllegalStateException if the current thread is the AWT Event Dispatching Thread
+	 */
+	public static final void checkNotAWT() {
+		if (SwingUtilities.isEventDispatchThread()) {
+			throw new IllegalStateException("This section must not be executed in the AWT Event Dispatching Thread");
+		}
+	}
 
-        final Class<?> callerClass = getCallerClass();
-        final String callerMethodName = getCallerMethodName();
+	/**
+	 *
+	 * @param object
+	 * <br>Maybe null
+	 * <br>Shared
+	 * @param callerClass
+	 * <br>Not null
+	 * <br>Shared
+	 * @param callerMethodName
+	 * <br>Not null
+	 * <br>Shared
+	 * @param arguments
+	 * <br>Not null
+	 * <br>Shared
+	 * @return
+	 * <br>Not null
+	 * <br>New
+	 */
+	private static final Runnable createInvoker(final Object object, final Class<?> callerClass, final String callerMethodName, final Object... arguments) {
+		return new Runnable() {
 
-        try {
-            SwingUtilities.invokeAndWait(createInvoker(object, callerClass, callerMethodName, arguments));
-        } catch (final InterruptedException exception) {
-            getLoggerForThisMethod().log(Level.WARNING, null, exception);
-        } catch (final InvocationTargetException exception) {
-            throw unchecked(exception.getCause());
-        }
+			@Override
+			public final void run() {
+				invoke(object == null ? callerClass : object, callerMethodName, arguments);
+			}
 
-        return false;
-    }
+		};
+	}
 
-    /**
-     * Non-blocking version of {@link #canInvokeThisMethodInAWT(java.lang.Object, java.lang.Object[])}.
-     *
-     * @param object
-     * <br>Maybe null
-     * <br>Shared
-     * @param arguments
-     * <br>Not null
-     * <br>Shared
-     * @return {@code true} if and only if the method is called in the AWT Event Dispatching Thread
-     */
-    public static final boolean canInvokeLaterThisMethodInAWT(final Object object, final Object... arguments) {
-        if (SwingUtilities.isEventDispatchThread()) {
-            return true;
-        }
+	/**
+	 * @param components
+	 * <br>Not null
+	 * @return
+	 * <br>Not null
+	 * <br>New
+	 */
+	public static final Box horizontalBox(final Component... components) {
+		checkAWT();
 
-        final Class<?> callerClass = getCallerClass();
-        final String callerMethodName = getCallerMethodName();
+		final Box result = Box.createHorizontalBox();
 
-        SwingUtilities.invokeLater(createInvoker(object, callerClass, callerMethodName, arguments));
+		for (final Component component : components) {
+			result.add(component);
+		}
 
-        return false;
-    }
+		return result;
+	}
 
-    /**
-     * Creates an action that will invoke the specified method with
-     * the specified arguments when it is performed.
-     *
-     * @param objectOrClass
-     * <br>Not null
-     * <br>Shared
-     * @param methodName
-     * <br>Not null
-     * <br>Shared
-     * @param arguments
-     * <br>Not null
-     * <br>Shared
-     * @return
-     * <br>Not null
-     * <br>New
-     */
-    public static final InvokerAction action(final Object objectOrClass,
-            final String methodName, final Object... arguments) {
-        return new InvokerAction(objectOrClass, methodName, arguments);
-    }
+	/**
+	 * @param components
+	 * <br>Not null
+	 * @return
+	 * <br>Not null
+	 * <br>New
+	 */
+	public static final Box verticalBox(final Component... components) {
+		checkAWT();
 
-    /**
-     *
-     * @throws IllegalStateException if the current thread is not the AWT Event Dispatching Thread
-     */
-    public static final void checkAWT() {
-        if (!SwingUtilities.isEventDispatchThread()) {
-            throw new IllegalStateException("This section must be executed in the AWT Event Dispatching Thread");
-        }
-    }
+		final Box result = Box.createVerticalBox();
 
-    /**
-     *
-     * @throws IllegalStateException if the current thread is the AWT Event Dispatching Thread
-     */
-    public static final void checkNotAWT() {
-        if (SwingUtilities.isEventDispatchThread()) {
-            throw new IllegalStateException("This section must not be executed in the AWT Event Dispatching Thread");
-        }
-    }
+		for (final Component component : components) {
+			result.add(component);
+		}
 
-    /**
-     *
-     * @param object
-     * <br>Maybe null
-     * <br>Shared
-     * @param callerClass
-     * <br>Not null
-     * <br>Shared
-     * @param callerMethodName
-     * <br>Not null
-     * <br>Shared
-     * @param arguments
-     * <br>Not null
-     * <br>Shared
-     * @return
-     * <br>Not null
-     * <br>New
-     */
-    private static final Runnable createInvoker(final Object object, final Class<?> callerClass, final String callerMethodName, final Object... arguments) {
-        return new Runnable() {
+		return result;
+	}
 
-            @Override
-            public final void run() {
-                invoke(object == null ? callerClass : object, callerMethodName, arguments);
-            }
+	/**
+	 * @param leftComponent
+	 * <br>Maybe null
+	 * <br>Will become reference
+	 * @param rightComponent
+	 * <br>Maybe null
+	 * <br>Will become reference
+	 * @return
+	 * <br>Not null
+	 * <br>New
+	 */
+	public static final JSplitPane horizontalSplit(final Component leftComponent, final Component rightComponent) {
+		checkAWT();
 
-        };
-    }
+		return new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftComponent, rightComponent);
+	}
 
-    /**
-     * @param components
-     * <br>Not null
-     * @return
-     * <br>Not null
-     * <br>New
-     */
-    public static final Box horizontalBox(final Component... components) {
-        checkAWT();
+	/**
+	 * @param topComponent
+	 * <br>Maybe null
+	 * <br>Will become reference
+	 * @param bottomComponent
+	 * <br>Maybe null
+	 * <br>Will become reference
+	 * @return
+	 * <br>Not null
+	 * <br>New
+	 */
+	public static final JSplitPane verticalSplit(final Component topComponent, final Component bottomComponent) {
+		checkAWT();
 
-        final Box result = Box.createHorizontalBox();
-
-        for (final Component component : components) {
-            result.add(component);
-        }
-
-        return result;
-    }
-
-    /**
-     * @param components
-     * <br>Not null
-     * @return
-     * <br>Not null
-     * <br>New
-     */
-    public static final Box verticalBox(final Component... components) {
-        checkAWT();
-
-        final Box result = Box.createVerticalBox();
-
-        for (final Component component : components) {
-            result.add(component);
-        }
-
-        return result;
-    }
-
-    /**
-     * @param leftComponent
-     * <br>Maybe null
-     * <br>Will become reference
-     * @param rightComponent
-     * <br>Maybe null
-     * <br>Will become reference
-     * @return
-     * <br>Not null
-     * <br>New
-     */
-    public static final JSplitPane horizontalSplit(final Component leftComponent, final Component rightComponent) {
-        checkAWT();
-
-        return new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftComponent, rightComponent);
-    }
-
-    /**
-     * @param leftComponent
-     * <br>Maybe null
-     * <br>Will become reference
-     * @param rightComponent
-     * <br>Maybe null
-     * <br>Will become reference
-     * @return
-     * <br>Not null
-     * <br>New
-     */
-    public static final JSplitPane verticalSplit(final Component leftComponent, final Component rightComponent) {
-        checkAWT();
-
-        return new JSplitPane(JSplitPane.VERTICAL_SPLIT, leftComponent, rightComponent);
-    }
-    
-    /**
-     * The methods in this class create localized menu elements using {@link Messages#translate(java.lang.Object, java.lang.Object[])}.
-     * 
-     * @author codistmonk (creation 2012-04-15)
-     */
-    public static final class I18N {
-        
-        /**
-         * @throws IllegalInstantiationException To prevent instantiation
-         */
-        private I18N() {
-            throw new IllegalInstantiationException();
-        }
-        
-        /**
-         * @param translationKey
-         * <br>Not null
-         * <br>Will become reference
-         * @param items
-         * <br>Not null
-         * @return
-         * <br>Not null
-         * <br>New
-         */
-        public static final JMenu menu(final String translationKey, final JMenuItem... items) {
-            return translate(SwingTools.menu(translationKey, items));
-        }
-        
-        /**
-         * @param translationKey
-         * <br>Not null
-         * <br>Will become reference
-         * @param objectOrClass
-         * <br>Not null
-         * <br>Will become reference
-         * @param methodName
-         * <br>Not null
-         * <br>Will become reference
-         * @param arguments
-         * <br>Not null
-         * <br>Will become reference
-         * @return
-         * <br>Not null
-         * <br>New
-         */
-        public static final JMenuItem item(final String translationKey,
-                final Object objectOrClass, final String methodName, final Object... arguments) {
-            return translate(new JMenuItem(
-                    action(objectOrClass, methodName, arguments)
-                    .setName(translationKey)));
-        }
-        
-        /**
-         * @param translationKey
-         * <br>Not null
-         * <br>Will become reference
-         * @param shortcut
-         * <br>Not null
-         * <br>Will become reference
-         * @param objectOrClass
-         * <br>Not null
-         * <br>Will become reference
-         * @param methodName
-         * <br>Not null
-         * <br>Will become reference
-         * @param arguments
-         * <br>Not null
-         * <br>Will become reference
-         * @return
-         * <br>Not null
-         * <br>New
-         */
-        public static final JMenuItem item(final String translationKey, final KeyStroke shortcut,
-                final Object objectOrClass, final String methodName, final Object... arguments) {
-            return translate(new JMenuItem(
-                    action(objectOrClass, methodName, arguments)
-                    .setName(translationKey)
-                    .setShortcut(shortcut)));
-        }
-        
-    }
-    
+		return new JSplitPane(JSplitPane.VERTICAL_SPLIT, topComponent, bottomComponent);
+	}
+	
+	/**
+	 * The methods in this class create localized menu elements using {@link Messages#translate(java.lang.Object, java.lang.Object[])}.
+	 * 
+	 * @author codistmonk (creation 2012-04-15)
+	 */
+	public static final class I18N {
+		
+		/**
+		 * @throws IllegalInstantiationException To prevent instantiation
+		 */
+		private I18N() {
+			throw new IllegalInstantiationException();
+		}
+		
+		/**
+		 * @param translationKey
+		 * <br>Not null
+		 * <br>Will become reference
+		 * @param items
+		 * <br>Not null
+		 * @return
+		 * <br>Not null
+		 * <br>New
+		 */
+		public static final JMenu menu(final String translationKey, final JMenuItem... items) {
+			return translate(SwingTools.menu(translationKey, items));
+		}
+		
+		/**
+		 * @param translationKey
+		 * <br>Not null
+		 * <br>Will become reference
+		 * @param objectOrClass
+		 * <br>Not null
+		 * <br>Will become reference
+		 * @param methodName
+		 * <br>Not null
+		 * <br>Will become reference
+		 * @param arguments
+		 * <br>Not null
+		 * <br>Will become reference
+		 * @return
+		 * <br>Not null
+		 * <br>New
+		 */
+		public static final JMenuItem item(final String translationKey,
+				final Object objectOrClass, final String methodName, final Object... arguments) {
+			return translate(new JMenuItem(
+					action(objectOrClass, methodName, arguments)
+					.setName(translationKey)));
+		}
+		
+		/**
+		 * @param translationKey
+		 * <br>Not null
+		 * <br>Will become reference
+		 * @param shortcut
+		 * <br>Not null
+		 * <br>Will become reference
+		 * @param objectOrClass
+		 * <br>Not null
+		 * <br>Will become reference
+		 * @param methodName
+		 * <br>Not null
+		 * <br>Will become reference
+		 * @param arguments
+		 * <br>Not null
+		 * <br>Will become reference
+		 * @return
+		 * <br>Not null
+		 * <br>New
+		 */
+		public static final JMenuItem item(final String translationKey, final KeyStroke shortcut,
+				final Object objectOrClass, final String methodName, final Object... arguments) {
+			return translate(new JMenuItem(
+					action(objectOrClass, methodName, arguments)
+					.setName(translationKey)
+					.setShortcut(shortcut)));
+		}
+		
+	}
+	
 }

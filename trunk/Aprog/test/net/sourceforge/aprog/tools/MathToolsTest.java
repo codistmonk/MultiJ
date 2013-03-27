@@ -32,81 +32,82 @@ import org.junit.Test;
 
 /**
  * Automated tests using JUnit for {@link MathTools}.
- *
+ * 
  * @author codistmonk (creation 2011-09-02)
  */
 public final class MathToolsTest {
-
-    // TODO add more tests
-
-    @Test
-    public final void testGcd() {
-        assertEquals(4L, MathTools.gcd(8L, 12L));
-    }
-
-    @Test
-    public final void testLcm() {
-        assertEquals(24L, MathTools.lcm(6L, 8L));
-    }
-
-    @Test
-    public final void testFactorial() {
-        assertEquals(6L, MathTools.factorial(3L));
-    }
-
-    @Test
-    public final void testNPk() {
-        assertEquals(12L, MathTools.nPk(4L, 2L));
-    }
-
-    @Test
-    public void testMultichoose() {
-        assertEquals(126L, MathTools.multichoose(5L, 5L));
-    }
-
-    @Test
-    public final void testNCk() {
-        assertEquals(1L, MathTools.nCk(0L, 0L));
-        assertEquals(1L, MathTools.nCk(4L, 0L));
-        assertEquals(6L, MathTools.nCk(4L, 2L));
-        assertEquals(1L, MathTools.nCk(4L, 4L));
-    }
-    
-    @Test
-    public final void testStatistics() {
-        final Statistics statistics = new Statistics();
-        
-        assertEquals(0, statistics.getCount());
-        assertEquals(+0.0, statistics.getSum(), +0.0);
-        assertEquals(+0.0, statistics.getSumOfSquares(), +0.0);
-        assertEquals(Double.NaN, statistics.getMean(), +0.0);
-        assertEquals(Double.POSITIVE_INFINITY, statistics.getMinimum(), +0.0);
-        assertEquals(Double.NEGATIVE_INFINITY, statistics.getMaximum(), +0.0);
-        
-        statistics.addValue(+1.0);
-        statistics.addValue(+2.0);
-        
-        assertEquals(2, statistics.getCount());
-        assertEquals(+3.0, statistics.getSum(), +0.0);
-        assertEquals(+5.0, statistics.getSumOfSquares(), +0.0);
-        assertEquals(+1.5, statistics.getMean(), +0.0);
-        assertEquals(+1.0, statistics.getMinimum(), +0.0);
-        assertEquals(+2.0, statistics.getMaximum(), +0.0);
-        assertEquals(+1.0, statistics.getAmplitude(), +0.0);
-        assertEquals(+0.0, statistics.getNormalizedValue(+1.0), +0.0);
-        assertEquals(+1.0, statistics.getNormalizedValue(+2.0), +0.0);
-        assertEquals(+1.0, statistics.getDenormalizedValue(+0.0), +0.0);
-        assertEquals(+2.0, statistics.getDenormalizedValue(+1.0), +0.0);
-        assertEquals(+0.25, statistics.getVariance(), +0.0);
-        
-        statistics.reset();
-        
-        assertEquals(0, statistics.getCount());
-        assertEquals(+0.0, statistics.getSum(), +0.0);
-        assertEquals(+0.0, statistics.getSumOfSquares(), +0.0);
-        assertEquals(Double.NaN, statistics.getMean(), +0.0);
-        assertEquals(Double.POSITIVE_INFINITY, statistics.getMinimum(), +0.0);
-        assertEquals(Double.NEGATIVE_INFINITY, statistics.getMaximum(), +0.0);
-    }
-
+	
+	// TODO add more tests
+	
+	@Test
+	public final void testGcd() {
+		assertEquals(4L, MathTools.gcd(8L, 12L));
+		assertEquals(4, MathTools.gcd(8, 12));
+	}
+	
+	@Test
+	public final void testLcm() {
+		assertEquals(24L, MathTools.lcm(6L, 8L));
+	}
+	
+	@Test
+	public final void testFactorial() {
+		assertEquals(6L, MathTools.factorial(3L));
+	}
+	
+	@Test
+	public final void testNPk() {
+		assertEquals(12L, MathTools.nPk(4L, 2L));
+	}
+	
+	@Test
+	public void testMultichoose() {
+		assertEquals(126L, MathTools.multichoose(5L, 5L));
+	}
+	
+	@Test
+	public final void testNCk() {
+		assertEquals(1L, MathTools.nCk(0L, 0L));
+		assertEquals(1L, MathTools.nCk(4L, 0L));
+		assertEquals(6L, MathTools.nCk(4L, 2L));
+		assertEquals(1L, MathTools.nCk(4L, 4L));
+	}
+	
+	@Test
+	public final void testStatistics() {
+		final Statistics statistics = new Statistics();
+		
+		assertEquals(0, statistics.getCount());
+		assertEquals(+0.0, statistics.getSum(), +0.0);
+		assertEquals(+0.0, statistics.getSumOfSquares(), +0.0);
+		assertEquals(Double.NaN, statistics.getMean(), +0.0);
+		assertEquals(Double.POSITIVE_INFINITY, statistics.getMinimum(), +0.0);
+		assertEquals(Double.NEGATIVE_INFINITY, statistics.getMaximum(), +0.0);
+		
+		statistics.addValue(+1.0);
+		statistics.addValue(+2.0);
+		
+		assertEquals(2, statistics.getCount());
+		assertEquals(+3.0, statistics.getSum(), +0.0);
+		assertEquals(+5.0, statistics.getSumOfSquares(), +0.0);
+		assertEquals(+1.5, statistics.getMean(), +0.0);
+		assertEquals(+1.0, statistics.getMinimum(), +0.0);
+		assertEquals(+2.0, statistics.getMaximum(), +0.0);
+		assertEquals(+1.0, statistics.getAmplitude(), +0.0);
+		assertEquals(+0.0, statistics.getNormalizedValue(+1.0), +0.0);
+		assertEquals(+1.0, statistics.getNormalizedValue(+2.0), +0.0);
+		assertEquals(+1.0, statistics.getDenormalizedValue(+0.0), +0.0);
+		assertEquals(+2.0, statistics.getDenormalizedValue(+1.0), +0.0);
+		assertEquals(+0.25, statistics.getVariance(), +0.0);
+		
+		statistics.reset();
+		
+		assertEquals(0, statistics.getCount());
+		assertEquals(+0.0, statistics.getSum(), +0.0);
+		assertEquals(+0.0, statistics.getSumOfSquares(), +0.0);
+		assertEquals(Double.NaN, statistics.getMean(), +0.0);
+		assertEquals(Double.POSITIVE_INFINITY, statistics.getMinimum(), +0.0);
+		assertEquals(Double.NEGATIVE_INFINITY, statistics.getMaximum(), +0.0);
+	}
+	
 }

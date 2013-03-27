@@ -24,16 +24,23 @@
 
 package net.sourceforge.aprog.subtitlesadjuster;
 
-import static net.sourceforge.aprog.i18n.Messages.*;
-import static net.sourceforge.aprog.subtitlesadjuster.SubtitlesAdjusterConstants.Variables.*;
-import static net.sourceforge.aprog.subtitlesadjuster.SubtitlesAdjusterTools.*;
-import static net.sourceforge.aprog.swing.SwingTools.*;
-import static net.sourceforge.aprog.tools.Tools.*;
+import static net.sourceforge.aprog.i18n.Messages.setMessagesBase;
+import static net.sourceforge.aprog.subtitlesadjuster.SubtitlesAdjusterConstants.Variables.APPLICATION_COPYRIGHT;
+import static net.sourceforge.aprog.subtitlesadjuster.SubtitlesAdjusterConstants.Variables.APPLICATION_NAME;
+import static net.sourceforge.aprog.subtitlesadjuster.SubtitlesAdjusterConstants.Variables.APPLICATION_VERSION;
+import static net.sourceforge.aprog.subtitlesadjuster.SubtitlesAdjusterConstants.Variables.FILE;
+import static net.sourceforge.aprog.subtitlesadjuster.SubtitlesAdjusterConstants.Variables.FILE_MODIFIED;
+import static net.sourceforge.aprog.subtitlesadjuster.SubtitlesAdjusterConstants.Variables.FIRST_TIME;
+import static net.sourceforge.aprog.subtitlesadjuster.SubtitlesAdjusterConstants.Variables.LAST_TIME;
+import static net.sourceforge.aprog.subtitlesadjuster.SubtitlesAdjusterTools.invokeOnVariableChanged;
+import static net.sourceforge.aprog.swing.SwingTools.canInvokeLaterThisMethodInAWT;
+import static net.sourceforge.aprog.swing.SwingTools.useSystemLookAndFeel;
+import static net.sourceforge.aprog.tools.Tools.getThisPackagePath;
 
 import java.util.Date;
 
+import net.sourceforge.aprog.af.MacOSXTools;
 import net.sourceforge.aprog.context.Context;
-import net.sourceforge.jmacadapter.MacAdapterTools;
 
 /**
  * Main class.
@@ -50,7 +57,7 @@ public final class SubtitlesAdjuster {
     }
 
     static {
-        MacAdapterTools.setApplicationName(SubtitlesAdjusterConstants.APPLICATION_NAME);
+        MacOSXTools.setApplicationName(SubtitlesAdjusterConstants.APPLICATION_NAME);
         useSystemLookAndFeel();
         setMessagesBase(getThisPackagePath() + "Messages");
     }

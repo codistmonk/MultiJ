@@ -75,7 +75,7 @@ public final class AFSwingAction extends AbstractCustomizableAction {
 
     @Override
     public final void actionPerformed(final ActionEvent event) {
-        ((AbstractAFAction) this.getContext().get(this.getActionKey())).perform();
+        ((AbstractAFAction) this.getContext().get(this.getActionKey())).perform(event);
     }
 
     private static final long serialVersionUID = 3352877175960985617L;

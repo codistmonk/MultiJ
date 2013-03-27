@@ -24,21 +24,20 @@
 
 package net.sourceforge.aprog.subtitlesadjuster;
 
-import java.text.ParseException;
-import static net.sourceforge.aprog.subtitlesadjuster.SubtitlesAdjusterConstants.Variables.*;
 import static net.sourceforge.aprog.subtitlesadjuster.Subtitles.TIME_FORMAT;
+import static net.sourceforge.aprog.subtitlesadjuster.SubtitlesAdjusterConstants.Variables.*;
 import static net.sourceforge.aprog.tools.Tools.*;
-
 import static org.junit.Assert.*;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.InputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URISyntaxException;
+import java.text.ParseException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.net.URISyntaxException;
 
 import net.sourceforge.aprog.context.Context;
 

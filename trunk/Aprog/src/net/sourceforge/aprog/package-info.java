@@ -25,5 +25,5 @@
 /**
  * @author codistmonk (creation 2010)
  */
-@net.sourceforge.aprog.tools.Version("1.0.0")
+@net.sourceforge.aprog.tools.Version("1.1.0")
 package net.sourceforge.aprog;

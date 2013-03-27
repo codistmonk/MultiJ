@@ -27,6 +27,7 @@ package net.sourceforge.aprog.subtitlesadjuster;
 import static net.sourceforge.aprog.i18n.Messages.*;
 import static net.sourceforge.aprog.subtitlesadjuster.SubtitlesAdjusterComponents.*;
 import static net.sourceforge.aprog.subtitlesadjuster.SubtitlesAdjusterConstants.Variables.*;
+import static net.sourceforge.aprog.tools.Tools.ignore;
 
 import java.awt.Component;
 import java.io.File;
@@ -84,7 +85,7 @@ public final class SubtitlesAdjusterActions {
      * <br>Not null
      */
     public static final void quit(final Context context) {
-        Tools.suppressWarningUnused(context);
+        ignore(context);
         
         // TODO confirm
         

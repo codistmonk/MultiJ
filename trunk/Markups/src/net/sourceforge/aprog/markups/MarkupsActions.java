@@ -398,7 +398,7 @@ public final class MarkupsActions {
         final Node node = context.get(SELECTED_NODE);
 
         try {
-            context.set(XPATH_RESULT, XMLTools.getNodes(node, (String) context.get(XPATH_EXPRESSION)));
+            context.set(XPATH_RESULT, XMLTools.getNodeList(node, (String) context.get(XPATH_EXPRESSION)));
             context.set(XPATH_ERROR, null);
         } catch (final Exception exception) {
             context.set(XPATH_RESULT, null);

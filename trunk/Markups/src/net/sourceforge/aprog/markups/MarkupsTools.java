@@ -24,7 +24,9 @@
 
 package net.sourceforge.aprog.markups;
 
-import static net.sourceforge.aprog.tools.Tools.*;
+import static net.sourceforge.aprog.tools.Tools.debugPrint;
+import static net.sourceforge.aprog.tools.Tools.ignore;
+import static net.sourceforge.aprog.tools.Tools.set;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -32,19 +34,20 @@ import java.awt.Component;
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 import javax.swing.event.DocumentEvent;
 import javax.swing.text.JTextComponent;
+
 import net.sourceforge.aprog.context.Context;
 import net.sourceforge.aprog.events.Variable;
 import net.sourceforge.aprog.events.Variable.ValueChangedEvent;
 import net.sourceforge.aprog.i18n.Messages;
 import net.sourceforge.aprog.markups.MarkupsComponents.AbstractDocumentHandler;
-
 import net.sourceforge.aprog.tools.IllegalInstantiationException;
-import net.sourceforge.aprog.tools.Tools;
 import net.sourceforge.aprog.xml.XMLTools;
+
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -207,7 +210,7 @@ public final class MarkupsTools {
             return pathSelector + selector;
         }
 
-        final NodeList siblings = XMLTools.getNodes(parent, selector);
+        final NodeList siblings = XMLTools.getNodeList(parent, selector);
 
         return pathSelector + selector + "[" + (indexOf(siblings, node) + 1) + "]";
     }
@@ -359,7 +362,7 @@ abstract class AbstractDOMListenerReattacher implements Variable.Listener<Node> 
      * <br>Not null
      */
     protected void afterReattachment(final ValueChangedEvent<Node, ?> event) {
-        Tools.suppressWarningUnused(event);
+        ignore(event);
     }
 
 }

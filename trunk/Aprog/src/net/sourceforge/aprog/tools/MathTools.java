@@ -44,6 +44,43 @@ public final class MathTools {
     private static final long[] FIRST_FACTORIALS = {
         1L, 1L, 2L, 6L, 24L, 120L, 720L, 5040L, 40320L, 362880L, 3628800L
     };
+	
+	/**
+	 * @param a
+	 * <br>Range: <code>[0 .. Integer.MAX_VALUE]</code>
+	 * @param b
+	 * <br>Range: <code>[0 .. Integer.MAX_VALUE]</code>
+	 * @return
+	 * <br>Range: <code>[0 .. Integer.MAX_VALUE]</code>
+	 */
+	public static final int gcd(final int a, final int b) {
+		if (a == 0 || a == b) {
+			return b;
+		}
+		
+		if (b == 0) {
+			return a;
+		}
+		
+		int a1 = a;
+		int b1 = b;
+		
+		while (true) {
+			if (a1 < b1) {
+				b1 %= a1;
+				
+				if (b1 == 0) {
+					return a1;
+				}
+			} else {
+				a1 %= b1;
+				
+				if (a1 == 0) {
+					return b1;
+				}
+			}
+		}
+	}
     
     /**
      * @param a
