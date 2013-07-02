@@ -188,7 +188,7 @@ public final class MathTools {
         
         private double sumOfSquares;
         
-        private int count;
+        private double count;
         
         private double minimum;
         
@@ -229,11 +229,21 @@ public final class MathTools {
          * <br>Range: <code>[-Double.MAX_VALUE .. Double.MAX_VALUE]</code>
          */
         public final void addValue(final double value) {
-            this.sum += value;
-            this.sumOfSquares += square(value);
-            ++this.count;
-            this.minimum = min(this.getMinimum(), value);
-            this.maximum = max(this.getMaximum(), value);
+        	this.addValue(value, 1.0);
+        }
+        
+        /**
+         * @param value
+         * <br>Range: <code>[-Double.MAX_VALUE .. Double.MAX_VALUE]</code>
+         * @param count
+         * <br>Range: <code>[0.0 .. Double.MAX_VALUE]</code>
+         */
+        public final void addValue(final double value, final double count) {
+        	this.sum += count * value;
+        	this.sumOfSquares += count * square(value);
+        	this.count += count;
+        	this.minimum = min(this.getMinimum(), value);
+        	this.maximum = max(this.getMaximum(), value);
         }
         
         /**
@@ -254,9 +264,9 @@ public final class MathTools {
         
         /**
          * @return
-         * <br>Range: <code>[0 .. Integer.MAX_VALUE]</code>
+         * <br>Range: <code>[0.0 .. Double.MAX_VALUE]</code>
          */
-        public final int getCount() {
+        public final double getCount() {
             return this.count;
         }
         
