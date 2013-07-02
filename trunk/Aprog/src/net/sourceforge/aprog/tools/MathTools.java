@@ -207,6 +207,24 @@ public final class MathTools {
         }
         
         /**
+         * @param statistics
+         * <br>Not null
+         */
+        public final void addAll(final Statistics statistics) {
+        	this.sum += statistics.getSum();
+        	this.sumOfSquares += statistics.getSumOfSquares();
+        	this.count += statistics.getCount();
+        	
+        	if (statistics.getMinimum() < this.getMinimum()) {
+        		this.minimum = statistics.getMinimum();
+        	}
+        	
+        	if (this.getMaximum() < statistics.getMaximum()) {
+        		this.maximum = statistics.getMaximum();
+        	}
+        }
+        
+        /**
          * @param value
          * <br>Range: <code>[-Double.MAX_VALUE .. Double.MAX_VALUE]</code>
          */
