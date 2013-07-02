@@ -38,10 +38,16 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.concurrent.Callable;
+
+import net.sourceforge.aprog.tools.Factory.DefaultFactory;
 
 import org.junit.Test;
 
@@ -52,6 +58,15 @@ import org.junit.Test;
  */
 public final class ToolsTest {
     
+	@Test
+	public final void testGetOrCreate() {
+		final Map<Object, Collection<?>> map = new HashMap<Object, Collection<?>>();
+		
+		Tools.getOrCreate(map, 42, (Factory) DefaultFactory.forClass(ArrayList.class)).add(42);
+		
+		assertEquals(Arrays.asList(42), map.get(42));
+	}
+	
 	@Test
 	public final void testJoin() {
 		assertEquals("", Tools.join(","));

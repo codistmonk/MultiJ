@@ -42,6 +42,7 @@ import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -148,6 +149,36 @@ public final class Tools {
 		}
 		
 		return resultBuilder.toString();
+	}
+	
+	/**
+	 * Returns the value associated with <code>key</code> in <code>map</code>;
+	 * if necessary, the value is created using <code>valueFactory</code>.
+	 * 
+	 * @param map
+	 * <br>Not null
+	 * <br>Input-output
+	 * @param key
+	 * <br>Not null
+	 * @param valueFactory
+	 * <br>Not null
+	 * @return
+	 * <br>Maybe null
+	 */
+	public static final <K, V> V getOrCreate(final Map<K, V> map, final K key, final Factory<V> valueFactory) {
+		V result = map.get(key);
+		
+		if (result == null) {
+			try {
+				result = valueFactory.newInstance();
+			} catch (final Exception exception) {
+				throw unchecked(exception);
+			}
+			
+			map.put(key, result);
+		}
+		
+		return result;
 	}
 	
 	/**
