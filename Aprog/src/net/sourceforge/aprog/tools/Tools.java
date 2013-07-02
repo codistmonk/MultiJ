@@ -124,6 +124,33 @@ public final class Tools {
 	}
 	
 	/**
+	 * Creates a new string by concatenating the representations of the <code>objects</code>
+	 * and using the specified <code>separator</code>.
+	 * 
+	 * @param separator
+	 * <br>Not null
+	 * @param objects
+	 * <br>Not null
+	 * @return
+	 * <br>Not null
+	 * <br>New
+	 */
+	public static final String join(final String separator, final Object... objects) {
+		final StringBuilder resultBuilder = new StringBuilder();
+		final int n = objects.length;
+		
+		if (0 < n) {
+			resultBuilder.append(objects[0]);
+			
+			for (int i = 1; i < n; ++i) {
+				resultBuilder.append(separator).append(objects[i]);
+			}
+		}
+		
+		return resultBuilder.toString();
+	}
+	
+	/**
 	 * Tries to create a temporary file and initialize it using {@code contents}.
 	 * {@code contents} is closed at the end of this method.
 	 *
