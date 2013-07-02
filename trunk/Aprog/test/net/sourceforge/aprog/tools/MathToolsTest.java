@@ -77,7 +77,7 @@ public final class MathToolsTest {
 	public final void testStatistics1() {
 		final Statistics statistics = new Statistics();
 		
-		assertEquals(0, statistics.getCount());
+		assertEquals(+0.0, statistics.getCount(), +0.0);
 		assertEquals(+0.0, statistics.getSum(), +0.0);
 		assertEquals(+0.0, statistics.getSumOfSquares(), +0.0);
 		assertEquals(Double.NaN, statistics.getMean(), +0.0);
@@ -87,7 +87,7 @@ public final class MathToolsTest {
 		statistics.addValue(+1.0);
 		statistics.addValue(+2.0);
 		
-		assertEquals(2, statistics.getCount());
+		assertEquals(+2.0, statistics.getCount(), +0.0);
 		assertEquals(+3.0, statistics.getSum(), +0.0);
 		assertEquals(+5.0, statistics.getSumOfSquares(), +0.0);
 		assertEquals(+1.5, statistics.getMean(), +0.0);
@@ -102,7 +102,7 @@ public final class MathToolsTest {
 		
 		statistics.reset();
 		
-		assertEquals(0, statistics.getCount());
+		assertEquals(+0.0, statistics.getCount(), +0.0);
 		assertEquals(+0.0, statistics.getSum(), +0.0);
 		assertEquals(+0.0, statistics.getSumOfSquares(), +0.0);
 		assertEquals(Double.NaN, statistics.getMean(), +0.0);
@@ -124,7 +124,7 @@ public final class MathToolsTest {
 		assertEquals(3.0, statistics.getMean(), 0.0);
 		assertEquals(0.0, statistics.getMinimum(), 0.0);
 		assertEquals(6.0, statistics.getMaximum(), 0.0);
-		assertEquals(4, statistics.getCount());
+		assertEquals(4.0, statistics.getCount(), 0.0);
 	}
 	
 }
