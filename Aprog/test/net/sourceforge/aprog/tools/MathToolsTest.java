@@ -74,7 +74,7 @@ public final class MathToolsTest {
 	}
 	
 	@Test
-	public final void testStatistics() {
+	public final void testStatistics1() {
 		final Statistics statistics = new Statistics();
 		
 		assertEquals(0, statistics.getCount());
@@ -108,6 +108,23 @@ public final class MathToolsTest {
 		assertEquals(Double.NaN, statistics.getMean(), +0.0);
 		assertEquals(Double.POSITIVE_INFINITY, statistics.getMinimum(), +0.0);
 		assertEquals(Double.NEGATIVE_INFINITY, statistics.getMaximum(), +0.0);
+	}
+	
+	@Test
+	public final void testStatistics2() {
+		final Statistics statistics = new Statistics();
+		final Statistics moreStatistics = new Statistics();
+		
+		statistics.addValue(0.0);
+		statistics.addValue(2.0);
+		moreStatistics.addValue(4.0);
+		moreStatistics.addValue(6.0);
+		statistics.addAll(moreStatistics);
+		
+		assertEquals(3.0, statistics.getMean(), 0.0);
+		assertEquals(0.0, statistics.getMinimum(), 0.0);
+		assertEquals(6.0, statistics.getMaximum(), 0.0);
+		assertEquals(4, statistics.getCount());
 	}
 	
 }
