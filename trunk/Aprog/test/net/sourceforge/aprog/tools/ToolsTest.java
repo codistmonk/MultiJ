@@ -52,6 +52,13 @@ import org.junit.Test;
  */
 public final class ToolsTest {
     
+	@Test
+	public final void testJoin() {
+		assertEquals("", Tools.join(","));
+		assertEquals("42", Tools.join(",", 42));
+		assertEquals("42,33", Tools.join(",", 42, 33));
+	}
+	
     @Test
     public final void testGCAndUsedMemory1() {
         final long usedMemoryBeforeAllocation = Tools.usedMemory();
