@@ -4,7 +4,9 @@
     <!--ANT 1.7 is required                                        -->
     <target name="create_lib_jar">
         <jar destfile="aprog.jar" filesetmanifest="mergewithoutmain">
-            <fileset dir="bin"/>
+            <fileset dir="bin" excludes="**/*Test*.*">
+            	<present present="srconly" targetdir="test"/>
+        	</fileset>
             <fileset dir="src"/>
         </jar>
     </target>
