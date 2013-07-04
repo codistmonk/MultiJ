@@ -59,6 +59,21 @@ import org.junit.Test;
 public final class ToolsTest {
     
 	@Test
+	public final void testObjectIO() throws Exception {
+		final File tmp = File.createTempFile(Tools.getThisMethodName(), ".jo");
+		
+		tmp.deleteOnExit();
+		
+		Tools.writeObject(42, tmp.getPath());
+		assertEquals(42, Tools.readObject(tmp.getPath()));
+	}
+	
+	@Test
+	public final void testGetThisMethodName() {
+		assertEquals("testGetThisMethodName", Tools.getThisMethodName());
+	}
+	
+	@Test
 	public final void testGetOrCreate() {
 		final Map<Object, Collection<?>> map = new HashMap<Object, Collection<?>>();
 		

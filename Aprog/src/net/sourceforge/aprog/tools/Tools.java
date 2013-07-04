@@ -24,13 +24,18 @@
 
 package net.sourceforge.aprog.tools;
 
+import static net.sourceforge.aprog.tools.Tools.unchecked;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -95,6 +100,47 @@ public final class Tools {
 		final Runtime runtime = Runtime.getRuntime();
 		
 		return runtime.totalMemory() - runtime.freeMemory();
+	}
+	
+	/**
+	 * @param object
+	 * <br>Not null
+	 * @param filePath
+	 * <br>Not null
+	 */
+	public static final void writeObject(final Serializable object, final String filePath) {
+		try {
+			final ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(filePath));
+			
+			try {
+				oos.writeObject(object);
+			} finally {
+				oos.close();
+			}
+		} catch (final Exception exception) {
+			throw unchecked(exception);
+		}
+	}
+	
+	/**
+	 * @param filePath
+	 * <br>Not null
+	 * @return
+	 * <br>Not null
+	 */
+	@SuppressWarnings("unchecked")
+	public static final <T> T readObject(final String filePath) {
+		try {
+			final ObjectInputStream ois = new ObjectInputStream(new FileInputStream(filePath));
+			
+			try {
+				return (T) ois.readObject();
+			} finally {
+				ois.close();
+			}
+		} catch (final Exception exception) {
+			throw unchecked(exception);
+		}
 	}
 	
 	/**
@@ -692,6 +738,16 @@ public final class Tools {
 		final StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
 
 		return stackTrace.length > 3 ? stackTrace[3].getMethodName() : null;
+	}
+
+	/**
+	 * @return {@code null} if the method cannot be retrieved
+	 * <br>A possibly null value
+	 */
+	public static final String getThisMethodName() {
+		final StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+
+		return stackTrace.length > 2 ? stackTrace[2].getMethodName() : null;
 	}
 
 	/**

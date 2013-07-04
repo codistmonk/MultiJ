@@ -35,7 +35,6 @@ import net.sourceforge.aprog.tools.IllegalInstantiationException;
 import net.sourceforge.aprog.tools.Tools;
 
 /**
- *
  * @author codistmonk (creation 2010-07-04)
  */
 public final class EventsTestingTools {
@@ -66,7 +65,6 @@ public final class EventsTestingTools {
     }
 
     /**
-     *
      * @author codistmonk (creation 2010-06-18)
      *
      * @param <E> The base event type
