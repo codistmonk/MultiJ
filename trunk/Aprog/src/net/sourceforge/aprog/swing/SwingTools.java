@@ -57,6 +57,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 
 import javax.imageio.ImageIO;
@@ -139,11 +140,17 @@ public final class SwingTools {
 	 * {@value}.
 	 */
 	public static final String ROLLOVER_ROLLOVER_SELECTED_ICON_SUFFIX = "_rollover_selected." + ICON_FORMAT;
-
+	
 	private static final Map<String, ImageIcon> iconCache = new HashMap<String, ImageIcon>();
-
+	
 	private static String imagesBase = DEFAULT_IMAGES_BASE;
-
+	
+	private static final AtomicBoolean checkAWT = new AtomicBoolean(true);
+	
+	public static final void setCheckAWT(final boolean checkAWT) {
+		SwingTools.checkAWT.set(checkAWT);
+	}
+	
 	/**
 	 *
 	 * @return
@@ -646,7 +653,7 @@ public final class SwingTools {
 	 * @throws IllegalStateException if the current thread is not the AWT Event Dispatching Thread
 	 */
 	public static final void checkAWT() {
-		if (!SwingUtilities.isEventDispatchThread()) {
+		if (SwingTools.checkAWT.get() && !SwingUtilities.isEventDispatchThread()) {
 			throw new IllegalStateException("This section must be executed in the AWT Event Dispatching Thread");
 		}
 	}
