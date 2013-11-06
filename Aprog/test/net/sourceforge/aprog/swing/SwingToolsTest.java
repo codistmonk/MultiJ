@@ -262,7 +262,7 @@ public final class SwingToolsTest {
 	}
 
 	@Test(expected=IllegalStateException.class)
-	public final void testCheckAWT() throws Exception {
+	public final void testCheckAWT1() throws Exception {
 		SwingUtilities.invokeAndWait(new Runnable() {
 
 			@Override
@@ -276,7 +276,14 @@ public final class SwingToolsTest {
 		// Throws
 		SwingTools.checkAWT();
 	}
-
+	
+	@Test
+	public final void testCheckAWT2() {
+		SwingTools.setCheckAWT(false);
+		SwingTools.checkAWT();
+		SwingTools.setCheckAWT(true);
+	}
+	
 	@Test
 	public final void testCheckNotAWT() throws Exception {
 		// Doesn't throw
