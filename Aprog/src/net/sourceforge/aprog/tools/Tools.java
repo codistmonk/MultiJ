@@ -24,8 +24,6 @@
 
 package net.sourceforge.aprog.tools;
 
-import static net.sourceforge.aprog.tools.Tools.unchecked;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -274,7 +272,7 @@ public final class Tools {
 	}
 	
 	/**
-	 * Writes {@code input} to {@code output}; this method does not close the streams when it terminates.
+	 * Writes {@code input} to {@code output}; this method does NOT close the streams when it terminates.
 	 *
 	 * @param input
 	 * <br>Not null
@@ -298,6 +296,25 @@ public final class Tools {
 	}
 	
 	/**
+	 * Writes {@code input} to {@code output}; this method CLOSES the OUTPUT stream when it terminates.
+	 *
+	 * @param input
+	 * <br>Not null
+	 * <br>Input-output
+	 * @param output
+	 * <br>Not null
+	 * <br>Input-output
+	 * @throws RuntimeException if an I/O error occurs
+	 */
+	public static final void writeAndCloseOutput(final InputStream input, final OutputStream output) {
+		try {
+			write(input, output);
+		} finally {
+			close(output);
+		}
+	}
+	
+	/**
 	 * Tries to close {@code closable} using reflection and without throwing an exception if it fails.
 	 * If an exception occurs, it is logged in the caller's logger.
 	 *
@@ -307,7 +324,7 @@ public final class Tools {
 	public static final void close(final Object closable) {
 		try {
 			if (closable != null) {
-				closable.getClass().getMethod("close").invoke(closable);
+				invoke(closable, "close");
 			}
 		} catch (final Exception exception) {
 			Logger.getLogger(getCallerClass().getName() + "." + getCallerMethodName())

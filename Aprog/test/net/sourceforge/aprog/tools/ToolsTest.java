@@ -25,9 +25,9 @@
 package net.sourceforge.aprog.tools;
 
 import static org.junit.Assert.*;
-
 import static net.sourceforge.aprog.tools.Launcher.*;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -35,6 +35,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.PrintStream;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Method;
@@ -92,7 +93,7 @@ public final class ToolsTest {
     @Test
     public final void testGCAndUsedMemory1() {
         final long usedMemoryBeforeAllocation = Tools.usedMemory();
-        Object object = new int[100000];
+        Object object = new int[1000000];
         final long usedMemoryAfterAllocation = Tools.usedMemory();
         final WeakReference<Object> weakReference = new WeakReference<Object>(object);
         
@@ -112,7 +113,7 @@ public final class ToolsTest {
     @Test
     public final void testGCAndUsedMemory2() {
     	final long usedMemoryBeforeAllocation = Tools.usedMemory();
-    	Object object = new int[100000];
+    	Object object = new int[1000000];
     	final long usedMemoryAfterAllocation = Tools.usedMemory();
     	final WeakReference<Object> weakReference = new WeakReference<Object>(object);
     	
@@ -200,6 +201,25 @@ public final class ToolsTest {
         }
     }
 
+    @Test
+    public final void testWriteAndClose() throws IOException {
+    	final File tmp = File.createTempFile("test", "");
+    	
+    	tmp.deleteOnExit();
+    	
+    	final InputStream input = new ByteArrayInputStream("42".getBytes());
+    	final OutputStream output = new FileOutputStream(tmp);
+    	
+    	Tools.writeAndCloseOutput(input, output);
+    	
+    	try {
+    		output.write(0);
+    		assertFalse(true);
+    	} catch (final IOException expected) {
+    		Tools.ignore(expected);
+    	}
+    }
+    
     @Test
     public final void testClose() throws IOException {
         final InputStream input = Tools.getResourceAsStream(Tools.getThisPackagePath() + "test.txt");
