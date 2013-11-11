@@ -92,6 +92,8 @@ public final class ToolsTest {
 	
     @Test
     public final void testGCAndUsedMemory1() {
+    	Tools.gc(100L);
+    	
         final long usedMemoryBeforeAllocation = Tools.usedMemory();
         Object object = new int[1000000];
         final long usedMemoryAfterAllocation = Tools.usedMemory();
@@ -112,6 +114,8 @@ public final class ToolsTest {
     
     @Test
     public final void testGCAndUsedMemory2() {
+    	Tools.gc(100L);
+    	
     	final long usedMemoryBeforeAllocation = Tools.usedMemory();
     	Object object = new int[1000000];
     	final long usedMemoryAfterAllocation = Tools.usedMemory();
