@@ -15,22 +15,24 @@ public class TicTocTest {
 	public final void testGetTotalTime() {
 		final TicToc timer = new TicToc();
 		long time;
+		final long sleepMilliseconds = 500L;
+		final long upperLimit = sleepMilliseconds + 200L;
 		
 		timer.tic();
-		Tools.gc(500L);
+		Tools.gc(sleepMilliseconds);
 		time = timer.toc();
 		
-		assertTrue(500L <= time && time < 600L);
-		assertTrue(500L <= timer.getTotalTime() && timer.getTotalTime() < 600L);
+		assertTrue(sleepMilliseconds <= time && time < upperLimit);
+		assertTrue(sleepMilliseconds <= timer.getTotalTime() && timer.getTotalTime() < upperLimit);
 		
-		Tools.gc(500L);
+		Tools.gc(sleepMilliseconds);
 		
 		timer.tic();
-		Tools.gc(500L);
+		Tools.gc(sleepMilliseconds);
 		time = timer.toc();
 		
-		assertTrue(500L <= time && time < 600L);
-		assertTrue(1000L <= timer.getTotalTime() && timer.getTotalTime() < 1200L);
+		assertTrue(sleepMilliseconds <= time && time < upperLimit);
+		assertTrue(2L * sleepMilliseconds <= timer.getTotalTime() && timer.getTotalTime() < 2L * upperLimit);
 	}
 	
 }
