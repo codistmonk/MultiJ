@@ -24,6 +24,7 @@
 
 package net.sourceforge.aprog.events;
 
+import java.io.Serializable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -39,7 +40,7 @@ import java.util.logging.Logger;
  * @param <L> the event listener type
  * @author codistmonk (creation 2010-06-18)
  */
-public interface Observable<L> {
+public interface Observable<L> extends Serializable {
 
     /**
      *
@@ -71,7 +72,7 @@ public interface Observable<L> {
      * @param <S> the event source type
      * @author codistmonk (creation 2010-06-18)
      */
-    public static interface Event<S extends Observable<?>> {
+    public static interface Event<S extends Observable<?>> extends Serializable {
 
         /**
          *
@@ -110,15 +111,15 @@ public interface Observable<L> {
      * @author codistmonk (creation 2010-06-15)
      */
     public static abstract class AbstractEvent<S extends Observable<L>, L> implements Event<S> {
-
-        private final S source;
-
+    	
+		private final S source;
+		
         private final long time;
-
+        
         private boolean interrupted;
-
+        
         private boolean alreadyFired;
-
+        
         /**
          *
          * @param source
@@ -131,7 +132,7 @@ public interface Observable<L> {
             this.time = time;
             this.source = source;
         }
-
+        
         /**
          *
          * @param source
@@ -141,27 +142,27 @@ public interface Observable<L> {
         protected AbstractEvent(final S source) {
             this(source, System.currentTimeMillis());
         }
-
+        
         @Override
         public final S getSource() {
             return this.source;
         }
-
+        
         @Override
         public final long getTime() {
             return this.time;
         }
-
+        
         @Override
         public final boolean isInterrupted() {
             return this.interrupted;
         }
-
+        
         @Override
         public final void setInterrupted(final boolean interrupted) {
             this.interrupted = interrupted;
         }
-
+        
         /**
          * Dispatches this event to its source listeners.
          * <br>If a listener throws an exception (subclass of {@link Exception}, checked or unchecked),
@@ -180,7 +181,7 @@ public interface Observable<L> {
 
             this.notifyListeners();
         }
-
+        
         /**
          *
          * @param listener
@@ -188,7 +189,7 @@ public interface Observable<L> {
          * <br>Input-output
          */
         protected abstract void notifyListener(L listener);
-
+        
         private final void notifyListeners() {
             for (final L listener : this.getSource().getListeners()) {
                 this.tryToNotifyListener(listener);
@@ -198,7 +199,7 @@ public interface Observable<L> {
                 }
             }
         }
-
+        
         /**
          *
          * @param listener
@@ -212,7 +213,12 @@ public interface Observable<L> {
                 Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, null, exception);
             }
         }
-
+    	
+        /**
+		 * {@value}.
+		 */
+		private static final long serialVersionUID = 8150049535482287327L;
+		
     }
 
 }

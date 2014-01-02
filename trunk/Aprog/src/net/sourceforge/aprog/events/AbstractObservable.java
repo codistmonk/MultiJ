@@ -38,8 +38,8 @@ import java.util.Collection;
  * @author codistmonk (creation 2010-06-14)
  */
 public abstract class AbstractObservable<L> implements Observable<L> {
-
-    private final Collection<L> listeners;
+	
+	private final Collection<L> listeners;
 
     public AbstractObservable() {
         this.listeners = new ArrayList<L>();
@@ -59,7 +59,12 @@ public abstract class AbstractObservable<L> implements Observable<L> {
     public final synchronized Iterable<L> getListeners() {
         return new ArrayList<L>(this.listeners);
     }
-
+	
+    /**
+	 * {@value}.
+	 */
+	private static final long serialVersionUID = -873653160238438291L;
+	
     /**
      * This abstract event class provides simpler constructors than {@link Observable.AbstractEvent}, but
      * derived concrete classes need to be instantiated from a subclass of {@link AbstractObservable}.
@@ -74,8 +79,8 @@ public abstract class AbstractObservable<L> implements Observable<L> {
      * @author codistmonk (creation 2010-06-15)
      */
     public abstract class AbstractEvent<S extends AbstractObservable<L2>, L2> extends Observable.AbstractEvent<S, L2> {
-
-        /**
+    	
+		/**
          * @param time in milliseconds
          * <br>Range: {@code [0 .. Long.MAX_VALUE]}
          */
@@ -83,12 +88,17 @@ public abstract class AbstractObservable<L> implements Observable<L> {
         protected AbstractEvent(final long time) {
             super((S) AbstractObservable.this, time);
         }
-
+        
         @SuppressWarnings("unchecked")
         protected AbstractEvent() {
             super((S) AbstractObservable.this);
         }
-
+    	
+        /**
+		 * {@value}.
+		 */
+		private static final long serialVersionUID = -4751561584420402134L;
+		
     }
 
 }

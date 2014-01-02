@@ -34,13 +34,13 @@ import net.sourceforge.aprog.tools.Tools;
  * @author codistmonk (creation 2010-06-20)
  */
 public final class AtomicVariable<T> extends AbstractObservable<Variable.Listener<T>> implements Variable<T> {
-
-    private final Class<T> type;
-
+	
+	private final Class<T> type;
+	
     private final String name;
-
+    
     private final AtomicReference<T> valueReference;
-
+    
     /**
      *
      * @param type
@@ -58,29 +58,29 @@ public final class AtomicVariable<T> extends AbstractObservable<Variable.Listene
         this.name = name;
         this.valueReference = new AtomicReference<T>(value);
     }
-
+    
     @Override
     public final Class<T> getType() {
         return this.type;
     }
-
+    
     @Override
     public final String getName() {
         return this.name;
     }
-
+    
     @Override
     public final T getValue() {
         return this.valueReference.get();
     }
-
+    
     @Override
     public final void setValue(final T value) {
         if (this.getValue() != value) {
             this.new ValueChangedEvent(this.valueReference.getAndSet(this.getType().cast(value)), value).fire();
         }
     }
-
+    
     @Override
     public final boolean equals(final Object object) {
         final Variable<T> that = Tools.castToCurrentClass(object);
@@ -91,17 +91,22 @@ public final class AtomicVariable<T> extends AbstractObservable<Variable.Listene
                 this.getName().equals(that.getName()) &&
                 Tools.equals(this.getValue(), that.getValue());
     }
-
+    
     @Override
     public final int hashCode() {
         return this.getType().hashCode() + this.getName().hashCode();
     }
-
+    
     @Override
     public final String toString() {
         return "AtomicVariable { " + this.getType() + " " + this.getName() + " " + this.getValue() + " }";
     }
-
+	
+    /**
+	 * {@value}.
+	 */
+	private static final long serialVersionUID = -6845924049570976928L;
+	
     /**
      *
      * @author codistmonk (creation 2010-06-20)
@@ -109,11 +114,11 @@ public final class AtomicVariable<T> extends AbstractObservable<Variable.Listene
     public final class ValueChangedEvent
             extends AbstractObservable<Variable.Listener<T>>.AbstractEvent<AtomicVariable<T>, Variable.Listener<T>>
             implements Variable.ValueChangedEvent<T, AtomicVariable<T>> {
-
-        private final T oldValue;
-
+    	
+		private final T oldValue;
+		
         private final T newValue;
-
+        
         /**
          *
          * @param oldValue
@@ -127,21 +132,26 @@ public final class AtomicVariable<T> extends AbstractObservable<Variable.Listene
             this.oldValue = oldValue;
             this.newValue = newValue;
         }
-
+        
         @Override
         public final T getOldValue() {
             return this.oldValue;
         }
-
+        
         @Override
         public final T getNewValue() {
             return this.newValue;
         }
-
+        
         @Override
         protected final void notifyListener(final Variable.Listener<T> listener) {
             listener.valueChanged(this);
         }
+    	
+        /**
+		 * {@value}.
+		 */
+		private static final long serialVersionUID = -8853801168338804949L;
         
     }
 
