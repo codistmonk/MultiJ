@@ -27,6 +27,7 @@ package net.sourceforge.aprog.events;
 import static net.sourceforge.aprog.tools.Tools.append;
 import static net.sourceforge.aprog.tools.Tools.set;
 
+import java.io.Serializable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.ref.WeakReference;
@@ -228,7 +229,7 @@ public final class EventManager {
 	 * @author codistmonk (creation 2012-06-17)
 	 * @param <S> The event source type
 	 */
-	public static abstract interface Event<S> {
+	public static abstract interface Event<S> extends Serializable {
 		
 	    /**
 	     * @return
@@ -307,6 +308,11 @@ public final class EventManager {
 		public final void fire() {
 			this.getEventManager().dispatch(this);
 		}
+		
+		/**
+		 * {@value}.
+		 */
+		private static final long serialVersionUID = 8762957052471158152L;
 		
 	}
 	
