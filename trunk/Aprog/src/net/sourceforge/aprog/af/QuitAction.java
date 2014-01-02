@@ -33,8 +33,8 @@ import net.sourceforge.aprog.context.Context;
  * @author codistmonk (creation 2010-09-24)
  */
 public final class QuitAction extends AbstractAFAction {
-
-    /**
+	
+	/**
      *
      * @param context
      * <br>Not null
@@ -44,12 +44,17 @@ public final class QuitAction extends AbstractAFAction {
     public QuitAction(final Context context) {
         super(context, ACTIONS_QUIT);
     }
-
+    
     @Override
     public final void perform(final Object object) {
     	ignore(object);
     	
         System.exit(0);
     }
-
+	
+    /**
+	 * {@value}.
+	 */
+	private static final long serialVersionUID = 4019533368417446166L;
+	
 }

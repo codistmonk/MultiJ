@@ -69,4 +69,9 @@ public final class ShowAboutDialogAction extends AbstractAFAction {
 				iconPath == null ? null : SwingTools.getIcon(context.get(APPLICATION_ICON_PATH).toString()));
 	}
 	
+	/**
+	 * {@value}.
+	 */
+	private static final long serialVersionUID = -8561673058324258579L;
+	
 }

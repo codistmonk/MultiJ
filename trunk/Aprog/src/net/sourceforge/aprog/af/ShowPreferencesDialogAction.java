@@ -34,7 +34,7 @@ import net.sourceforge.aprog.context.Context;
  */
 public final class ShowPreferencesDialogAction extends AbstractAFAction {
 	
-    /**
+	/**
      *
      * @param context
      * <br>Not null
@@ -51,5 +51,10 @@ public final class ShowPreferencesDialogAction extends AbstractAFAction {
     	
         AFPreferencesDialog.newPreferencesDialog(this.getContext()).setVisible(true);
     }
+	
+    /**
+	 * {@value}.
+	 */
+	private static final long serialVersionUID = 524088544049807652L;
     
 }
