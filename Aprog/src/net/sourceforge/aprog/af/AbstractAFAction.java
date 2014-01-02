@@ -24,13 +24,15 @@
 
 package net.sourceforge.aprog.af;
 
+import java.io.Serializable;
+
 import net.sourceforge.aprog.context.Context;
 
 /**
  *
  * @author codistmonk (creation 2010-09-24)
  */
-public abstract class AbstractAFAction {
+public abstract class AbstractAFAction implements Serializable {
 	
 	private final Context context;
 	
@@ -77,5 +79,10 @@ public abstract class AbstractAFAction {
 	 * <br>Maybe null
 	 */
 	public abstract void perform(Object object);
+	
+	/**
+	 * {@value}.
+	 */
+	private static final long serialVersionUID = 3978817433871677672L;
 	
 }
