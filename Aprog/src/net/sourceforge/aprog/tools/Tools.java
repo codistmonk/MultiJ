@@ -67,6 +67,32 @@ public final class Tools {
 	public static final String LINE_SEPARATOR = System.getProperty("line.separator");
 	
 	/**
+	 * Creates an array of <code>n</code> objects instantiated using <code>factory</code>.
+	 * 
+	 * @param n
+	 * <br>Range: <code>[0 .. Integer.MAX_VALUE]</code> 
+	 * @param factory
+	 * <br>Must not be null
+	 * @return
+	 * <br>Not null
+	 * <br>New
+	 */
+	public static final <T> T[] instances(final int n, final Factory<T> factory) {
+		try {
+			@SuppressWarnings("unchecked")
+			final T[] result = (T[]) Array.newInstance(factory.getInstanceClass(), n);
+			
+			for (int i = 0; i < n; ++i) {
+				result[i] = factory.newInstance();
+			}
+			
+			return result;
+		} catch (final NegativeArraySizeException exception) {
+			throw unchecked(exception);
+		}
+	}
+	
+	/**
 	 * Runs the garbage collector and waits for a while.
 	 * 
 	 * @param sleepMilliseconds

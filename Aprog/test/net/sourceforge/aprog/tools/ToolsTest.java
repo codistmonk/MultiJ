@@ -38,6 +38,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.lang.ref.WeakReference;
+import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -59,6 +60,23 @@ import org.junit.Test;
  */
 public final class ToolsTest {
     
+	@Test
+	public final void testInstances() {
+		{
+			final Object array = Tools.instances(42, DefaultFactory.forClass(Object.class));
+			
+			assertEquals(42, Array.getLength(array));
+			assertEquals(Object[].class, array.getClass());
+		}
+		
+		{
+			final Object array = Tools.instances(42, DefaultFactory.ARRAY_LIST_FACTORY);
+			
+			assertEquals(42, Array.getLength(array));
+			assertEquals(ArrayList[].class, array.getClass());
+		}
+	}
+	
 	@Test
 	public final void testObjectIO() throws Exception {
 		final File tmp = File.createTempFile(Tools.getThisMethodName(), ".jo");
