@@ -27,17 +27,24 @@ package net.sourceforge.aprog.tools;
 import static net.sourceforge.aprog.tools.Tools.set;
 import static net.sourceforge.aprog.tools.Tools.unchecked;
 
+import java.io.Serializable;
 import java.lang.reflect.Constructor;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.Map;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 /**
  * @author codistmonk (creation 2013-07-02)
  * @param <T> The target instance type
  */
-public abstract interface Factory<T> {
+public abstract interface Factory<T> extends Serializable {
 	
 	/**
 	 * @return
@@ -46,20 +53,38 @@ public abstract interface Factory<T> {
 	 */
 	public abstract T newInstance();
 	
+	public abstract Class<T> getInstanceClass();
+	
 	/**
 	 * @author codistmonk (creation 2013-07-02)
 	 * @param <T> The target instance type
 	 */
 	public static final class ConstantFactory<T> implements Factory<T> {
 		
+		private final Class<T> instanceClass;
+		
 		private final T instance;
 		
 		/**
 		 * @param instance
-		 * <br>Maybe null
+		 * <br>Must not be null
 		 * <br>Will be strongly referenced in <code>this</code>
 		 */
+		@SuppressWarnings("unchecked")
 		public ConstantFactory(final T instance) {
+			this((Class<T>) instance.getClass(), instance);
+		}
+		
+		/**
+		 * @param instanceClass
+		 * <br>Must not be null
+		 * <br>Will be strongly referenced in <code>this</code>
+		 * @param instance
+		 * <br>May be null
+		 * <br>Will be strongly referenced in <code>this</code>
+		 */
+		public ConstantFactory(final Class<T> instanceClass, final T instance) {
+			this.instanceClass = instanceClass;
 			this.instance = instance;
 		}
 		
@@ -67,6 +92,16 @@ public abstract interface Factory<T> {
 		public final T newInstance() {
 			return this.instance;
 		}
+		
+		@Override
+		public final Class<T> getInstanceClass() {
+			return this.instanceClass;
+		}
+		
+		/**
+		 * {@value}.
+		 */
+		private static final long serialVersionUID = 3073959035314976367L;
 		
 		/**
 		 * Creates a new factory using the specified parameters.
@@ -119,9 +154,33 @@ public abstract interface Factory<T> {
 			}
 		}
 		
+		@Override
+		public final Class<T> getInstanceClass() {
+			return this.constructor.getDeclaringClass();
+		}
+		
+		/**
+		 * {@value}.
+		 */
+		private static final long serialVersionUID = 6632177904525343272L;
+		
 		private static final Class<?>[] OBJECT_ARRAY_ARGUMENT_TYPE = { Object[].class };
 		
 		private static final Map<Class<?>, Collection<Class<?>>> primitiveCompatibilities;
+		
+		public static final DefaultFactory<ArrayList> ARRAY_LIST_FACTORY = forClass(ArrayList.class);
+		
+		public static final DefaultFactory<LinkedList> LINKED_LIST_FACTORY = forClass(LinkedList.class);
+		
+		public static final DefaultFactory<HashSet> HASH_SET_FACTORY = forClass(HashSet.class);
+		
+		public static final DefaultFactory<TreeSet> TREE_SET_FACTORY = forClass(TreeSet.class);
+		
+		public static final DefaultFactory<HashMap> HASH_MAP_FACTORY = forClass(HashMap.class);
+		
+		public static final DefaultFactory<LinkedHashMap> LINKED_HASH_MAP_FACTORY = forClass(LinkedHashMap.class);
+		
+		public static final DefaultFactory<TreeMap> TREE_MAP_FACTORY = forClass(TreeMap.class);
 		
 		static {
 			primitiveCompatibilities = new HashMap<Class<?>, Collection<Class<?>>>();
