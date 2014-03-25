@@ -263,7 +263,7 @@ public final class SwingTools {
 			
 			@Override
 			public final void run() {
-				final JDialog frame = new JDialog((JFrame) null, title, true);
+				final JDialog frame = new JDialog((JFrame) null, title, modal);
 				
 				frame.add(component);
 				frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
