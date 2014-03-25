@@ -180,6 +180,16 @@ public final class MathTools {
     }
     
     /**
+     * @param value
+     * <br>Range: any double
+     * @return
+     * <br>Range: any double
+     */
+    public static final double square(final double value) {
+        return value * value;
+    }
+    
+    /**
      * @author codistmonk (creation 2012-06-20)
      */
     public static final class Statistics {
@@ -328,16 +338,6 @@ public final class MathTools {
          */
         public final double getVariance() {
             return this.getSumOfSquares() / this.getCount() - square(this.getMean());
-        }
-        
-        /**
-         * @param value
-         * <br>Range: any double
-         * @return
-         * <br>Range: any double
-         */
-        public static final double square(final double value) {
-            return value * value;
         }
         
     }
