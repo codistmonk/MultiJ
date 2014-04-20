@@ -522,14 +522,18 @@ public final class SwingTools {
 			final String transferDataString = (String) event.getTransferable().getTransferData(DataFlavor.stringFlavor);
 			
 			if (event.isDataFlavorSupported(getURIListAsStringFlavor())) {
-				final Scanner scanner = new Scanner(transferDataString);
 				final List<File> result = new ArrayList<File>();
+				final Scanner scanner = new Scanner(transferDataString);
 				
-				while (scanner.hasNext()) {
-					final String fileURL = URLDecoder.decode(scanner.nextLine(), "UTF-8");
-					final String protocol = "file:";
-					
-                    result.add(new File(fileURL.startsWith(protocol) ? fileURL.substring(protocol.length()) : fileURL));
+				try {
+					while (scanner.hasNext()) {
+						final String fileURL = URLDecoder.decode(scanner.nextLine(), "UTF-8");
+						final String protocol = "file:";
+						
+						result.add(new File(fileURL.startsWith(protocol) ? fileURL.substring(protocol.length()) : fileURL));
+					}
+				} finally {
+					scanner.close();
 				}
 				
 				return result;

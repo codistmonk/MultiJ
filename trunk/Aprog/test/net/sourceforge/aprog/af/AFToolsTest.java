@@ -145,13 +145,18 @@ public final class AFToolsTest {
 		final Context context = new Context();
 
 		new AbstractAFAction(context, Variables.TEST) {
-
+			
 			@Override
 			public final void perform(final Object object) {
 				ignore(object);
 				
 				context.set(Variables.SUCCESS, true);
 			}
+			
+			/**
+			 * {@value}.
+			 */
+			private static final long serialVersionUID = -5350135806380729762L;
 
 		};
 

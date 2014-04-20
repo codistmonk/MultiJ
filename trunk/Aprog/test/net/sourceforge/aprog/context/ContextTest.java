@@ -51,7 +51,7 @@ public final class ContextTest {
         assertNull(context.set("y", "z"));
         assertEquals(42, (Object) context.set("x", 33));
 
-        assertEquals(33, context.get("x"));
+        assertEquals((Object) 33, context.get("x"));
         assertEquals("z", context.get("y"));
 
         context.remove("x");
