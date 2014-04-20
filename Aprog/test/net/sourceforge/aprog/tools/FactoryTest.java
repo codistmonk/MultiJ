@@ -26,8 +26,6 @@ package net.sourceforge.aprog.tools;
 
 import static org.junit.Assert.*;
 
-import com.sun.xml.internal.ws.api.streaming.XMLStreamReaderFactory.Default;
-
 import net.sourceforge.aprog.tools.Factory.ConstantFactory;
 import net.sourceforge.aprog.tools.Factory.DefaultFactory;
 

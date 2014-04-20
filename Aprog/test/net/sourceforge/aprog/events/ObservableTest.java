@@ -25,8 +25,9 @@
 package net.sourceforge.aprog.events;
 
 import static net.sourceforge.aprog.events.EventsTestingTools.*;
-
 import static org.junit.Assert.*;
+
+import java.io.Serializable;
 
 import net.sourceforge.aprog.events.Observable.Event;
 
@@ -39,72 +40,82 @@ import org.junit.Test;
  */
 public final class ObservableTest {
 
-    @Test
-    public final <R extends EventRecorder<Event<?>> & DummyObservable.Listener> void testFireEvent() {
-        final DummyObservable observable = new DummyObservable();
-        @SuppressWarnings("unchecked")
-        final R recorder1 = (R) newEventRecorder(DummyObservable.Listener.class);
-        @SuppressWarnings("unchecked")
-        final R recorder2 = (R) newEventRecorder(DummyObservable.Listener.class);
+	@Test
+	public final <R extends EventRecorder<Event<?>> & DummyObservable.Listener> void testFireEvent() {
+		final DummyObservable observable = new DummyObservable();
+		@SuppressWarnings("unchecked")
+		final R recorder1 = (R) newEventRecorder(DummyObservable.Listener.class);
+		@SuppressWarnings("unchecked")
+		final R recorder2 = (R) newEventRecorder(DummyObservable.Listener.class);
 
-        observable.addListener(recorder1);
-        observable.addListener(recorder2);
-        observable.fireNewEvent();
-        observable.removeListener(recorder2);
-        observable.fireNewEvent();
+		observable.addListener(recorder1);
+		observable.addListener(recorder2);
+		observable.fireNewEvent();
+		observable.removeListener(recorder2);
+		observable.fireNewEvent();
 
-        assertTrue(recorder1.getEvent(0) instanceof DummyObservable.EventFiredEvent);
-        assertTrue(recorder1.getEvent(1) instanceof DummyObservable.EventFiredEvent);
-        assertSame(recorder1.getEvent(0), recorder2.getEvent(0));
-        assertEquals(2, recorder1.getEvents().size());
-        assertEquals(1, recorder2.getEvents().size());
-    }
+		assertTrue(recorder1.getEvent(0) instanceof DummyObservable.EventFiredEvent);
+		assertTrue(recorder1.getEvent(1) instanceof DummyObservable.EventFiredEvent);
+		assertSame(recorder1.getEvent(0), recorder2.getEvent(0));
+		assertEquals(2, recorder1.getEvents().size());
+		assertEquals(1, recorder2.getEvents().size());
+	}
 
-    /**
-     *
-     * @author codistmonk (creation 2010-06-23)
-     */
-    private static final class DummyObservable extends AbstractObservable<DummyObservable.Listener> {
+	/**
+	 *
+	 * @author codistmonk (creation 2010-06-23)
+	 */
+	private static final class DummyObservable extends AbstractObservable<DummyObservable.Listener> {
+		
+		/**
+		 * Package-private default constructor to suppress visibility warnings.
+		 */
+		DummyObservable() {
+			// Do nothing
+		}
 
-        /**
-         * Package-private default constructor to suppress visibility warnings.
-         */
-        DummyObservable() {
-            // Do nothing
-        }
+		public final void fireNewEvent() {
+			new EventFiredEvent().fire();
+		}
+		
+		/**
+		 * {@value}.
+		 */
+		private static final long serialVersionUID = 7489789886939477608L;
 
-        public final void fireNewEvent() {
-            new EventFiredEvent().fire();
-        }
+		/**
+		 *
+		 * @author codistmonk (creation 2010-06-23)
+		 */
+		public static interface Listener extends Serializable {
 
-        /**
-         *
-         * @author codistmonk (creation 2010-06-23)
-         */
-        public static interface Listener {
+			/**
+			 *
+			 * @param event
+			 * <br>Not null
+			 */
+			public abstract void eventFired(final EventFiredEvent event);
 
-            /**
-             *
-             * @param event
-             * <br>Not null
-             */
-            public abstract void eventFired(final EventFiredEvent event);
+		}
 
-        }
+		/**
+		 *
+		 * @author codistmonk (creation 2010-06-23)
+		 */
+		public final class EventFiredEvent extends AbstractEvent<DummyObservable, Listener> {
 
-        /**
-         *
-         * @author codistmonk (creation 2010-06-23)
-         */
-        public final class EventFiredEvent extends AbstractEvent<DummyObservable, Listener> {
+			@Override
+			protected final void notifyListener(final Listener listener) {
+				listener.eventFired(this);
+			}
+			
+			/**
+			 * {@value}.
+			 */
+			private static final long serialVersionUID = -6467945430815473127L;
 
-            @Override
-            protected final void notifyListener(final Listener listener) {
-                listener.eventFired(this);
-            }
+		}
 
-        }
-
-    }
+	}
 
 }

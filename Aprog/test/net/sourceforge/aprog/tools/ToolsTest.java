@@ -84,7 +84,7 @@ public final class ToolsTest {
 		tmp.deleteOnExit();
 		
 		Tools.writeObject(42, tmp.getPath());
-		assertEquals(42, Tools.readObject(tmp.getPath()));
+		assertEquals((Object) 42, Tools.readObject(tmp.getPath()));
 	}
 	
 	@Test
@@ -302,13 +302,13 @@ public final class ToolsTest {
 
     @Test
     public final void testInvoke() {
-        assertEquals(42, Tools.invoke(Integer.class, "parseInt", "42"));
-        assertEquals(42, Tools.invoke(42L, "intValue"));
+        assertEquals((Object) 42, Tools.invoke(Integer.class, "parseInt", "42"));
+        assertEquals((Object) 42, Tools.invoke(42L, "intValue"));
 
         {
             final ObjectWithArbitraryProperties objectWithArbitraryProperties = new ObjectWithArbitraryProperties();
 
-            assertEquals(null, Tools.invoke(objectWithArbitraryProperties, "setPrivateStringProperty", "42"));
+            assertEquals((Object) null, Tools.invoke(objectWithArbitraryProperties, "setPrivateStringProperty", "42"));
             assertEquals("42", Tools.invoke(objectWithArbitraryProperties, "getPrivateStringProperty"));
         }
     }

@@ -24,6 +24,8 @@
 
 package net.sourceforge.aprog.events;
 
+import static net.sourceforge.aprog.tools.Tools.ignore;
+
 import net.sourceforge.aprog.events.EventManager.AbstractEvent;
 import net.sourceforge.aprog.events.EventManager.Event.Listener;
 
@@ -40,10 +42,15 @@ public final class EventManagerTest {
     @Test
     public final void test1() {
         final class SomeEvent extends AbstractEvent<Object> {
-            
-            SomeEvent(final Object source) {
+        	
+			SomeEvent(final Object source) {
                 super(source);
             }
+			
+			/**
+			 * {@value}.
+			 */
+			private static final long serialVersionUID = -3494951364147110136L;
             
         }
         
@@ -53,6 +60,7 @@ public final class EventManagerTest {
             
             @Listener
             final void someEventHappened(final SomeEvent event) {
+            	ignore(event);
                 ++eventCount[0];
             }
             

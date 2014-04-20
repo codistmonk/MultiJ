@@ -25,7 +25,6 @@
 package net.sourceforge.aprog.af;
 
 import static javax.swing.KeyStroke.getKeyStroke;
-
 import static net.sourceforge.aprog.af.AFConstants.Variables.*;
 import static net.sourceforge.aprog.af.MacOSXTools.*;
 import static net.sourceforge.aprog.swing.SwingTools.*;
@@ -40,10 +39,9 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JTabbedPane;
 import javax.swing.KeyStroke;
+
 import net.sourceforge.aprog.context.Context;
 import net.sourceforge.aprog.events.AtomicVariable;
-import net.sourceforge.aprog.events.AtomicVariable.ValueChangedEvent;
-
 import net.sourceforge.aprog.swing.SwingTools;
 import net.sourceforge.aprog.tools.AbstractInvocationHandler;
 import net.sourceforge.aprog.tools.IllegalInstantiationException;
@@ -86,7 +84,7 @@ public final class AFTools {
 	 *
 	 * @param applicationName
 	 * <br>Maybe null
-	 * @param applicationIconName
+	 * @param applicationIconPath 
 	 * <br>Maybe null
 	 */
 	public static final void setupSystemLookAndFeel(final String applicationName, final String applicationIconPath) {
@@ -96,6 +94,7 @@ public final class AFTools {
 	
 	public static final void fireUpdate(final Context context, final String variableName) {
 		final Object value = context.get(variableName);
+		@SuppressWarnings("unchecked")
 		final AtomicVariable<Object> variable = cast(AtomicVariable.class, context.getVariable(variableName));
 		
 		if (variable != null) {
