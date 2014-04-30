@@ -203,6 +203,7 @@ public final class EventManager {
     				final Object listener = entry.getKey();
     				
 					try {
+						listenerMethod.getSecond().setAccessible(true);
 						listenerMethod.getSecond().invoke(listener, event);
 					} catch (final Exception exception) {
 						Logger.getLogger(listener.getClass().getName() + "@" + System.identityHashCode(listener))
