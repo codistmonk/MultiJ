@@ -931,18 +931,29 @@ public final class Tools {
 
 		return builder.toString();
 	}
-
+	
 	/**
 	 * Prints on the standard output the concatenation of the source location of the call
 	 * and the string representations of the parameters separated by spaces.
 	 *
 	 * @param objects
-	 * <br>Not null
+	 * <br>Must not be null
 	 */
 	public static final void debugPrint(final Object... objects) {
 		System.out.println(debug(DEBUG_STACK_OFFSET + 1, objects));
 	}
-
+	
+	/**
+	 * Prints on the error output the concatenation of the source location of the call
+	 * and the string representations of the parameters separated by spaces.
+	 *
+	 * @param objects
+	 * <br>Must not be null
+	 */
+	public static final void debugError(final Object... objects) {
+		System.err.println(debug(DEBUG_STACK_OFFSET + 1, objects));
+	}
+	
 	/**
 	 *
 	 * @return
