@@ -25,7 +25,6 @@
 package net.sourceforge.aprog.swing;
 
 import static net.sourceforge.aprog.tools.Tools.*;
-
 import static org.junit.Assert.*;
 
 import java.awt.Component;
@@ -33,6 +32,7 @@ import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Point;
+import java.awt.Window;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
@@ -46,8 +46,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Arrays;
 import java.util.concurrent.Semaphore;
-import javax.swing.Box;
 
+import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -70,6 +70,23 @@ import org.junit.Test;
  * @author codistmonk (creation 2010-06-26)
  */
 public final class SwingToolsTest {
+	
+	@Test
+	public final void testJoinEventThread() throws InterruptedException {
+		final Window window = SwingTools.show(new JLabel(), Tools.getThisMethodName(), false);
+		
+		SwingUtilities.invokeLater(new Runnable() {
+			
+			@Override
+			public final void run() {
+				Tools.gc(1000L);
+				window.dispose();
+			}
+			
+		});
+		
+		SwingTools.getAWTEventDispatchingThread().join();
+	}
 	
 	@Test
 	public final void testGetIcon() {

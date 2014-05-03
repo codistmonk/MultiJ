@@ -24,6 +24,7 @@
 
 package net.sourceforge.aprog.swing;
 
+import static java.lang.Thread.currentThread;
 import static net.sourceforge.aprog.i18n.Messages.translate;
 import static net.sourceforge.aprog.tools.Tools.getCallerClass;
 import static net.sourceforge.aprog.tools.Tools.getCallerMethodName;
@@ -48,6 +49,7 @@ import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
@@ -147,6 +149,27 @@ public final class SwingTools {
 	
 	private static final AtomicBoolean checkAWT = new AtomicBoolean(true);
 	
+	static WeakReference<Thread> awtEventDispatchingThread = null;
+	
+	public static final synchronized Thread getAWTEventDispatchingThread() {
+		if (awtEventDispatchingThread == null) {
+			try {
+				SwingUtilities.invokeAndWait(new Runnable() {
+					
+					@Override
+					public final void run() {
+						awtEventDispatchingThread = new WeakReference<Thread>(currentThread());
+					}
+					
+				});
+			} catch (final Exception exception) {
+				throw unchecked(exception);
+			}
+		}
+		
+		return awtEventDispatchingThread.get();
+	}
+	
 	public static final void setCheckAWT(final boolean checkAWT) {
 		SwingTools.checkAWT.set(checkAWT);
 	}
@@ -225,8 +248,11 @@ public final class SwingTools {
 	 * <br>Not null
 	 * @param modal
 	 * <br>Range: any boolean
+	 * @return
+	 * <br>New
+	 * <br>Maybe null
 	*/
-	public static final void show(final BufferedImage image, final String title, final boolean modal) {
+	public static final Window show(final BufferedImage image, final String title, final boolean modal) {
 		final JLabel imageLabel = new JLabel(new ImageIcon(image));
 		
 		imageLabel.addMouseMotionListener(new MouseAdapter() {
@@ -247,7 +273,7 @@ public final class SwingTools {
 			
 		});
 		
-		show(new JScrollPane(imageLabel), title, modal);
+		return show(new JScrollPane(imageLabel), title, modal);
 	}
 	
 	/**
@@ -257,31 +283,37 @@ public final class SwingTools {
 	 * <br>Not null
 	 * @param modal
 	 * <br>Range: any boolean
+	 * @return
+	 * <br>New
+	 * <br>Maybe null
 	 */
-	public static final void show(final Component component, final String title, final boolean modal) {
-		final Runnable runnable = new Runnable() {
-			
-			@Override
-			public final void run() {
-				final JDialog frame = new JDialog((JFrame) null, title, modal);
-				
-				frame.add(component);
-				frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-				
-				packAndCenter(frame).setVisible(true);
-			}
-			
-		};
+	public static final Window show(final Component component, final String title, final boolean modal) {
+		final Window[] result = { null };
 		
-		if (modal) {
-			try {
-				SwingUtilities.invokeAndWait(runnable);
-			} catch (final Exception exception) {
-				throw unchecked(exception);
-			}
-		} else {
-			SwingUtilities.invokeLater(runnable);
+		try {
+			SwingUtilities.invokeAndWait(new Runnable() {
+				
+				@Override
+				public final void run() {
+					if (modal) {
+						result[0] = new JDialog((JFrame) null, title, modal);
+						((JDialog) result[0]).setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+					} else {
+						result[0] = new JFrame(title);
+						((JFrame) result[0]).setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+					}
+					
+					result[0].add(component);
+					
+					packAndCenter(result[0]).setVisible(true);
+				}
+				
+			});
+		} catch (final Exception exception) {
+			throw unchecked(exception);
 		}
+		
+		return result[0];
 	}
 
 	/**
