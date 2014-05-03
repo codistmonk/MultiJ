@@ -27,6 +27,7 @@ package net.sourceforge.aprog.tools;
 import static org.junit.Assert.*;
 import static net.sourceforge.aprog.tools.Launcher.*;
 
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -60,6 +61,60 @@ import org.junit.Test;
  */
 public final class ToolsTest {
     
+	@Test
+	public final void testDebugPrint() {
+		final PrintStream tmp = System.out;
+		
+		try {
+			final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+			
+			System.setOut(new PrintStream(buffer));
+			
+			final Object object1 = 6;
+			final Object object2 = "*";
+			final Object object3 = "7";
+			final Object object4 = "= 42";
+			
+			Tools.debugPrint(object1, object2, object3, object4);
+			
+			final String expectedPrefix = this.getClass().getCanonicalName() + "." + Tools.getThisMethodName() + "(ToolsTest.java:";
+			final String expectedTrimmedSuffix = (object1 + " " + object2 + " " + object3 + " " + object4).trim();
+			final String string = buffer.toString().trim();
+			
+			assertEquals(expectedPrefix, string.substring(0, expectedPrefix.length()));
+			assertEquals(expectedTrimmedSuffix, string.substring(string.length() - expectedTrimmedSuffix.length()));
+		} finally {
+			System.setOut(tmp);
+		}
+	}
+	
+	@Test
+	public final void testDebugError() {
+		final PrintStream tmp = System.err;
+		
+		try {
+			final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+			
+			System.setErr(new PrintStream(buffer));
+			
+			final Object object1 = 6;
+			final Object object2 = "*";
+			final Object object3 = "7";
+			final Object object4 = "= 42";
+			
+			Tools.debugError(object1, object2, object3, object4);
+			
+			final String expectedPrefix = this.getClass().getCanonicalName() + "." + Tools.getThisMethodName() + "(ToolsTest.java:";
+			final String expectedTrimmedSuffix = (object1 + " " + object2 + " " + object3 + " " + object4).trim();
+			final String string = buffer.toString().trim();
+			
+			assertEquals(expectedPrefix, string.substring(0, expectedPrefix.length()));
+			assertEquals(expectedTrimmedSuffix, string.substring(string.length() - expectedTrimmedSuffix.length()));
+		} finally {
+			System.setErr(tmp);
+		}
+	}
+	
 	@Test
 	public final void testInstances() {
 		{
