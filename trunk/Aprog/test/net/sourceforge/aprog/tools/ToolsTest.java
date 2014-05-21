@@ -27,7 +27,6 @@ package net.sourceforge.aprog.tools;
 import static org.junit.Assert.*;
 import static net.sourceforge.aprog.tools.Launcher.*;
 
-import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
