@@ -27,6 +27,8 @@ package net.sourceforge.aprog.tools;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
+import java.io.Serializable;
+
 /**
  * @author codistmonk (creation 2011-06-11)
  */
@@ -192,9 +194,9 @@ public final class MathTools {
     /**
      * @author codistmonk (creation 2012-06-20)
      */
-    public static final class Statistics {
-        
-        private double sum;
+    public static final class Statistics implements Serializable {
+    	
+		private double sum;
         
         private double sumOfSquares;
         
@@ -339,6 +341,11 @@ public final class MathTools {
         public final double getVariance() {
             return this.getSumOfSquares() / this.getCount() - square(this.getMean());
         }
+        
+        /**
+		 * {@value}.
+		 */
+		private static final long serialVersionUID = -4510391899140592101L;
         
     }
     
