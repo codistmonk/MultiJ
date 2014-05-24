@@ -291,7 +291,7 @@ public final class SwingTools {
 		final Window[] result = { null };
 		
 		try {
-			SwingUtilities.invokeAndWait(new Runnable() {
+			final Runnable task = new Runnable() {
 				
 				@Override
 				public final void run() {
@@ -308,7 +308,13 @@ public final class SwingTools {
 					packAndCenter(result[0]).setVisible(true);
 				}
 				
-			});
+			};
+			
+			if (SwingUtilities.isEventDispatchThread()) {
+				task.run();
+			} else {
+				SwingUtilities.invokeAndWait(task);
+			}
 		} catch (final Exception exception) {
 			throw unchecked(exception);
 		}
