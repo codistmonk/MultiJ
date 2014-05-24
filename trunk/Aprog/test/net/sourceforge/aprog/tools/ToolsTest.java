@@ -59,6 +59,19 @@ import org.junit.Test;
  * @author codistmonk (creation 2010-06-11)
  */
 public final class ToolsTest {
+	
+	@Test
+	public final void testBaseName() {
+		assertEquals("base", Tools.baseName("base.extension"));
+		assertEquals("ba.se", Tools.baseName("ba.se.extension"));
+		assertEquals(".base", Tools.baseName(".base"));
+		assertEquals("", Tools.baseName(""));
+	}
+	
+	@Test
+	public final void testIntRange() {
+		assertArrayEquals(new int[] { 0, 1, 2 }, Tools.intRange(3));
+	}
     
 	@Test
 	public final void testDebugPrint() {
