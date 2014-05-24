@@ -67,6 +67,37 @@ public final class Tools {
 	public static final String LINE_SEPARATOR = System.getProperty("line.separator");
 	
 	/**
+	 * @param fileName
+	 * <br>Must not be null
+	 * @return A nonempty string <code>base</code> if <code>fileName</code>
+	 * matches <code>base.extension</code>, otherwise <code>fileName</code>
+	 * <br>Not null
+	 * <br>Maybe new
+	 */
+	public static final String baseName(final String fileName) {
+		final int lastDotIndex = fileName.lastIndexOf('.');
+		
+		return lastDotIndex <= 0 ? fileName : fileName.substring(0, lastDotIndex);
+	}
+	
+	/**
+	 * @param n
+	 * <br>Range: <code>[0 .. Integer.MAX_VALUE]</code>
+	 * @return
+	 * <br>Not null
+	 * <br>New
+	 */
+	public static final int[] intRange(final int n) {
+		final int[] result = new int[n];
+		
+		for (int i = 0; i < n; ++i) {
+			result[i] = i;
+		}
+		
+		return result;
+	}
+	
+	/**
 	 * Creates an array of <code>n</code> objects instantiated using <code>factory</code>.
 	 * 
 	 * @param n
