@@ -60,11 +60,21 @@ public class ConsoleMonitorTest {
 		
 		assertEquals(0L, count.get());
 		
-		Tools.gc(100);
+		Tools.gc(100L);
 		
 		monitor.ping();
 		
 		assertEquals(1L, count.get());
+		
+		Tools.gc(60L);
+		
+		monitor.ping();
+		
+		Tools.gc(60L);
+		
+		monitor.ping();
+		
+		assertEquals(2L, count.get());
 		
 		monitor.pause();
 	}
