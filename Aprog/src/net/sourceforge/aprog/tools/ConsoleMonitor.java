@@ -68,9 +68,10 @@ public final class ConsoleMonitor implements Serializable {
 	 * and prints the returned string to the standard output.
 	 */
 	public final void ping() {
-		if (this.getPeriodMilliseconds() <= this.timer.toctic()) {
+		if (this.getPeriodMilliseconds() <= this.timer.toc()) {
 			System.out.print(this.getMessageBuilder().getMessage());
 			this.newLineNeeded.set(true);
+			this.timer.tic();
 		}
 	}
 	
@@ -82,9 +83,10 @@ public final class ConsoleMonitor implements Serializable {
 	 * <br>Maybe null
 	 */
 	public final synchronized void ping(final String text) {
-		if (this.getPeriodMilliseconds() <= this.timer.toctic()) {
+		if (this.getPeriodMilliseconds() <= this.timer.toc()) {
 			System.out.print(text);
 			this.newLineNeeded.set(true);
+			this.timer.tic();
 		}
 	}
 	
