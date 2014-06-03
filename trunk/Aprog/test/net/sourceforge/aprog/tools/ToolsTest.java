@@ -126,6 +126,24 @@ public final class ToolsTest {
 			System.setErr(tmp);
 		}
 	}
+    
+	@Test
+	public final void testTeeDebugOutputs() {
+		final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+		
+		Tools.teeDebugOutputs(buffer);
+		
+		final String object1 = "6*7";
+		final String object2 = "42";
+		
+		Tools.debugPrint(object1);
+		Tools.debugError(object2);
+		
+		final String string = buffer.toString();
+		
+		assertTrue(string.contains(object1));
+		assertTrue(string.contains(object2));
+	}
 	
 	@Test
 	public final void testInstances() {
@@ -247,6 +265,9 @@ public final class ToolsTest {
 
         copyToTmp(IllegalInstantiationException.class, aprogRoot);
         copyToTmp(Tools.class, aprogRoot);
+        copyToTmp(Tools.SystemOutOutputStream.class, aprogRoot);
+        copyToTmp(Tools.SystemErrOutputStream.class, aprogRoot);
+        copyToTmp(Tee.class, aprogRoot);
         copyToTmp(EchoApplicationFile.class, tmpRoot);
 
         final String[] command = Tools.array("java", "-cp", aprogRoot.toString() + File.pathSeparator + tmpRoot, EchoApplicationFile.class.getCanonicalName());
@@ -299,7 +320,7 @@ public final class ToolsTest {
     	final InputStream input = new ByteArrayInputStream("42".getBytes());
     	final OutputStream output = new FileOutputStream(tmp);
     	
-    	Tools.writeAndCloseOutput(input, output);
+    	Tools.writeAndClose(input, true, output, true);
     	
     	try {
     		output.write(0);
@@ -691,13 +712,13 @@ public final class ToolsTest {
             assertTrue(file.isDirectory() || file.mkdir());
         }
 
-        final String classFileName = cls.getSimpleName() + ".class";
+        final String classFileName = new File(cls.getName().replaceAll("\\.", "/")).getName() + ".class";
 
         file = new File(file, classFileName);
 
-        Tools.write(
-                new FileInputStream(Tools.getClassRoot(cls) + File.separator + Tools.getThisPackagePath() + classFileName),
-                new FileOutputStream(file));
+        Tools.writeAndClose(
+                new FileInputStream(Tools.getClassRoot(cls) + File.separator + Tools.getThisPackagePath() + classFileName), true,
+                new FileOutputStream(file), true);
     }
 
 }
