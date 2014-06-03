@@ -33,6 +33,7 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+import java.io.PrintStream;
 import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
@@ -61,6 +62,10 @@ public final class Tools {
 	private Tools() {
 		throw new IllegalInstantiationException();
 	}
+	
+	private static PrintStream debugOutput = new PrintStream(new SystemOutOutputStream());
+	
+	private static PrintStream debugErrorOutput = new PrintStream(new SystemErrOutputStream());
 	
 	public static final int DEBUG_STACK_OFFSET = getDebugStackOffset();
 	
@@ -353,6 +358,37 @@ public final class Tools {
 	}
 	
 	/**
+	 * Writes {@code input} to {@code output}; when it terminates
+	 * , this method uses {@link #close(Object)} to close <code>input</code> if <code>closeInput</code> is <code>true</code>
+	 * , and <code>output</code> if <code>closeOutput</code> is <code>true</code>.
+	 *
+	 * @param input
+	 * <br>Not null
+	 * <br>Input-output
+	 * @param closeInput
+	 * <br>Range: any boolean
+	 * @param output
+	 * <br>Not null
+	 * <br>Input-output
+	 * @param closeInput
+	 * <br>Range: any boolean
+	 * @throws RuntimeException if an I/O error occurs during the writing phase
+	 */
+	public static final void writeAndClose(final InputStream input, final boolean closeInput, final OutputStream output, final boolean closeOutput) {
+		try {
+			write(input, output);
+		} finally {
+			if (closeInput) {
+				close(input);
+			}
+			
+			if (closeOutput) {
+				close(output);
+			}
+		}
+	}
+	
+	/**
 	 * Writes {@code input} to {@code output}; this method CLOSES the OUTPUT stream when it terminates.
 	 *
 	 * @param input
@@ -363,12 +399,9 @@ public final class Tools {
 	 * <br>Input-output
 	 * @throws RuntimeException if an I/O error occurs
 	 */
+	@Deprecated
 	public static final void writeAndCloseOutput(final InputStream input, final OutputStream output) {
-		try {
-			write(input, output);
-		} finally {
-			close(output);
-		}
+		writeAndClose(input, false, output, true);
 	}
 	
 	/**
@@ -519,7 +552,7 @@ public final class Tools {
 	 * <br>Not null
 	 * <br>New
 	 */
-	public static final <T> LinkedHashSet<T> set(T... elements) {
+	public static final <T> LinkedHashSet<T> set(final T... elements) {
 		final LinkedHashSet<T> result = new LinkedHashSet<T>();
 
 		for (final T element : elements) {
@@ -970,8 +1003,8 @@ public final class Tools {
 	 * @param objects
 	 * <br>Must not be null
 	 */
-	public static final void debugPrint(final Object... objects) {
-		System.out.println(debug(DEBUG_STACK_OFFSET + 1, objects));
+	public static final synchronized void debugPrint(final Object... objects) {
+		getDebugOutput().println(debug(DEBUG_STACK_OFFSET + 1, objects));
 	}
 	
 	/**
@@ -981,8 +1014,75 @@ public final class Tools {
 	 * @param objects
 	 * <br>Must not be null
 	 */
-	public static final void debugError(final Object... objects) {
-		System.err.println(debug(DEBUG_STACK_OFFSET + 1, objects));
+	public static final synchronized void debugError(final Object... objects) {
+		getDebugErrorOutput().println(debug(DEBUG_STACK_OFFSET + 1, objects));
+	}
+	
+	/**
+	 * @return
+	 * <br>Not null
+	 * <br>Strong reference
+	 */
+	public static final synchronized PrintStream getDebugOutput() {
+		return debugOutput;
+	}
+	
+	public static final synchronized void setDebugOutput(final PrintStream output) {
+		debugOutput = notNull(output);
+	}
+	
+	/**
+	 * @return
+	 * <br>Not null
+	 * <br>Strong reference
+	 */
+	public static final synchronized PrintStream getDebugErrorOutput() {
+		return debugErrorOutput;
+	}
+	
+	/**
+	 * @param output
+	 * <br>Must not be null
+	 * <br>Will be stored as strong reference
+	 */
+	public static final synchronized void setDebugErrorOutput(final PrintStream output) {
+		debugErrorOutput = notNull(output);
+	}
+	
+	/**
+	 * @param output
+	 * <br>Must not be null
+	 * <br>Will be stored as strong reference
+	 */
+	public static final synchronized void setDebugOutputs(final PrintStream output) {
+		setDebugOutput(output);
+		setDebugErrorOutput(output);
+	}
+	
+	/**
+	 * @param output
+	 * <br>Must not be null
+	 * <br>Will be stored as string reference
+	 */
+	public static final synchronized void teeDebugOutputs(final OutputStream output) {
+		notNull(output);
+		
+		setDebugOutput(new PrintStream(new Tee(getDebugOutput(), output)));
+		setDebugErrorOutput(new PrintStream(new Tee(getDebugErrorOutput(), output)));
+	}
+	
+	/**
+	 * @param object
+	 * <br>Must not be null
+	 * @return <code>object</code>
+	 * @throws NullPointerException if <code>object</code> is <code>null</code>
+	 */
+	public static final <T> T notNull(final T object) {
+		if (object == null) {
+			throw new NullPointerException();
+		}
+		
+		return object;
 	}
 	
 	/**
@@ -998,10 +1098,88 @@ public final class Tools {
 				break;
 			}
 
-			++ result;
+			++result;
 		}
 
 		return result;
 	}
+	
+	/**
+	 * This class delegates all calls to <code>System.out</code>.
+	 * 
+	 * @author codistmonk (creation 2014-06-03)
+	 */
+	public static final class SystemOutOutputStream extends OutputStream implements Serializable {
+		
+		@Override
+		public final void write(final int b) throws IOException {
+			System.out.write(b);
+		}
+		
+		@Override
+		public final void write(final byte[] bytes) throws IOException {
+			System.out.write(bytes);
+		}
 
+		@Override
+		public final void write(final byte[] bytes, final int offset, final int length) throws IOException {
+			System.out.write(bytes, offset, length);
+		}
+		
+		@Override
+		public final void flush() throws IOException {
+			System.out.flush();
+		}
+		
+		@Override
+		public final void close() throws IOException {
+			System.out.close();
+		}
+		
+		/**
+		 * {@value}.
+		 */
+		private static final long serialVersionUID = -3530080431199360807L;
+		
+	}
+	
+	/**
+	 * This class delegates all calls to <code>System.err</code>.
+	 *  
+	 * @author codistmonk (creation 2014-06-03)
+	 */
+	public static final class SystemErrOutputStream extends OutputStream implements Serializable {
+		
+		@Override
+		public final void write(final int b) throws IOException {
+			System.err.write(b);
+		}
+		
+		@Override
+		public final void write(final byte[] bytes) throws IOException {
+			System.err.write(bytes);
+		}
+		
+		@Override
+		public final void write(final byte[] bytes, final int offset, final int length) throws IOException {
+			System.err.write(bytes, offset, length);
+		}
+		
+		@Override
+		public final void flush() throws IOException {
+			System.err.flush();
+		}
+		
+		@Override
+		public final void close() throws IOException {
+			System.err.close();
+		}
+		
+		/**
+		 * {@value}.
+		 */
+		private static final long serialVersionUID = -656567263773327906L;
+		
+	}
+	
 }
