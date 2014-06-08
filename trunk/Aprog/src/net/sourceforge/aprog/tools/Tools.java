@@ -1005,6 +1005,7 @@ public final class Tools {
 	 */
 	public static final synchronized void debugPrint(final Object... objects) {
 		getDebugOutput().println(debug(DEBUG_STACK_OFFSET + 1, objects));
+		getDebugOutput().flush();
 	}
 	
 	/**
@@ -1016,6 +1017,7 @@ public final class Tools {
 	 */
 	public static final synchronized void debugError(final Object... objects) {
 		getDebugErrorOutput().println(debug(DEBUG_STACK_OFFSET + 1, objects));
+		getDebugErrorOutput().flush();
 	}
 	
 	/**
