@@ -51,7 +51,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
  * @author codistmonk (creation 2010-06-11)
  */
 public final class Tools {
