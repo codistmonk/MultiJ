@@ -35,7 +35,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Simple task manager that uses fixed-size thread pools to schedule tasks.
  * <br>A thread pool's size is determined by the maximum CPU load parameter specified during construction, but at least 1 thread is used regardless.
- * <br>A thread pool is created as needed for task submission, and shutdown for joining.
+ * <br>A thread pool is created as needed for task submission, and shut down for joining.
  * 
  * @author codistmonk (creation 2014-05-08)
  */
@@ -67,7 +67,20 @@ public final class TaskManager implements Serializable {
 	 * <br>Not null
 	 */
 	public final synchronized TaskManager submit(final Runnable task) {
-		this.getExecutor().submit(task);
+		this.getExecutor().submit(new Runnable() {
+			
+			@Override
+			public final void run() {
+				try {
+					task.run();
+				} catch (final Throwable throwable) {
+					throwable.printStackTrace(Tools.getDebugErrorOutput());
+				}
+				
+				throw new RuntimeException();
+			}
+			
+		});
 		
 		return this;
 	}
@@ -77,6 +90,10 @@ public final class TaskManager implements Serializable {
 	 * <br>Not null
 	 */
 	public final synchronized TaskManager join() {
+		if (this.executor == null) {
+			return this;
+		}
+		
 		this.executor.shutdown();
 		
 		try {

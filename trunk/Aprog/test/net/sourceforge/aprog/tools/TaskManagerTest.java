@@ -28,6 +28,7 @@ import static net.sourceforge.aprog.tools.Tools.unchecked;
 import static org.junit.Assert.*;
 
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.junit.Test;
 
@@ -44,6 +45,46 @@ public final class TaskManagerTest {
 	@Test(timeout=1000L)
 	public final void test2() throws InterruptedException {
 		assertEquals(0L, test(new TaskManager(1.0), SystemProperties.getAvailableProcessorCount()));
+	}
+	
+	@Test(timeout=1000L)
+	public final void test3() {
+		// XXX This test was supposed to fail with a simple implementation
+		//     of TaskManager.submit() because of the way Executors.newFixedThreadPool()
+		//     handles shutdown according to its documentation, but it never failed
+		//     The current version of TaskManager.submit() should work anyway
+		
+		final TaskManager taskManager = new TaskManager(0.0);
+		final AtomicBoolean ok = new AtomicBoolean();
+		
+		taskManager.submit(new Runnable() {
+			
+			@Override
+			public final void run() {
+				Tools.gc(500L);
+				
+				throw new RuntimeException();
+			}
+			
+		});
+		
+		taskManager.submit(new Runnable() {
+			
+			@Override
+			public final void run() {
+				ok.set(true);
+			}
+			
+		});
+		
+		// At this point, the first task is still running and the second task is
+		// scheduled, but TaskManager.join() is going to shut down the thread pool 
+		// before the end of the first task; if the first task terminates abnormally,
+		// the second task shouldn't be executed (according to
+		// Executors.newFixedThreadPool()'s documentation)
+		taskManager.join();
+		
+		assertTrue(ok.get());
 	}
 	
 	public static final int test(final TaskManager taskManager, final int taskCount) throws InterruptedException {
