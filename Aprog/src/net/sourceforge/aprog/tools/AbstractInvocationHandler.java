@@ -24,6 +24,7 @@
 
 package net.sourceforge.aprog.tools;
 
+import java.io.Serializable;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -32,9 +33,9 @@ import java.lang.reflect.Proxy;
  *
  * @author codistmonk (creation 2010-07-03)
  */
-public abstract class AbstractInvocationHandler implements InvocationHandler {
+public abstract class AbstractInvocationHandler implements InvocationHandler, Serializable {
 
-    @Override
+	@Override
     public final boolean equals(final Object object) {
         return this == object ||
                 object != null &&
@@ -70,5 +71,10 @@ public abstract class AbstractInvocationHandler implements InvocationHandler {
 
         return null;
     }
+
+    /**
+	 * {@value}.
+	 */
+	private static final long serialVersionUID = 2703009495595641202L;
 
 }
