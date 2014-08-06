@@ -24,6 +24,7 @@
 
 package net.sourceforge.aprog.tools;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -32,7 +33,7 @@ import java.util.Map;
 /**
  * @author codistmonk (creation 2012-07-08)
  */
-public final class CommandLineArgumentsParser {
+public final class CommandLineArgumentsParser implements Serializable {
 	
 	private final Map<String, String> map;
 	
@@ -133,5 +134,10 @@ public final class CommandLineArgumentsParser {
 		
 		return defaultValue;
 	}
+	
+	/**
+	 * {@value}.
+	 */
+	private static final long serialVersionUID = -3572883077330633932L;
 	
 }

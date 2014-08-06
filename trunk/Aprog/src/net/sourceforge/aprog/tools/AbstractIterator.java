@@ -24,6 +24,7 @@
 
 package net.sourceforge.aprog.tools;
 
+import java.io.Serializable;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
@@ -31,9 +32,9 @@ import java.util.NoSuchElementException;
  * @param <E> The elements type
  * @author codistmonk (creation 2011-06-29)
  */
-public abstract class AbstractIterator<E> implements Iterator<E> {
+public abstract class AbstractIterator<E> implements Iterator<E>, Serializable {
 
-    private Boolean hasNext;
+	private Boolean hasNext;
 
     private E nextElement;
 
@@ -80,5 +81,10 @@ public abstract class AbstractIterator<E> implements Iterator<E> {
      * <br>Range: any boolean
      */
     protected abstract boolean updateNextElement();
+
+    /**
+	 * {@value}.
+	 */
+	private static final long serialVersionUID = 4861261710501138855L;
 
 }
