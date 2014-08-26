@@ -64,6 +64,25 @@ public final class Pair<F, S> implements Serializable {
 		return this.second;
 	}
 	
+	@Override
+	public final int hashCode() {
+		return Tools.hashCode(this.getFirst()) + Tools.hashCode(this.getSecond());
+	}
+	
+	@Override
+	public final boolean equals(final Object object) {
+		@SuppressWarnings("unchecked")
+		final Pair<F, S> that = Tools.cast(this.getClass(), object);
+		
+		return that != null && Tools.equals(this.getFirst(), that.getFirst())
+				&& Tools.equals(this.getSecond(), that.getSecond());
+	}
+
+	@Override
+	public final String toString() {
+		return "(" + this.getFirst() + " " + this.getSecond() + ")";
+	}
+
 	/**
 	 * {@value}.
 	 */

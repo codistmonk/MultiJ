@@ -24,7 +24,7 @@
 
 package net.sourceforge.aprog.tools;
 
-import static org.junit.Assert.assertSame;
+import static org.junit.Assert.*;
 
 import org.junit.Test;
 
@@ -43,6 +43,7 @@ public class PairTest {
         
         assertSame(first, pair.getFirst());
         assertSame(second, pair.getSecond());
+        assertEquals(pair, new Pair<Object, Object>(first, second));
     }
 
 }
