@@ -115,11 +115,18 @@ public final class TaskManager implements Serializable {
 	 */
 	private final ExecutorService getExecutor() {
 		if (this.executor == null) {
-			this.executor = newFixedThreadPool(max(1
-					, (int) (SystemProperties.getAvailableProcessorCount() * this.maximumCPULoad)));
+			this.executor = newFixedThreadPool(this.getWorkerCount());
 		}
 		
 		return this.executor;
+	}
+	
+	/**
+	 * @return
+	 * <br>Range: <code>[1 .. Integer.MAX_VALUE]</code>
+	 */
+	public final int getWorkerCount() {
+		return max(1, (int) (SystemProperties.getAvailableProcessorCount() * this.maximumCPULoad));
 	}
 	
 	/**
