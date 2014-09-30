@@ -1,7 +1,7 @@
 /*
  *  The MIT License
  * 
- *  Copyright 2012 Codist Monk.
+ *  Copyright 2013 Codist Monk.
  * 
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -29,21 +29,35 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 
 /**
- * Automated tests using JUnit for {@link Pair}.
+ * Automated tests using JUnit 4 for {@link TicToc}.
  *
- * @author codistmonk (creation 2011-09-02)
+ * @author codistmonk (creation 2014-09-30)
  */
-public final class PairTest {
-
-    @Test
-    public final void test() {
-        final Object first = new Object();
-        final Object second = new Object();
-        final Pair<Object, Object> pair = new Pair<Object, Object>(first, second);
-        
-        assertSame(first, pair.getFirst());
-        assertSame(second, pair.getSecond());
-        assertEquals(pair, new Pair<Object, Object>(first, second));
-    }
-
+public final class NanoTicTocTest {
+	
+	@Test
+	public final void testGetTotalTime() {
+		final NanoTicToc timer = new NanoTicToc();
+		long time;
+		final long sleepMilliseconds = 500L;
+		final long sleepNanoseconds = sleepMilliseconds * 1_000_000L;
+		final long upperLimit = sleepNanoseconds + 200_000_000L;
+		
+		timer.tic();
+		Tools.gc(sleepMilliseconds);
+		time = timer.toc();
+		
+		assertTrue(sleepMilliseconds <= time && time < upperLimit);
+		assertTrue(sleepMilliseconds <= timer.getTotalTime() && timer.getTotalTime() < upperLimit);
+		
+		Tools.gc(sleepMilliseconds);
+		
+		timer.tic();
+		Tools.gc(sleepMilliseconds);
+		time = timer.toc();
+		
+		assertTrue(sleepMilliseconds <= time && time < upperLimit);
+		assertTrue(2L * sleepMilliseconds <= timer.getTotalTime() && timer.getTotalTime() < 2L * upperLimit);
+	}
+	
 }

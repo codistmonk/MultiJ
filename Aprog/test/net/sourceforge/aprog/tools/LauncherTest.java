@@ -43,7 +43,7 @@ import org.junit.Test;
  *
  * @author codistmonk (creation 2010-06-23)
  */
-public class LauncherTest {
+public final class LauncherTest {
 
     @Test(timeout = TIMEOUT)
     public final void testLaunch() throws InterruptedException {

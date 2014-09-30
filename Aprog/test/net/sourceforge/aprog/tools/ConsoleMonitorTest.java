@@ -35,7 +35,7 @@ import org.junit.Test;
 /**
  * @author codistmonk (creation 2014-05-24)
  */
-public class ConsoleMonitorTest {
+public final class ConsoleMonitorTest {
 	
 	@Test
 	public final void test() {

@@ -33,7 +33,7 @@ import org.junit.Test;
  *
  * @author codistmonk (creation 2013-02-03)
  */
-public class TicTocTest {
+public final class TicTocTest {
 	
 	@Test
 	public final void testGetTotalTime() {

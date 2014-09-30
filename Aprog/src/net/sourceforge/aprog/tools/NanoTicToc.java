@@ -24,7 +24,7 @@
 
 package net.sourceforge.aprog.tools;
 
-import static java.lang.System.currentTimeMillis;
+import static java.lang.System.nanoTime;
 
 import java.io.Serializable;
 
@@ -33,9 +33,9 @@ import java.io.Serializable;
  * <br>Call {@link #tic()} at the beginning and {@link #toc()} at the end.
  * <br>{@link #getTotalTime()} gives the total time (cumulative) spent in {@link #tic()} {@link #toc()} intervals.
  * 
- * @author codistmonk (creation 2013-01-25)
+ * @author codistmonk (creation 2013-09-30)
  */
-public final class TicToc implements Serializable {
+public final class NanoTicToc implements Serializable {
 	
 	private long totalTime;
 	
@@ -46,20 +46,20 @@ public final class TicToc implements Serializable {
 	/**
 	 * Starts a time interval.
 	 * 
-	 * @return The current time in milliseconds
+	 * @return The current time in nanoseconds
 	 */
 	public final long tic() {
 		this.totalTime += this.ticTocTime;
 		this.ticTocTime = 0L;
 		
-		return this.t0 = currentTimeMillis();
+		return this.t0 = nanoTime();
 	}
 	
 	/**
-	 * @return The time in milliseconds since the last call to {@link #tic()}
+	 * @return The time in nanoseconds since the last call to {@link #tic()}
 	 */
 	public final long toc() {
-		return this.ticTocTime = currentTimeMillis() - this.t0;
+		return this.ticTocTime = nanoTime() - this.t0;
 	}
 	
 	/**
@@ -85,6 +85,6 @@ public final class TicToc implements Serializable {
 	/**
 	 * {@value}.
 	 */
-	private static final long serialVersionUID = -3905069032704896507L;
+	private static final long serialVersionUID = -5321517996972563536L;
 	
 }
