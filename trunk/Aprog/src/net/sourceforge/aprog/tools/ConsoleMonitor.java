@@ -66,13 +66,19 @@ public final class ConsoleMonitor implements Serializable {
 	 * if it is greater or equal to <code>this.getPeriodMilliseconds()</code>,
 	 * then calls <code>this.getMessageBuilder().getMessage()</code>
 	 * and prints the returned string to the standard output.
+	 * @return <code>true</code> if more than {{@link #getPeriodMilliseconds()} have elapsed since the last call to {{@link #ping()} or {{@link #ping(String)}
+	 * <br>Range: any boolean
 	 */
-	public final void ping() {
+	public final synchronized boolean ping() {
 		if (this.getPeriodMilliseconds() <= this.timer.toc()) {
 			System.out.print(this.getMessageBuilder().getMessage());
 			this.newLineNeeded.set(true);
 			this.timer.tic();
+			
+			return true;
 		}
+		
+		return false;
 	}
 	
 	/**
