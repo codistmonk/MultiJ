@@ -56,13 +56,14 @@ public class ConsoleMonitorTest {
 		});
 		
 		monitor.ping();
-		monitor.ping();
+		
+		assertFalse(monitor.ping());
 		
 		assertEquals(0L, count.get());
 		
 		Tools.gc(100L);
 		
-		monitor.ping();
+		assertTrue(monitor.ping());
 		
 		assertEquals(1L, count.get());
 		
