@@ -347,6 +347,8 @@ public final class MathTools {
 		 */
 		private static final long serialVersionUID = -4510391899140592101L;
         
+		public static final Factory<Statistics> FACTORY = Factory.DefaultFactory.forClass(Statistics.class);
+		
     }
     
 }
