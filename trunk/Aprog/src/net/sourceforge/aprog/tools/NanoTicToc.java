@@ -41,7 +41,7 @@ public final class NanoTicToc implements Serializable {
 	
 	private long ticTocTime;
 	
-	private long t0;
+	private long t0 = nanoTime();
 	
 	/**
 	 * Starts a time interval.

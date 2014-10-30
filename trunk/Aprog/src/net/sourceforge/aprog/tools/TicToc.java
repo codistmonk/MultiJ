@@ -41,7 +41,7 @@ public final class TicToc implements Serializable {
 	
 	private long ticTocTime;
 	
-	private long t0;
+	private long t0 = currentTimeMillis();
 	
 	/**
 	 * Starts a time interval.
