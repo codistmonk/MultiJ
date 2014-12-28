@@ -257,6 +257,33 @@ public final class Tools {
 	}
 	
 	/**
+	 * Creates a new string by concatenating the representations of the <code>objects</code>
+	 * and using the specified <code>separator</code>.
+	 * 
+	 * @param separator
+	 * <br>Not null
+	 * @param objects
+	 * <br>Not null
+	 * @return
+	 * <br>Not null
+	 * <br>New
+	 */
+	public static final String join(final String separator, final Iterable<?> objects) {
+		final StringBuilder resultBuilder = new StringBuilder();
+		final Iterator<?> i = objects.iterator();
+		
+		if (i.hasNext()) {
+			resultBuilder.append(i.next());
+			
+			while (i.hasNext()) {
+				resultBuilder.append(separator).append(i.next());
+			}
+		}
+		
+		return resultBuilder.toString();
+	}
+	
+	/**
 	 * Returns the value associated with <code>key</code> in <code>map</code>;
 	 * if necessary, the value is created using <code>valueFactory</code>.
 	 * 
