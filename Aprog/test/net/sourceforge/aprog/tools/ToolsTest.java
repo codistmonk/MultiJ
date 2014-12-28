@@ -187,10 +187,16 @@ public final class ToolsTest {
 	}
 	
 	@Test
-	public final void testJoin() {
+	public final void testJoin1() {
 		assertEquals("", Tools.join(","));
 		assertEquals("42", Tools.join(",", 42));
 		assertEquals("42,33", Tools.join(",", 42, 33));
+	}
+	
+	@Test
+	public final void testJoin2() {
+		assertEquals("42", Tools.join(",", Arrays.asList(42)));
+		assertEquals("42,33", Tools.join(",", Arrays.asList(42, 33)));
 	}
 	
     @Test
