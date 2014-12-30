@@ -46,6 +46,7 @@ import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -496,6 +497,58 @@ public final class Tools {
 	 */
 	public static final File getApplicationFile() {
 		return getClassRoot(getCallerClass());
+	}
+	
+	/**
+	 * Returns the index of the last element of <code>elements</code>, or <code>-1</code> if <code>elements</code> is empty.
+	 * 
+	 * @param elements
+	 * <br>Must not be null
+	 * @return
+	 * <br>Range: <code>{elements.length - 1}</code>
+	 */
+	public static final int lastIndex(final Object[] elements) {
+		return elements.length - 1;
+	}
+	
+	/**
+	 * Returns the last element of <code>elements</code>.
+	 * 
+	 * @param <T> The type of the elements
+	 * @param elements
+	 * <br>Must not be null
+	 * <br>Must have at least one element
+	 * @return
+	 * <br>Maybe null
+	 */
+	public static final <T> T last(final T... elements) {
+		return elements[lastIndex(elements)];
+	}
+	
+	/**
+	 * Returns the index of the last element of <code>elements</code>, or <code>-1</code> if <code>elements</code> is empty.
+	 * 
+	 * @param elements
+	 * <br>Must not be null
+	 * @return
+	 * <br>Range: <code>{elements.length - 1}</code>
+	 */
+	public static final int lastIndex(final List<?> elements) {
+		return elements.size() - 1;
+	}
+	
+	/**
+	 * Returns the last element of <code>elements</code>.
+	 * 
+	 * @param <T> The type of the elements
+	 * @param elements
+	 * <br>Must not be null
+	 * <br>Must have at least one element
+	 * @return
+	 * <br>Maybe null
+	 */
+	public static final <T> T last(final List<T> elements) {
+		return elements.get(lastIndex(elements));
 	}
 	
 	/**
