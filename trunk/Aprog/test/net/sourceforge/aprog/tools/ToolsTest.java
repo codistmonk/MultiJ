@@ -75,6 +75,28 @@ public final class ToolsTest {
 	}
 	
 	@Test
+	public final void testSort() {
+		final int[] values = Tools.intRange(3);
+		
+		Tools.sort(values, new IntComparator() {
+			
+			@Override
+			public final int compare(final int value1, final int value2) {
+				return Integer.compare(value2, value1);
+			}
+			
+			private static final long serialVersionUID = 353414816612245090L;
+			
+		});
+		
+		assertArrayEquals(new int[] { 2, 1, 0 }, values);
+		
+		Tools.sort(values, IntComparator.Default.INSTANCE);
+		
+		assertArrayEquals(new int[] { 0, 1, 2 }, values);
+	}
+	
+	@Test
 	public final void testDebugPrint() {
 		final PrintStream tmp = System.out;
 		
