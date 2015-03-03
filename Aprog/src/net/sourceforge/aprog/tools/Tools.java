@@ -70,6 +70,30 @@ public final class Tools {
 	public static final int DEBUG_STACK_OFFSET = getDebugStackOffset();
 	
 	public static final String LINE_SEPARATOR = System.getProperty("line.separator");
+
+    public static final void swap(final int[] array, final int i, final int j) {
+    	final int tmp = array[i];
+    	array[i] = array[j];
+    	array[j] = tmp;
+    }
+	
+	public static final void checkSorted(final int[] values, final IntComparator comparator) {
+		final int n = values.length - 1;
+		
+		for (int i = 0; i < n; ++i) {
+			if (0 < comparator.compare(values[i], values[i + 1])) {
+				throw new RuntimeException("element(" + i + ") > element(" + (i + 1) + ")");
+			}
+		}
+	}
+	
+	public static final void sort(final int[] values, final int start, final int end, final IntComparator comparator) {
+		DualPivotQuicksort.sort(values, start, end - 1, null, 0, 0, comparator);
+	}
+	
+	public static final void sort(final int[] values, final IntComparator comparator) {
+		sort(values, 0, values.length, comparator);
+	}
 	
 	/**
 	 * @param fileName
