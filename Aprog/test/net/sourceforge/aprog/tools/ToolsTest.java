@@ -62,6 +62,22 @@ import org.junit.Test;
 public final class ToolsTest {
 	
 	@Test
+	public final void testDeepClone1() {
+		final int[] array = { 1, 2 };
+		final int[] cloned = Tools.deepClone(array);
+		
+		assertArrayEquals(array, cloned);
+	}
+	
+	@Test
+	public final void testDeepClone2() {
+		final double[][][] array = { { { 1.0, 2.0 }, {} }, { { 4.0, 5.0, 6.0} } };
+		final double[][][] cloned = Tools.deepClone(array);
+		
+		assertArrayEquals(array, cloned);
+	}
+	
+	@Test
 	public final void testBaseName() {
 		assertEquals("base", Tools.baseName("base.extension"));
 		assertEquals("ba.se", Tools.baseName("ba.se.extension"));

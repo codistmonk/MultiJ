@@ -70,13 +70,52 @@ public final class Tools {
 	public static final int DEBUG_STACK_OFFSET = getDebugStackOffset();
 	
 	public static final String LINE_SEPARATOR = System.getProperty("line.separator");
-
-    public static final void swap(final int[] array, final int i, final int j) {
-    	final int tmp = array[i];
-    	array[i] = array[j];
-    	array[j] = tmp;
-    }
 	
+	/**
+	 * @param array
+	 * <br>Must not be null
+	 * @return
+	 * <br>Not null
+	 * <br>New
+	 */
+	public static final <T> T deepClone(final T array) {
+		final Class<? extends Object> cls = array.getClass();
+		final int n = Array.getLength(array);
+		final Object result = Array.newInstance(cls.getComponentType(), n);
+		
+		if (cls.getComponentType().isArray()) {
+			for (int i = 0; i < n; ++i) {
+				Array.set(result, i, deepClone(Array.get(array, i)));
+			}
+		} else {
+			System.arraycopy(array, 0, result, 0, n);
+		}
+		
+		return (T) result;
+	}
+	
+	/**
+	 * @param array
+	 * <br>Must not be null
+	 * <br>Input-output
+	 * @param i
+	 * <br>Range: <code>[0 .. array.length - 1]</code>
+	 * @param j
+	 * <br>Range: <code>[0 .. array.length - 1]</code>
+	 */
+	public static final void swap(final int[] array, final int i, final int j) {
+		final int tmp = array[i];
+		array[i] = array[j];
+		array[j] = tmp;
+	}
+	
+	/**
+	 * @param values
+	 * <br>Must not be null
+	 * @param comparator
+	 * <br>Must not be null
+	 * @throws RuntimeException if the values are not sorted according to <code>comparator</code>
+	 */
 	public static final void checkSorted(final int[] values, final IntComparator comparator) {
 		final int n = values.length - 1;
 		
@@ -87,15 +126,35 @@ public final class Tools {
 		}
 	}
 	
+	/**
+	 * @param values
+	 * <br>Must not be null
+	 * <br>Input-output
+	 * @param start
+	 * <br>Range: <code>[0 .. Integer.MAX_VALUE]</code>
+	 * @param end
+	 * <br>Range: <code>[0 .. Integer.MAX_VALUE]</code>
+	 * @param comparator
+	 * <br>Must not be null
+	 */
 	public static final void sort(final int[] values, final int start, final int end, final IntComparator comparator) {
 		DualPivotQuicksort.sort(values, start, end - 1, null, 0, 0, comparator);
 	}
 	
+	/**
+	 * @param values
+	 * <br>Must not be null
+	 * <br>Input-output
+	 * @param comparator
+	 * <br>Must not be null
+	 */
 	public static final void sort(final int[] values, final IntComparator comparator) {
 		sort(values, 0, values.length, comparator);
 	}
 	
 	/**
+	 * Extracts the substring of <code>fileName</code> before the last <code>'.'</code>.
+	 * 
 	 * @param fileName
 	 * <br>Must not be null
 	 * @return A nonempty string <code>base</code> if <code>fileName</code>
@@ -110,6 +169,8 @@ public final class Tools {
 	}
 	
 	/**
+	 * Creates a sequence of ints from <code>0</code> to <code>n-1</code>.
+	 * 
 	 * @param n
 	 * <br>Range: <code>[0 .. Integer.MAX_VALUE]</code>
 	 * @return
