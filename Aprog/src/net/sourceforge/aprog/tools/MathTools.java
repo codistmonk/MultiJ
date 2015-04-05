@@ -250,8 +250,8 @@ public final class MathTools {
      * <br>Range: <code>[0 .. Integer.MAX_VALUE]</code>
      * @param scale1
      * <br>Range: any double
-     * <br>Must not be null
      * @param v1
+     * <br>Must not be null
      * <br>Size range: <code>[n .. Integer.MAX_VALUE]</code>
      * @param offset1
      * <br>Range: <code>[0 .. v1.length - n]</code>
@@ -280,6 +280,92 @@ public final class MathTools {
     	}
     	
     	return result;
+    }
+    
+    /**
+     * <code>result = scale1 * v1 + scale2 * v2</code>.
+     * 
+     * @param scale1
+     * <br>Range: any double
+     * @param v1
+     * <br>Must not be null
+     * <br>Size range: <code>[0 .. Integer.MAX_VALUE]</code>
+     * @param scale2
+     * <br>Range: any double
+     * @param v2
+     * <br>Must not be null
+     * <br>Size range: <code>{v1.length}</code>
+     * @param result
+     * <br>Must not be null
+     * <br>Size range: <code>{v1.length}</code>
+     * @return <code>result</code>
+     * <br>Not null
+     * <br>Not new
+     */
+    public static final double[] add(final double scale1, final double[] v1,
+    		final double scale2, final double[] v2,
+    		final double[] result) {
+    	return add(v1.length, scale1, v1, 0, scale2, v2, 0, result, 0);
+    }
+    
+    /**
+     * <code>result = v1 + v2</code>.
+     * 
+     * @param v1
+     * <br>Must not be null
+     * <br>Size range: <code>[0 .. Integer.MAX_VALUE]</code>
+     * @param v2
+     * <br>Must not be null
+     * <br>Size range: <code>{v1.length}</code>
+     * @param result
+     * <br>Must not be null
+     * <br>Size range: <code>{v1.length}</code>
+     * @return <code>result</code>
+     * <br>Not null
+     * <br>Not new
+     */
+    public static final double[] add(final double[] v1, final double[] v2,
+    		final double[] result) {
+    	return add(1.0, v1, 1.0, v2, result);
+    }
+    
+    /**
+     * Computes <code>scale1 * v1 + scale2 * v2</code>.
+     * 
+     * @param scale1
+     * <br>Range: any double
+     * @param v1
+     * <br>Must not be null
+     * <br>Size range: <code>[0 .. Integer.MAX_VALUE]</code>
+     * @param scale2
+     * <br>Range: any double
+     * @param v2
+     * <br>Must not be null
+     * <br>Size range: <code>{v1.length}</code>
+     * @return <code>result</code>
+     * <br>Not null
+     * <br>New
+     */
+    public static final double[] add(final double scale1, final double[] v1,
+    		final double scale2, final double[] v2) {
+    	return add(scale1, v1, scale2, v2, new double[v1.length]);
+    }
+    
+    /**
+     * Computes <code>v1 + v2</code>.
+     * 
+     * @param v1
+     * <br>Must not be null
+     * <br>Size range: <code>[0 .. Integer.MAX_VALUE]</code>
+     * @param v2
+     * <br>Must not be null
+     * <br>Size range: <code>{v1.length}</code>
+     * @return <code>result</code>
+     * <br>Not null
+     * <br>New
+     */
+    public static final double[] add(final double[] v1, final double[] v2) {
+    	return add(v1, v2, new double[v1.length]);
     }
     
     /**

@@ -96,6 +96,14 @@ public final class MathToolsTest {
 	public final void testAdd() {
 		assertArrayEquals(doubles(0.0, 0.0, 26.0, 31.0),
 				MathTools.add(2, 1.0, doubles(2.0, 3.0), 0, 4.0, doubles(5.0, 6.0, 7.0), 1, new double[4], 2), 0.0);
+		assertArrayEquals(doubles(26.0, 31.0),
+				MathTools.add(1.0, doubles(2.0, 3.0), 4.0, doubles(6.0, 7.0), new double[2]), 0.0);
+		assertArrayEquals(doubles(26.0, 31.0),
+				MathTools.add(1.0, doubles(2.0, 3.0), 4.0, doubles(6.0, 7.0)), 0.0);
+		assertArrayEquals(doubles(8.0, 10.0),
+				MathTools.add(doubles(2.0, 3.0), doubles(6.0, 7.0), new double[2]), 0.0);
+		assertArrayEquals(doubles(8.0, 10.0),
+				MathTools.add(doubles(2.0, 3.0), doubles(6.0, 7.0)), 0.0);
 	}
 	
 	@Test
