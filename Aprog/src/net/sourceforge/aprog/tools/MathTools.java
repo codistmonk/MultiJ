@@ -26,8 +26,13 @@ package net.sourceforge.aprog.tools;
 
 import static java.lang.Math.max;
 import static java.lang.Math.min;
+import static net.sourceforge.aprog.tools.Tools.instances;
 
 import java.io.Serializable;
+import java.util.Arrays;
+import java.util.function.BiConsumer;
+import java.util.function.ToDoubleBiFunction;
+import java.util.function.ToDoubleFunction;
 
 /**
  * @author codistmonk (creation 2011-06-11)
@@ -179,6 +184,36 @@ public final class MathTools {
         }
         
         return result;
+    }
+    
+    /**
+     * @param value
+     * <br>Range: any int
+     * @return
+     * <br>Range: any int
+     */
+    public static final int square(final int value) {
+    	return value * value;
+    }
+    
+    /**
+     * @param value
+     * <br>Range: any long
+     * @return
+     * <br>Range: any long
+     */
+    public static final long square(final long value) {
+    	return value * value;
+    }
+    
+    /**
+     * @param value
+     * <br>Range: any float
+     * @return
+     * <br>Range: any float
+     */
+    public static final float square(final float value) {
+    	return value * value;
     }
     
     /**
@@ -350,5 +385,175 @@ public final class MathTools {
 		public static final Factory<Statistics> FACTORY = Factory.DefaultFactory.forClass(Statistics.class);
 		
     }
+    
+	/**
+	 * @author codistmonk (creation 2014-03-07)
+	 */
+	public static final class VectorStatistics implements Serializable {
+		
+		private final Statistics[] statistics;
+		
+		/**
+		 * @param dimension
+		 * <br>Range: <code>[0 .. Integer.MAX_VALUE]</code>
+		 */
+		public VectorStatistics(final int dimension) {
+			this.statistics = instances(dimension, Statistics.FACTORY);
+		}
+		
+		public final void reset() {
+			for (final Statistics statistics : this.getStatistics()) {
+				statistics.reset();
+			}
+		}
+		
+		/**
+		 * @return
+		 * <br>Not null
+		 * <br>Strong reference in <code>this</code>
+		 */
+		public final Statistics[] getStatistics() {
+			return this.statistics;
+		}
+		
+		/**
+		 * @param values
+		 * <br>Must not be null
+		 * <br>Size range: <code>{this.getStatistics().length}</code>
+		 */
+		public final void addValues(final double... values) {
+			this.forEach(Statistics::addValue, values);
+		}
+		
+		/**
+		 * @param f
+		 * <br>Must not be null
+		 * @param values
+		 * <br>Must not be null
+		 * <br>Size range: <code>{this.getStatistics().length}</code>
+		 */
+		public final void forEach(final BiConsumer<? super Statistics, Double> f, final double... values) {
+			final int n = this.getStatistics().length;
+			
+			for (int i = 0; i < n; ++i) {
+				f.accept(this.getStatistics()[i], values[i]);
+			}
+		}
+		
+		/**
+		 * @param f
+		 * <br>Must not be null
+		 * @param values
+		 * <br>Must not be null
+		 * <br>Size range: <code>{this.getStatistics().length}</code>
+		 * @return
+		 * <br>Not null
+		 * <br>New
+		 */
+		public final double[] apply(final ToDoubleBiFunction<? super Statistics, Double> f, final double... values) {
+			final int n = this.getStatistics().length;
+			final double[] result = new double[n];
+			
+			for (int i = 0; i < n; ++i) {
+				result[i] = f.applyAsDouble(this.getStatistics()[i], values[i]);
+			}
+			
+			return result;
+		}
+		
+		/**
+		 * @param mapper
+		 * <br>Must not be null
+		 * @return
+		 * <br>Not null
+		 * <br>New
+		 */
+		public final double[] map(final ToDoubleFunction<? super Statistics> mapper) {
+			return Arrays.stream(this.getStatistics()).mapToDouble(mapper).toArray();
+		}
+		
+		/**
+		 * @param values
+		 * <br>Must not be null
+		 * <br>Size range: <code>{this.getStatistics().length}</code>
+		 * @return
+		 * <br>Not null
+		 * <br>New
+		 */
+		public final double[] getNormalizedValues(final double... values) {
+			return this.apply(Statistics::getNormalizedValue, values);
+		}
+		
+		/**
+		 * @param values
+		 * <br>Must not be null
+		 * <br>Size range: <code>{this.getStatistics().length}</code>
+		 * @return
+		 * <br>Not null
+		 * <br>New
+		 */
+		public final double[] getDenormalizedValues(final double... values) {
+			return this.apply(Statistics::getDenormalizedValue, values);
+		}
+		
+		/**
+		 * @return
+		 * <br>Range: <code>[0.0 .. Double.MAX_VALUE]</code>
+		 */
+		public final double getCount() {
+			return this.getStatistics()[0].getCount();
+		}
+		
+		/**
+		 * @return
+		 * <br>Not null
+		 * <br>New
+		 */
+		public final double[] getMeans() {
+			return this.map(Statistics::getMean);
+		}
+		
+		/**
+		 * @return
+		 * <br>Not null
+		 * <br>New
+		 */
+		public final double[] getMinima() {
+			return this.map(Statistics::getMinimum);
+		}
+		
+		/**
+		 * @return
+		 * <br>Not null
+		 * <br>New
+		 */
+		public final double[] getMaxima() {
+			return this.map(Statistics::getMaximum);
+		}
+		
+		/**
+		 * @return
+		 * <br>Not null
+		 * <br>New
+		 */
+		public final double[] getAmplitudes() {
+			return this.map(Statistics::getAmplitude);
+		}
+		
+		/**
+		 * @return
+		 * <br>Not null
+		 * <br>New
+		 */
+		public final double[] getVariances() {
+			return this.map(Statistics::getVariance);
+		}
+		
+		/**
+		 * {@value}.
+		 */
+		private static final long serialVersionUID = 8371199963847573845L;
+		
+	}
     
 }

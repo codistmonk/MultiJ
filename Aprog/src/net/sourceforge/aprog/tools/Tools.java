@@ -701,10 +701,69 @@ public final class Tools {
 	 * <br>Maybe null
 	 * @return
 	 * <br>Maybe null
-	 * <br>Maybe New
 	 */
 	public static final <T> T[] array(final T... array) {
 		return array;
+	}
+	
+	/**
+	 * @param values
+	 * <br>Maybe null
+	 * @return <code>values</code>
+	 * <br>Maybe null
+	 */
+	public static final boolean[] booleans(final boolean... values) {
+		return values;
+	}
+	
+	/**
+	 * @param values
+	 * <br>Maybe null
+	 * @return <code>values</code>
+	 * <br>Maybe null
+	 */
+	public static final char[] chars(final char... values) {
+		return values;
+	}
+	
+	/**
+	 * @param values
+	 * <br>Maybe null
+	 * @return <code>values</code>
+	 * <br>Maybe null
+	 */
+	public static final int[] ints(final int... values) {
+		return values;
+	}
+	
+	/**
+	 * @param values
+	 * <br>Maybe null
+	 * @return <code>values</code>
+	 * <br>Maybe null
+	 */
+	public static final long[] longs(final long... values) {
+		return values;
+	}
+	
+	/**
+	 * @param values
+	 * <br>Maybe null
+	 * @return <code>values</code>
+	 * <br>Maybe null
+	 */
+	public static final float[] floats(final float... values) {
+		return values;
+	}
+	
+	/**
+	 * @param values
+	 * <br>Maybe null
+	 * @return <code>values</code>
+	 * <br>Maybe null
+	 */
+	public static final double[] doubles(final double... values) {
+		return values;
 	}
 	
 	/**

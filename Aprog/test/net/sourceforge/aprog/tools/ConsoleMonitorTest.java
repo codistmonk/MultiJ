@@ -67,11 +67,11 @@ public final class ConsoleMonitorTest {
 		
 		assertEquals(1L, count.get());
 		
-		Tools.gc(60L);
+		Tools.gc(50L);
 		
 		monitor.ping();
 		
-		Tools.gc(60L);
+		Tools.gc(50L);
 		
 		monitor.ping();
 		
