@@ -404,15 +404,49 @@ public final class ToolsTest {
 	public final void testListAndIterable() {
 		assertEquals(Arrays.asList("42", "33"), Tools.list(Tools.iterable(new StringTokenizer("42 33"))));
 	}
-
+	
 	@Test
 	public final void testArray() {
 		final Object[] array = new Object[] { 42, 33 };
-
+		
 		assertSame(array, Tools.array(array));
 		assertArrayEquals(array, Tools.array(42, 33));
 	}
-
+	
+	@Test
+	public final void testPrimitiveArrays() {
+		{
+			final boolean[] array = new boolean[] { true, false};
+			
+			assertSame(array, Tools.booleans(array));
+			assertEquals(Arrays.toString(array), Arrays.toString(Tools.booleans(true, false)));
+		}
+		{
+			final int[] array = new int[] { 42, 33 };
+			
+			assertSame(array, Tools.ints(array));
+			assertArrayEquals(array, Tools.ints(42, 33));
+		}
+		{
+			final long[] array = new long[] { 42L, 33L };
+			
+			assertSame(array, Tools.longs(array));
+			assertArrayEquals(array, Tools.longs(42L, 33L));
+		}
+		{
+			final float[] array = new float[] { 42F, 33F };
+			
+			assertSame(array, Tools.floats(array));
+			assertArrayEquals(array, Tools.floats(42F, 33F), 0F);
+		}
+		{
+			final double[] array = new double[] { 42.0, 33.0 };
+			
+			assertSame(array, Tools.doubles(array));
+			assertArrayEquals(array, Tools.doubles(42.0, 33.0), 0.0);
+		}
+	}
+	
 	@Test
 	public final void testSet() {
 		final Set<?> set = Tools.set(42, 33, 42);

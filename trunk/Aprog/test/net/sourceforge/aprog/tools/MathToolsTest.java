@@ -24,9 +24,10 @@
 
 package net.sourceforge.aprog.tools;
 
+import static net.sourceforge.aprog.tools.Tools.doubles;
 import static org.junit.Assert.*;
-
 import net.sourceforge.aprog.tools.MathTools.Statistics;
+import net.sourceforge.aprog.tools.MathTools.VectorStatistics;
 
 import org.junit.Test;
 
@@ -71,6 +72,14 @@ public final class MathToolsTest {
 		assertEquals(1L, MathTools.nCk(4L, 0L));
 		assertEquals(6L, MathTools.nCk(4L, 2L));
 		assertEquals(1L, MathTools.nCk(4L, 4L));
+	}
+	
+	@Test
+	public final void testSquare() {
+		assertEquals(9L, MathTools.square(3));
+		assertEquals(9L, MathTools.square(3L));
+		assertEquals(9.0, MathTools.square(3F), 0.0);
+		assertEquals(9.0, MathTools.square(3.0), 0.0);
 	}
 	
 	@Test
@@ -125,6 +134,19 @@ public final class MathToolsTest {
 		assertEquals(0.0, statistics.getMinimum(), 0.0);
 		assertEquals(6.0, statistics.getMaximum(), 0.0);
 		assertEquals(4.0, statistics.getCount(), 0.0);
+	}
+	
+	@Test
+	public final void testVectorStatistics() {
+		final VectorStatistics statistics = new VectorStatistics(2);
+		
+		statistics.addValues(0.0, 0.0);
+		statistics.addValues(-1.0, 2.0);
+		
+		assertArrayEquals(doubles(-0.5, 1.0), statistics.getMeans(), 0.0);
+		assertArrayEquals(doubles(-1.0, 0.0), statistics.getMinima(), 0.0);
+		assertArrayEquals(doubles(0.0, 2.0), statistics.getMaxima(), 0.0);
+		assertArrayEquals(doubles(1.0, 2.0), statistics.getAmplitudes(), 0.0);
 	}
 	
 }
