@@ -227,6 +227,85 @@ public final class MathTools {
     }
     
     /**
+     * @param a
+     * <br>Range: any double
+     * @param b
+     * <br>Range: any double
+     * @param c
+     * <br>Range: any double
+     * @param d
+     * <br>Range: any double
+     * @return <code>a * d - b * c</code>
+     * <br>Range: any double
+     */
+    public static final double det(final double a, final double b, final double c, final double d) {
+    	return a * d - b * c;
+    }
+    
+    /**
+     * <code>result[resultOffset .. resultOffset + n - 1] =
+     * <br>scale1 * v1[offset1 .. offset1 + n - 1] + scale2 * v2[offset2 .. offset2 + n - 1]</code>.
+     * 
+     * @param n
+     * <br>Range: <code>[0 .. Integer.MAX_VALUE]</code>
+     * @param scale1
+     * <br>Range: any double
+     * <br>Must not be null
+     * @param v1
+     * <br>Size range: <code>[n .. Integer.MAX_VALUE]</code>
+     * @param offset1
+     * <br>Range: <code>[0 .. v1.length - n]</code>
+     * @param scale2
+     * <br>Range: any double
+     * @param v2
+     * <br>Must not be null
+     * <br>Size range: <code>[n .. Integer.MAX_VALUE]</code>
+     * @param offset2
+     * <br>Range: <code>[0 .. v2.length - n]</code>
+     * @param result
+     * <br>Must not be null
+     * <br>Size range: <code>[n .. Integer.MAX_VALUE]</code>
+     * @param resultOffset
+     * <br>Range: <code>[0 .. result.length - n]</code>
+     * @return <code>result</code>
+     * <br>Not null
+     * <br>Not new
+     */
+    public static final double[] add(final int n,
+    		final double scale1, final double[] v1, final int offset1,
+    		final double scale2, final double[] v2, final int offset2,
+    		final double[] result, final int resultOffset) {
+    	for (int i = 0; i < n; ++i) {
+    		result[resultOffset + i] = scale1 * v1[offset1 + i] + scale2 * v2[offset2 + i];
+    	}
+    	
+    	return result;
+    }
+    
+    /**
+     * Inner product of <code>v1</code> and <code>v2</code>.
+     * 
+     * @param v1
+     * <br>Must not be null
+     * <br>Size range: <code>[0 .. Integer.MAX_VALUE]</code>
+     * @param v2
+     * <br>Must not be null
+     * <br>Size range: <code>{v1.length}</code>
+     * @return
+     * <br>Range: any double
+     */
+    public static final double dot(final double[] v1, final double[] v2) {
+    	final int n = v1.length;
+    	double result = 0.0;
+    	
+    	for (int i = 0; i < n; ++i) {
+    		result += v1[i] * v2[i];
+    	}
+    	
+    	return result;
+    }
+    
+    /**
      * @author codistmonk (creation 2012-06-20)
      */
     public static final class Statistics implements Serializable {
