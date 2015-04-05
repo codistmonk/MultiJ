@@ -83,6 +83,22 @@ public final class MathToolsTest {
 	}
 	
 	@Test
+	public final void testDet() {
+		assertEquals(-2.0, MathTools.det(1.0, 2.0, 3.0, 4.0), 0.0);
+	}
+	
+	@Test
+	public final void testDot() {
+		assertEquals(11.0, MathTools.dot(doubles(1.0, 2.0), doubles(3.0, 4.0)), 0.0);
+	}
+	
+	@Test
+	public final void testAdd() {
+		assertArrayEquals(doubles(0.0, 0.0, 26.0, 31.0),
+				MathTools.add(2, 1.0, doubles(2.0, 3.0), 0, 4.0, doubles(5.0, 6.0, 7.0), 1, new double[4], 2), 0.0);
+	}
+	
+	@Test
 	public final void testStatistics1() {
 		final Statistics statistics = new Statistics();
 		
