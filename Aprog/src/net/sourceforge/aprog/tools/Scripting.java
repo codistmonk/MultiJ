@@ -32,6 +32,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.Set;
 import java.util.function.Consumer;
 
@@ -125,6 +126,26 @@ public final class Scripting implements Serializable {
 	}
 	
 	private static final long serialVersionUID = -3104607045331464557L;
+	
+	/**
+	 * @param commandLineArguments
+	 * <br>Must not be null
+	 */
+	public static final void main(final String... commandLineArguments) {
+		final CommandLineArgumentsParser arguments = new CommandLineArgumentsParser(commandLineArguments);
+		final String language = arguments.get("language", "JavaScript");
+		final Scripting scripting = new Scripting(language);
+		
+		try (final Scanner scanner = new Scanner(System.in)) {
+			while (scanner.hasNext()) {
+				try {
+					scripting.eval(scanner.nextLine());
+				} catch (final Exception exception) {
+					exception.printStackTrace();
+				}
+			}
+		}
+	}
 	
 	/**
 	 * @param preferredEngineName
