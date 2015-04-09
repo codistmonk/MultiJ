@@ -29,7 +29,10 @@ import static net.sourceforge.aprog.tools.Tools.escapeHTML;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.KeyEventDispatcher;
+import java.awt.KeyboardFocusManager;
 import java.awt.Rectangle;
+import java.awt.event.InputEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.io.ByteArrayOutputStream;
@@ -39,6 +42,7 @@ import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextPane;
+import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.text.Element;
 import javax.swing.text.html.HTMLDocument;
@@ -118,6 +122,12 @@ public final class ScriptingPanel extends JPanel {
 		this.setPreferredSize(new Dimension(640, 480));
 	}
 	
+	public final void eval(final String command) {
+		this.getInputArea().setText(command);
+		this.getInputArea().dispatchEvent(new KeyEvent(this.getInputArea(), KeyEvent.KEY_PRESSED,
+				System.currentTimeMillis(), InputEvent.CTRL_DOWN_MASK, KeyEvent.VK_ENTER, '\n'));
+	}
+	
 	/**
 	 * @return
 	 * <br>Not null
@@ -156,10 +166,49 @@ public final class ScriptingPanel extends JPanel {
 		final String language = arguments.get("language", "JavaScript");
 		final Scripting scripting = new Scripting(language);
 		final String title = arguments.get("title", scripting.getScriptEngine().getFactory().getEngineName());
+		final boolean useSystemLookAndFeel = arguments.get("systemLookAndFeel", 1)[0] != 0;
 		
-		useSystemLookAndFeel();
+		if (useSystemLookAndFeel) {
+			useSystemLookAndFeel();
+		}
 		
 		SwingUtilities.invokeLater(() -> SwingTools.show(new ScriptingPanel(), title, false));
+	}
+	
+	public static final void openScriptingPanelOnCtrlF2() {
+		openScriptingPanelOn("ctrl F2");
+	}
+	
+	/**
+	 * @param keyStroke
+	 * <br>Must not be null
+	 */
+	public static final void openScriptingPanelOn(final String keyStroke) {
+		openScriptingPanelOn(KeyStroke.getKeyStroke(keyStroke));
+	}
+	
+	/**
+	 * @param keyStroke
+	 * <br>Must not be null
+	 * <br>Stored as string reference
+	 */
+	public static final void openScriptingPanelOn(final KeyStroke keyStroke) {
+		KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(new KeyEventDispatcher() {
+			
+			@Override
+			public final boolean dispatchKeyEvent(final KeyEvent event) {
+				if (!event.isConsumed() && event.getID() == keyStroke.getKeyEventType()
+						&& event.getKeyCode() == keyStroke.getKeyCode()
+						&& (event.getModifiers() | event.getModifiersEx()) == keyStroke.getModifiers()) {
+					main("systemLookAndFeel", "0");
+					
+					return true;
+				}
+				
+				return false;
+			}
+			
+		});
 	}
 	
 }
