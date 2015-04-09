@@ -26,6 +26,10 @@ package net.sourceforge.aprog.tools;
 
 import static org.junit.Assert.*;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+
 import org.junit.Test;
 
 /**
@@ -34,6 +38,18 @@ import org.junit.Test;
  * @author codistmonk (creation 2015-04-09)
  */
 public final class ScriptingTest {
+	
+	@Test
+	public final void testMain() {
+		final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+		
+		System.setIn(new ByteArrayInputStream("print(1+1)".getBytes()));
+		System.setOut(new PrintStream(buffer));
+		
+		Scripting.main();
+		
+		assertEquals("2", buffer.toString().trim());
+	}
 	
 	@Test
 	public final void testEval1() {
