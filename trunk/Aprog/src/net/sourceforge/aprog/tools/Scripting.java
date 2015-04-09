@@ -221,7 +221,7 @@ public final class Scripting implements Serializable {
 		}
 		
 		/**
-		 * @param keys
+		 * @param key
 		 * <br>Must not be null
 		 */
 		public final void importPackage(final Object key) {
@@ -229,7 +229,7 @@ public final class Scripting implements Serializable {
 		}
 		
 		/**
-		 * @param keys
+		 * @param key
 		 * <br>Must not be null
 		 */
 		public final void importClass(final Object key) {
@@ -270,12 +270,30 @@ public final class Scripting implements Serializable {
 		
 		@Override
 		public final Object put(final String key, final Object value) {
-			return this.map.put(key, value);
+			final Thread flag = Thread.currentThread();
+			final boolean flagSetInCurrentFrame = this.recursionFlags.add(flag);
+			
+			try {
+				return flagSetInCurrentFrame ? this.map.put(key, value) : null;
+			} finally {
+				if (flagSetInCurrentFrame) {
+					this.recursionFlags.remove(flag);
+				}
+			}
 		}
 		
 		@Override
 		public final Object get(final Object key) {
-			return this.map.get(key);
+			final Thread flag = Thread.currentThread();
+			final boolean flagSetInCurrentFrame = this.recursionFlags.add(flag);
+			
+			try {
+				return flagSetInCurrentFrame ? this.map.get(key) : null;
+			} finally {
+				if (flagSetInCurrentFrame) {
+					this.recursionFlags.remove(flag);
+				}
+			}
 		}
 		
 		@Override

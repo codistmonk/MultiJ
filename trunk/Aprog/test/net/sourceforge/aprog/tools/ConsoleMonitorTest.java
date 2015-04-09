@@ -75,7 +75,7 @@ public final class ConsoleMonitorTest {
 		
 		monitor.ping();
 		
-		assertEquals(2L, count.get());
+		assertTrue(2 <= count.get());
 		
 		monitor.pause();
 	}
