@@ -157,6 +157,8 @@ public final class ScriptingPanel extends JPanel {
 		final Scripting scripting = new Scripting(language);
 		final String title = arguments.get("title", scripting.getScriptEngine().getFactory().getEngineName());
 		
+		useSystemLookAndFeel();
+		
 		SwingUtilities.invokeLater(() -> SwingTools.show(new ScriptingPanel(), title, false));
 	}
 	
