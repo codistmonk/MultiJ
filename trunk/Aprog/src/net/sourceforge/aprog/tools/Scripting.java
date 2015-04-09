@@ -91,25 +91,37 @@ public final class Scripting implements Serializable {
 	/**
 	 * @param keys
 	 * <br>Must not be null
+	 * @return <code>this</code>
+	 * <br>Not null
 	 */
-	public final void importAll(final Object... keys) {
+	public final Scripting importAll(final Object... keys) {
 		this.importer.importAll(keys);
+		
+		return this;
 	}
 	
 	/**
 	 * @param key
 	 * <br>Must not be null
+	 * @return <code>this</code>
+	 * <br>Not null
 	 */
-	public final void importPackage(final Object key) {
+	public final Scripting importPackage(final Object key) {
 		this.importer.importPackage(key);
+		
+		return this;
 	}
 	
 	/**
 	 * @param key
 	 * <br>Must not be null
+	 * @return <code>this</code>
+	 * <br>Not null
 	 */
-	public final void importClass(final Object key) {
+	public final Scripting importClass(final Object key) {
 		this.importer.importClass(key);
+		
+		return this;
 	}
 	
 	private static final long serialVersionUID = -3104607045331464557L;
@@ -207,8 +219,10 @@ public final class Scripting implements Serializable {
 		/**
 		 * @param keys
 		 * <br>Must not be null
+		 * @return <code>this</code>
+		 * <br>Not null
 		 */
-		public final void importAll(final Object... keys) {
+		public final Importer importAll(final Object... keys) {
 			for (final Object key : keys) {
 				final String string = key.toString();
 				
@@ -218,22 +232,30 @@ public final class Scripting implements Serializable {
 					this.importClass(key);
 				}
 			}
+			
+			return this;
 		}
 		
 		/**
 		 * @param key
 		 * <br>Must not be null
+		 * @return <code>this</code>
+		 * <br>Not null
 		 */
-		public final void importPackage(final Object key) {
+		public final Importer importPackage(final Object key) {
 			this.importWithoutPrefix(key, PACKAGE_KEY);
+			
+			return this;
 		}
 		
 		/**
 		 * @param key
 		 * <br>Must not be null
+		 * @return <code>this</code>
+		 * <br>Not null
 		 */
-		public final void importClass(final Object key) {
-			this.importWithoutPrefix(key, CLASS_KEY);
+		public final Importer importClass(final Object key) {
+			return this.importWithoutPrefix(key, CLASS_KEY);
 		}
 		
 		@Override
@@ -341,13 +363,17 @@ public final class Scripting implements Serializable {
 		 * <br>Must not be null
 		 * @param prefix
 		 * <br>Must not be null
+		 * @return <code>this</code>
+		 * <br>Not null
 		 */
-		private final void importWithoutPrefix(final Object key, final String prefix) {
+		private final Importer importWithoutPrefix(final Object key, final String prefix) {
 			String name = key.toString();
 			final boolean prefixed = name.startsWith(prefix);
 			name = name.substring(prefixed ? prefix.length() : 0, name.length() - (prefixed ? 1 : 0));
 			
 			this.getImports().add(name);
+			
+			return this;
 		}
 		
 		/**

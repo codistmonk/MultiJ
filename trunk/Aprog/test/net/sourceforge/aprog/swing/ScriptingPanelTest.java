@@ -26,7 +26,6 @@ package net.sourceforge.aprog.swing;
 
 import static org.junit.Assert.*;
 
-import java.awt.event.KeyEvent;
 import java.lang.reflect.InvocationTargetException;
 
 import javax.swing.JFrame;
@@ -59,11 +58,9 @@ public final class ScriptingPanelTest {
 					frame.add(scriptingPanel);
 					frame.setVisible(true);
 					
-					inputArea.setText("1+1");
-					inputArea.dispatchEvent(new KeyEvent(inputArea, KeyEvent.KEY_PRESSED,
-							System.currentTimeMillis(), KeyEvent.CTRL_DOWN_MASK, KeyEvent.VK_ENTER, '\n'));
+					scriptingPanel.eval("1+1");
 					
-					assertEquals(inputArea.getSelectedText(), inputArea.getText());
+					assertEquals(inputArea.getText(), inputArea.getSelectedText());
 					
 					final String text = messages.getText();
 					
