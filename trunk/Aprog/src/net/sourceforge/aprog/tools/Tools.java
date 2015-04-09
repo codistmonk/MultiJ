@@ -72,6 +72,25 @@ public final class Tools {
 	public static final String LINE_SEPARATOR = System.getProperty("line.separator");
 	
 	/**
+	 * Replaces all:<ol>
+	 * 	<li><code>&lt;</code> with <code>&amp;lt;</code></li>
+	 * 	<li><code>&amp;</code> with <code>&amp;amp;</code></li>
+	 * 	<li><code>\n</code> with <code>&lt;br></code></li>
+	 * </ol>
+	 * <br>
+	 * in <code>object</code>'s string representation.
+	 * 
+	 * @param object
+	 * <br>Maybe null
+	 * @return
+	 * <br>Not null
+	 * <br>New
+	 */
+	public static final String escapeHTML(final Object object) {
+		return ("" + object).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll("\n", "<br>");
+	}
+	
+	/**
 	 * @param array
 	 * <br>Must not be null
 	 * @return
