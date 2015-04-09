@@ -62,6 +62,11 @@ import org.junit.Test;
 public final class ToolsTest {
 	
 	@Test
+	public final void testEspaceHTML() {
+		assertEquals("&lt;html>&amp;amp;lt;<br>&lt;/html>", Tools.escapeHTML("<html>&amp;lt;\n</html>"));
+	}
+	
+	@Test
 	public final void testDeepClone1() {
 		final int[] array = { 1, 2 };
 		final int[] cloned = Tools.deepClone(array);
