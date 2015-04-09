@@ -40,10 +40,22 @@ import org.junit.Test;
 public final class ScriptingTest {
 	
 	@Test
-	public final void testMain() {
+	public final void testMain1() {
 		final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
 		
-		System.setIn(new ByteArrayInputStream("print(1+1)".getBytes()));
+		System.setIn(new ByteArrayInputStream("print(1+1);".getBytes()));
+		System.setOut(new PrintStream(buffer));
+		
+		Scripting.main();
+		
+		assertEquals("2", buffer.toString().trim());
+	}
+	
+	@Test
+	public final void testMain2() {
+		final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+		
+		System.setIn(new ByteArrayInputStream("1+1".getBytes()));
 		System.setOut(new PrintStream(buffer));
 		
 		Scripting.main();

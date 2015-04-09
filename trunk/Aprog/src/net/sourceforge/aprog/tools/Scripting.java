@@ -139,7 +139,12 @@ public final class Scripting implements Serializable {
 		try (final Scanner scanner = new Scanner(System.in)) {
 			while (scanner.hasNext()) {
 				try {
-					scripting.eval(scanner.nextLine());
+					final String command = scanner.nextLine();
+					final Object result = scripting.eval(command);
+					
+					if (!command.endsWith(";")) {
+						System.out.println(result);
+					}
 				} catch (final Exception exception) {
 					exception.printStackTrace();
 				}
