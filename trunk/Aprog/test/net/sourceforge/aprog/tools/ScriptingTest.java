@@ -90,7 +90,7 @@ public final class ScriptingTest {
 	}
 	
 	@Test
-	public final void testImportPackage() {
+	public final void testImportPackage1() {
 		final Scripting scripting = new Scripting();
 		
 		scripting.importAll(Tools.class.getPackage().getName());
@@ -99,10 +99,28 @@ public final class ScriptingTest {
 	}
 	
 	@Test
-	public final void testImportClass() {
+	public final void testImportPackage2() {
+		final Scripting scripting = new Scripting();
+		
+		scripting.importAll(Tools.class.getPackage());
+		
+		assertNotNull(scripting.eval("Tools"));
+	}
+	
+	@Test
+	public final void testImportClass1() {
 		final Scripting scripting = new Scripting();
 		
 		scripting.importAll(Tools.class.getName());
+		
+		assertNotNull(scripting.eval("debugPrint"));
+	}
+	
+	@Test
+	public final void testImportClass2() {
+		final Scripting scripting = new Scripting();
+		
+		scripting.importAll(Tools.class);
 		
 		assertNotNull(scripting.eval("debugPrint"));
 	}
