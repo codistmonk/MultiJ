@@ -24,6 +24,7 @@
 
 package net.sourceforge.aprog.tools;
 
+import static net.sourceforge.aprog.tools.Tools.debugPrint;
 import static net.sourceforge.aprog.tools.Tools.ignore;
 import static net.sourceforge.aprog.tools.Tools.unchecked;
 
@@ -293,8 +294,7 @@ public final class Scripting implements Serializable {
 				try {
 					if (flagSetInCurrentFrame) {
 						for (final String prefix : getImports()) {
-							if (Package.getPackage(prefix) != null && this.bind(prefix + "." + key, prefix, key)
-									|| this.bind(prefix, prefix, key)) {
+							if (this.bind(prefix + "." + key, prefix, key) || this.bind(prefix, prefix, key)) {
 								return true;
 							}
 						}
@@ -393,11 +393,14 @@ public final class Scripting implements Serializable {
 		 * <br>Not null
 		 */
 		private final Importer importWithoutPrefix(final Object key, final String prefix) {
-			String name = key.toString();
+			String name = key instanceof Package ? ((Package) key).getName() :
+				key instanceof Class ? ((Class<?>) key).getName() : key.toString();
 			final boolean prefixed = name.startsWith(prefix);
 			name = name.substring(prefixed ? prefix.length() : 0, name.length() - (prefixed ? 1 : 0));
 			
 			this.getImports().add(name);
+			
+			debugPrint(this.getImports());
 			
 			return this;
 		}
@@ -413,6 +416,8 @@ public final class Scripting implements Serializable {
 		 * <br>Range: any boolean
 		 */
 		private final boolean bind(final String className, final String prefix, final Object key) {
+			debugPrint(className);
+			
 			try {
 				Class.forName(className);
 				
