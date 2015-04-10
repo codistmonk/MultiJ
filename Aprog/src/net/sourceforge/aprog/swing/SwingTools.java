@@ -26,6 +26,7 @@ package net.sourceforge.aprog.swing;
 
 import static java.lang.Thread.currentThread;
 import static net.sourceforge.aprog.i18n.Messages.translate;
+import static net.sourceforge.aprog.tools.Tools.cast;
 import static net.sourceforge.aprog.tools.Tools.getCallerClass;
 import static net.sourceforge.aprog.tools.Tools.getCallerMethodName;
 import static net.sourceforge.aprog.tools.Tools.getLoggerForThisMethod;
@@ -60,6 +61,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Predicate;
 import java.util.logging.Level;
 
 import javax.imageio.ImageIO;
@@ -82,6 +84,7 @@ import javax.swing.WindowConstants;
 import net.sourceforge.aprog.af.MacOSXTools;
 import net.sourceforge.aprog.i18n.Messages;
 import net.sourceforge.aprog.tools.IllegalInstantiationException;
+import net.sourceforge.aprog.tools.Tools;
 
 /**
  * This class provides utility static methods to help build Swing GUIs.
@@ -151,6 +154,10 @@ public final class SwingTools {
 	
 	static WeakReference<Thread> awtEventDispatchingThread = null;
 	
+	/**
+	 * @return
+	 * <br>Maybe null
+	 */
 	public static final synchronized Thread getAWTEventDispatchingThread() {
 		if (awtEventDispatchingThread == null) {
 			try {
@@ -170,8 +177,71 @@ public final class SwingTools {
 		return awtEventDispatchingThread.get();
 	}
 	
+	/**
+	 * @param checkAWT
+	 * <br>Range: any boolean
+	 */
 	public static final void setCheckAWT(final boolean checkAWT) {
 		SwingTools.checkAWT.set(checkAWT);
+	}
+	
+	/**
+	 * @param name
+	 * <br>Maybe null
+	 * @param root
+	 * <br>Maybe null
+	 * @return
+	 * <br>Maybe null
+	 */
+	public static final <C extends Component> C find(final String name, final Container root) {
+		return find(c -> Tools.equals(name, c.getName()), root);
+	}
+	
+	/**
+	 * @param cls
+	 * <br>Must not be null
+	 * @param root
+	 * <br>Maybe null
+	 * @return
+	 * <br>Maybe null
+	 */
+	public static final <C extends Component> C find(final Class<C> cls, final Container root) {
+		return find(cls::isInstance, root);
+	}
+	
+	/**
+	 * @param predicate
+	 * <br>Maybe null
+	 * @param root
+	 * <br>Maybe null
+	 * @return
+	 * <br>Maybe null
+	 */
+	@SuppressWarnings("unchecked")
+	public static final <C extends Component> C find(final Predicate<? super Component> predicate, final Container root) {
+		if (predicate == null || root == null) {
+			return null;
+		}
+		
+		if (predicate.test(root)) {
+			return (C) root;
+		}
+		
+		for (final Component child : root.getComponents()) {
+			final Container container = cast(Container.class, child);
+			
+			if (container != null) {
+				final C candidate = find(predicate, container);
+				
+				if (candidate != null) {
+					return candidate;
+				}
+			} else if (predicate.test(child)) {
+				return (C) child;
+			}
+		}
+		
+		return null;
 	}
 	
 	/**

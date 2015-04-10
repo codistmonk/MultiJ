@@ -44,11 +44,13 @@ import java.awt.dnd.InvalidDnDOperationException;
 import java.awt.dnd.peer.DropTargetContextPeer;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.concurrent.Semaphore;
 
 import javax.swing.Box;
 import javax.swing.JButton;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -56,7 +58,9 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
+import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
+import javax.swing.text.JTextComponent;
 
 import net.sourceforge.aprog.tools.SystemProperties;
 import net.sourceforge.aprog.tools.Tools;
@@ -79,13 +83,44 @@ public final class SwingToolsTest {
 			
 			@Override
 			public final void run() {
-				Tools.gc(1000L);
+				Tools.gc(200L);
 				window.dispose();
 			}
 			
 		});
 		
 		SwingTools.getAWTEventDispatchingThread().join();
+	}
+	
+	@Test
+	public final void testFind() throws InvocationTargetException, InterruptedException {
+		SwingUtilities.invokeAndWait(new Runnable() {
+			
+			@Override
+			public final void run() {
+				final JFrame frame = new JFrame();
+				final JPanel panel = new JPanel();
+				final JTextArea component1 = new JTextArea();
+				final JTextArea component2 = new JTextArea();
+				
+				frame.setName("frame");
+				panel.setName("panel");
+				component1.setName("component1");
+				component2.setName("component2");
+				
+				frame.add(panel);
+				panel.add(component1);
+				panel.add(component2);
+				
+				assertSame(frame, SwingTools.find("frame", frame));
+				assertSame(panel, SwingTools.find("panel", frame));
+				assertSame(component1, SwingTools.find("component1", frame));
+				assertSame(component2, SwingTools.find("component2", frame));
+				assertSame(component1, SwingTools.find(JTextArea.class, frame));
+				assertSame(component1, SwingTools.find(JTextComponent.class, frame));
+			}
+			
+		});
 	}
 	
 	@Test
