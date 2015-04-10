@@ -97,6 +97,7 @@ public final class Tools {
 	 * <br>Not null
 	 * <br>New
 	 */
+	@SuppressWarnings("unchecked")
 	public static final <T> T deepClone(final T array) {
 		final Class<? extends Object> cls = array.getClass();
 		final int n = Array.getLength(array);
@@ -241,8 +242,18 @@ public final class Tools {
 	public static final void gc(final long sleepMilliseconds) {
 		System.gc();
 		
+		sleep(sleepMilliseconds);
+	}
+	
+	/**
+	 * Waits for a while.
+	 * 
+	 * @param milliseconds
+	 * <br>Range: <code>[0L .. Long.MAX_VALUE]</code>
+	 */
+	public static final void sleep(final long milliseconds) {
 		try {
-			Thread.sleep(sleepMilliseconds);
+			Thread.sleep(milliseconds);
 		} catch (final InterruptedException exception) {
 			throw unchecked(exception);
 		}
@@ -501,7 +512,7 @@ public final class Tools {
 	 * @param output
 	 * <br>Not null
 	 * <br>Input-output
-	 * @param closeInput
+	 * @param closeOutput
 	 * <br>Range: any boolean
 	 * @throws RuntimeException if an I/O error occurs during the writing phase
 	 */

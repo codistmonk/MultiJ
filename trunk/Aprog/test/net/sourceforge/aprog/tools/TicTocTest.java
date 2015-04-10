@@ -43,16 +43,16 @@ public final class TicTocTest {
 		final long upperLimit = sleepMilliseconds + 200L;
 		
 		timer.tic();
-		Tools.gc(sleepMilliseconds);
+		Tools.sleep(sleepMilliseconds);
 		time = timer.toc();
 		
 		assertTrue(sleepMilliseconds <= time && time < upperLimit);
 		assertTrue(sleepMilliseconds <= timer.getTotalTime() && timer.getTotalTime() < upperLimit);
 		
-		Tools.gc(sleepMilliseconds);
+		Tools.sleep(sleepMilliseconds);
 		
 		timer.tic();
-		Tools.gc(sleepMilliseconds);
+		Tools.sleep(sleepMilliseconds);
 		time = timer.toc();
 		
 		assertTrue(sleepMilliseconds <= time && time < upperLimit);
