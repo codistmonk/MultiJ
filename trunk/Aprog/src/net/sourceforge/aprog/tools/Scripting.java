@@ -24,7 +24,6 @@
 
 package net.sourceforge.aprog.tools;
 
-import static net.sourceforge.aprog.tools.Tools.debugPrint;
 import static net.sourceforge.aprog.tools.Tools.ignore;
 import static net.sourceforge.aprog.tools.Tools.unchecked;
 
@@ -400,8 +399,6 @@ public final class Scripting implements Serializable {
 			
 			this.getImports().add(name);
 			
-			debugPrint(this.getImports());
-			
 			return this;
 		}
 		
@@ -416,8 +413,6 @@ public final class Scripting implements Serializable {
 		 * <br>Range: any boolean
 		 */
 		private final boolean bind(final String className, final String prefix, final Object key) {
-			debugPrint(className);
-			
 			try {
 				Class.forName(className);
 				
