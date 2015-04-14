@@ -54,20 +54,20 @@ public final class CommandLineArgumentsParser implements Serializable {
 			return defaultValue;
 		}
 		
-		final List<Integer> values = new ArrayList<Integer>();
+		final List<Integer> values = new ArrayList<>();
 		
 		for (final String rangeRepresentation : valueRepresentation.split(",")) {
 	        final String[] rangeParameters = rangeRepresentation.split(":");
-	        final int first = Integer.parseInt(rangeParameters[0]);
+	        final int first = Integer.decode(rangeParameters[0]);
 	        final int step;
 	        final int last;
 	        
 	        if (rangeParameters.length == 2) {
 	            step = 1;
-	            last = Integer.parseInt(rangeParameters[1]);
+	            last = Integer.decode(rangeParameters[1]);
 	        } else if (rangeParameters.length == 3) {
-	            step = Integer.parseInt(rangeParameters[1]);
-	            last = Integer.parseInt(rangeParameters[2]);
+	            step = Integer.decode(rangeParameters[1]);
+	            last = Integer.decode(rangeParameters[2]);
 	        } else {
 	            step = 1;
 	            last = first;
@@ -82,15 +82,15 @@ public final class CommandLineArgumentsParser implements Serializable {
 //	public final long get(final String key, final long defaultValue) {
 //		final String valueRepresentation = this.map.get(key);
 //		
-//		return valueRepresentation != null ? Long.parseLong(valueRepresentation) : defaultValue;
+//		return valueRepresentation != null ? Long.decode(valueRepresentation) : defaultValue;
 //	}
-	
+//	
 //	public final float get(final String key, final float defaultValue) {
 //		final String valueRepresentation = this.map.get(key);
 //		
 //		return valueRepresentation != null ? Float.parseFloat(valueRepresentation) : defaultValue;
 //	}
-	
+//	
 //	public final double get(final String key, final double defaultValue) {
 //		final String valueRepresentation = this.map.get(key);
 //		
@@ -98,7 +98,7 @@ public final class CommandLineArgumentsParser implements Serializable {
 //	}
 	
 	public static final Map<String, String> toMap(final String[] commandLineArguments) {
-		final Map<String, String> result = new LinkedHashMap<String, String>();
+		final Map<String, String> result = new LinkedHashMap<>();
 		
 		for (int i = 0; i < commandLineArguments.length; i += 2) {
 			result.put(commandLineArguments[i], commandLineArguments[i + 1]);
@@ -108,7 +108,7 @@ public final class CommandLineArgumentsParser implements Serializable {
 	}
 	
 	public static final List<Integer> newRange(final int first, final int step, final int last) {
-		final List<Integer> resultBuilder = new ArrayList<Integer>();
+		final List<Integer> resultBuilder = new ArrayList<>();
 		
 		for (int i = first; first <= last ? i <= last : last <= i; i += step) {
 			resultBuilder.add(i);
@@ -129,7 +129,7 @@ public final class CommandLineArgumentsParser implements Serializable {
 	
 	public static final int parseIfAvailable(final String[] arguments, final int index, final int defaultValue) {
 		if (index < arguments.length) {
-			return Integer.parseInt(arguments[index]);
+			return Integer.decode(arguments[index]);
 		}
 		
 		return defaultValue;
