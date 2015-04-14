@@ -37,12 +37,13 @@ public final class CommandLineArgumentsParserTest {
     
     @Test
     public final void test1() {
-        final CommandLineArgumentsParser arguments = new CommandLineArgumentsParser("a", "42", "b", "1:2:5", "c", "0,-2,8:10");
+        final CommandLineArgumentsParser arguments = new CommandLineArgumentsParser("a", "42", "b", "1:2:5", "c", "0,-2,8:10", "e", "0x00FFFF");
         
         assertArrayEquals(new int[] { 42 }, arguments.get("a", 41));
         assertArrayEquals(new int[] { 42 }, arguments.get("d", 42));
         assertArrayEquals(new int[] { 1, 3, 5 }, arguments.get("b"));
         assertArrayEquals(new int[] { 0, -2, 8, 9, 10 }, arguments.get("c"));
+        assertArrayEquals(new int[] { 0x00FFFF }, arguments.get("e"));
     }
     
 }
