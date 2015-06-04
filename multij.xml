@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="create_lib_jar" name="Create Library Jar for Project MultiJ">
+    <!--ANT 1.7 is required                                        -->
+    <target name="create_lib_jar">
+    	<tstamp>
+    		<format property="timestamp" pattern="yyyyMMddHHmm" locale="en,US"/>
+    	</tstamp> 
+    	<jar destfile="multij-1.8.${timestamp}.jar" filesetmanifest="mergewithoutmain">
+            <fileset dir="bin" excludes="**/*Test*.*">
+            	<present present="srconly" targetdir="test"/>
+        	</fileset>
+            <fileset dir="src"/>
+        </jar>
+    </target>
+</project>
