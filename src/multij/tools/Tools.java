@@ -72,6 +72,63 @@ public final class Tools {
 	public static final String LINE_SEPARATOR = System.getProperty("line.separator");
 	
 	/**
+	 * Generates a sequence of int tuples that spans the hyperblock specified with <code>bounds</code>.
+	 * The generated tuples only differ by their values (the int array is updated during iteration).
+	 * 
+	 * @param bounds
+	 * <br>Must not be null
+	 * @return
+	 * <br>New
+	 * <br>Not null
+	 */
+	public static final Iterable<int[]> cartesian(final int... bounds) {
+		return new Iterable<int[]>() {
+			
+			@Override
+			public final Iterator<int[]> iterator() {
+				final int n = bounds.length / 2;
+				
+				return new Iterator<int[]>() {
+					
+					private int[] result;
+					
+					@Override
+					public final boolean hasNext() {
+						if (this.result == null) {
+							this.result = new int[n];
+							
+							for (int i = 0; i < n; ++i) {
+								this.result[i] = bounds[2 * i + 0];
+							}
+							
+							--this.result[n - 1];
+						}
+						
+						for (int i = 0; i < n; ++i) {
+							if (this.result[i] < bounds[2 * i + 1]) {
+								return true;
+							}
+						}
+						
+						return false;
+					}
+					
+					@Override
+					public final int[] next() {
+						for (int i = n - 1; bounds[2 * i + 1] < ++this.result[i] && 0 < i; --i) {
+							this.result[i] = bounds[2 * i + 0];
+						}
+						
+						return this.result;
+					}
+					
+				};
+			}
+			
+		};
+	}
+	
+	/**
 	 * Replaces all:<ol>
 	 * 	<li><code>&lt;</code> with <code>&amp;lt;</code></li>
 	 * 	<li><code>&amp;</code> with <code>&amp;amp;</code></li>

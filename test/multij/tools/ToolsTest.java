@@ -68,6 +68,41 @@ import org.junit.Test;
 public final class ToolsTest {
 	
 	@Test
+	public final void testCartesian() {
+		{
+			final int[][] expected = {
+					{ 0 },
+					{ 1 },
+					{ 2 },
+			};
+			final Collection<int[]> actual = new ArrayList<>();
+			
+			Tools.cartesian(0, 2).forEach(tuple -> actual.add(tuple.clone()));
+			
+			assertArrayEquals(expected, actual.toArray());
+		}
+		
+		{
+			final int[][] expected = {
+					{ -1, 0 },
+					{ -1, 1 },
+					{ -1, 2 },
+					{ 0, 0 },
+					{ 0, 1 },
+					{ 0, 2 },
+					{ 1, 0 },
+					{ 1, 1 },
+					{ 1, 2 },
+			};
+			final Collection<int[]> actual = new ArrayList<>();
+			
+			Tools.cartesian(-1, 1, 0, 2).forEach(tuple -> actual.add(tuple.clone()));
+			
+			assertArrayEquals(expected, actual.toArray());
+		}
+	}
+	
+	@Test
 	public final void testEspaceHTML() {
 		assertEquals("&lt;html>&amp;amp;lt;<br>&lt;/html>", Tools.escapeHTML("<html>&amp;lt;\n</html>"));
 	}
