@@ -41,6 +41,7 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Image;
 import java.awt.Window;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.dnd.DnDConstants;
@@ -68,12 +69,14 @@ import javax.imageio.ImageIO;
 import javax.swing.AbstractButton;
 import javax.swing.Box;
 import javax.swing.ImageIcon;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.KeyStroke;
@@ -312,6 +315,20 @@ public final class SwingTools {
 	}
 	
 	/**
+	 * Calls {@link #show(BufferedImage, String, boolean)} with <code>modal=false</code>.
+	 * @param image
+	 * <br>Not null
+	 * @param title
+	 * <br>Not null
+	 * @return
+	 * <br>New
+	 * <br>Maybe null
+	 */
+	public static final Window show(final BufferedImage image, final String title) {
+		return show(image, title, false);
+	}
+	
+	/**
 	 * @param image
 	  * <br>Not null
 	 * @param title
@@ -323,9 +340,9 @@ public final class SwingTools {
 	 * <br>Maybe null
 	*/
 	public static final Window show(final BufferedImage image, final String title, final boolean modal) {
-		final JLabel imageLabel = new JLabel(new ImageIcon(image));
+		final JLabel imageView = new JLabel(new ImageIcon(image));
 		
-		imageLabel.addMouseMotionListener(new MouseAdapter() {
+		imageView.addMouseMotionListener(new MouseAdapter() {
 			
 			@Override
 			public final void mouseMoved(final MouseEvent event) {
@@ -335,7 +352,7 @@ public final class SwingTools {
 				if (0 <= x && x < image.getWidth() && 0 <= y && y < image.getHeight()) {
 					final Color color = new Color(image.getRGB(x, y));
 					
-					invoke(imageLabel.getRootPane().getParent(), "setTitle",
+					invoke(imageView.getRootPane().getParent(), "setTitle",
 							title + " (x: " + x + ") (y: " + y + ") (r: " + color.getRed() +
 							") (g: " + color.getGreen() + ") (b: " + color.getBlue() + ") (a: " + color.getAlpha() + ")");
 				}
@@ -343,7 +360,21 @@ public final class SwingTools {
 			
 		});
 		
-		return show(new JScrollPane(imageLabel), title, modal);
+		return show(new JScrollPane(imageView), title, modal);
+	}
+	
+	/**
+	 * Calls {@link #show(Component, String, boolean)} with <code>modal=false</code>.
+	 * @param component
+	 * <br>Not null
+	 * @param title
+	 * <br>Not null
+	 * @return
+	 * <br>New
+	 * <br>Maybe null
+	 */
+	public static final Window show(final Component component, final String title) {
+		return show(component, title, false);
 	}
 	
 	/**
@@ -391,18 +422,47 @@ public final class SwingTools {
 		
 		return result[0];
 	}
+	
+	/**
+	 * @param component
+	 * <br>Must no be null
+	 * <br>Shared
+	 * @return
+	 * <br>New
+	 * <br>Not null
+	 */
+	public static final JPanel center(final JComponent component) {
+		checkAWT();
+		
+		final JPanel result = new JPanel();
+		
+		result.add(component);
+		
+		return result;
+	}
+	
+	/**
+	 * @param image
+	 * <br>Must no be null
+	 * <br>Shared
+	 * @return
+	 * <br>New
+	 * <br>Not null
+	 */
+	public static final JLabel view(final Image image) {
+		return new JLabel(new ImageIcon(image));
+	}
 
 	/**
-	 *
 	 * @param container
-	 * <br>Not null
+	 * <br>Must no be null
 	 * <br>Input-output
 	 * @param component
-	 * <br>Not null
+	 * <br>Must no be null
 	 * <br>Input-output
 	 * <br>Shared
 	 * @param constraints
-	 * <br>Not null
+	 * <br>Must no be null
 	 */
 	public static final void add(final Container container, final Component component, final GridBagConstraints constraints) {
 		checkAWT();
@@ -419,7 +479,6 @@ public final class SwingTools {
 	}
 
 	/**
-	 *
 	 * @param <T> the actual type of {@code button}
 	 * @param button
 	 * <br>Not null

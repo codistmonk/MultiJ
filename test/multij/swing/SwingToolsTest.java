@@ -44,11 +44,13 @@ import java.awt.dnd.InvalidDnDOperationException;
 import java.awt.dnd.peer.DropTargetContextPeer;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.concurrent.Semaphore;
 
 import javax.swing.Box;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -75,6 +77,26 @@ import org.junit.Test;
  * @author codistmonk (creation 2010-06-26)
  */
 public final class SwingToolsTest {
+	
+	@Test
+	public final void testCenter() throws InvocationTargetException, InterruptedException {
+		SwingUtilities.invokeAndWait(() -> {
+			final JLabel component = new JLabel();
+			final JPanel view = SwingTools.center(component);
+			
+			assertTrue(SwingUtilities.isDescendingFrom(component, view));
+		});
+	}
+	
+	@Test
+	public final void testView() throws InvocationTargetException, InterruptedException {
+		SwingUtilities.invokeAndWait(() -> {
+			final BufferedImage image = new BufferedImage(1, 1, BufferedImage.TYPE_3BYTE_BGR);
+			final JLabel view = SwingTools.view(image);
+			
+			assertSame(image, ((ImageIcon) view.getIcon()).getImage());
+		});
+	}
 	
 	@Test(timeout=2_000L)
 	public final void testJoinEventThread() throws InterruptedException {
