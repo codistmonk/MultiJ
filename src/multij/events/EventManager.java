@@ -293,7 +293,7 @@ public final class EventManager {
 		}
 		
 		@Override
-		public final Object getSource() {
+		public final S getSource() {
 			return this.source;
 		}
 		
