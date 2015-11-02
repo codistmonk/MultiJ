@@ -52,278 +52,295 @@ import org.w3c.dom.events.MutationEvent;
  */
 public final class XMLToolsTest {
 
-    @Test
-    public final void testGetNodes() {
-        assertEquals(2, getNodes(parse("<a b='' c=''/>"), "a/@*").size());
-    }
+	@Test
+	public final void testGetNodes() {
+		assertEquals(2, getNodes(parse("<a b='' c=''/>"), "a/@*").size());
+	}
+	
+	@Test
+	public final void testGetElements() {
+		assertEquals(2, getElements(parse("<a><b/><c/></a>"), "a/*").size());
+	}
 
-    @Test
-    public final <R extends EventRecorder<Event> & EventListener> void testEvents() {
-        final Document document = parse("<a><b c='d'/></a>");
-        @SuppressWarnings("unchecked")
-        final R recorder = (R) newEventRecorder(EventListener.class);
+	@Test
+	public final <R extends EventRecorder<Event> & EventListener> void testEvents() {
+		final Document document = parse("<a><b c='d'/></a>");
+		@SuppressWarnings("unchecked")
+		final R recorder = (R) newEventRecorder(EventListener.class);
 
-        addDOMEventListener(document, recorder);
-        getNode(document, "a/b/@c").setNodeValue("e");
+		addDOMEventListener(document, recorder);
+		getNode(document, "a/b/@c").setNodeValue("e");
 
-        {
-            final MutationEvent event = recorder.getEvent(0);
+		{
+			final MutationEvent event = recorder.getEvent(0);
 
-            assertEquals(DOM_EVENT_ATTRIBUTE_MODIFIED, event.getType());
-            assertSame(getNode(document, "a/b"), event.getTarget());
-            assertEquals(MutationEvent.MODIFICATION, event.getAttrChange());
-            assertEquals("c", event.getRelatedNode().getNodeName());
-            assertEquals("d", event.getPrevValue());
-            assertEquals("e", event.getNewValue());
-        }
+			assertEquals(DOM_EVENT_ATTRIBUTE_MODIFIED, event.getType());
+			assertSame(getNode(document, "a/b"), event.getTarget());
+			assertEquals(MutationEvent.MODIFICATION, event.getAttrChange());
+			assertEquals("c", event.getRelatedNode().getNodeName());
+			assertEquals("d", event.getPrevValue());
+			assertEquals("e", event.getNewValue());
+		}
 
-        {
-            final MutationEvent event = recorder.getEvent(1);
+		{
+			final MutationEvent event = recorder.getEvent(1);
 
-            assertEquals(DOM_EVENT_SUBTREE_MODIFIED, event.getType());
-            assertSame(getNode(document, "a/b"), event.getTarget());
-            assertNull(event.getRelatedNode());
-            assertEquals(0, event.getAttrChange());
-            assertNull(event.getPrevValue());
-            assertNull(event.getNewValue());
-        }
+			assertEquals(DOM_EVENT_SUBTREE_MODIFIED, event.getType());
+			assertSame(getNode(document, "a/b"), event.getTarget());
+			assertNull(event.getRelatedNode());
+			assertEquals(0, event.getAttrChange());
+			assertNull(event.getPrevValue());
+			assertNull(event.getNewValue());
+		}
 
-        rename(getNode(document, "a/b"), null, "renamed-b");
+		rename(getNode(document, "a/b"), null, "renamed-b");
 
-        {
-            final MutationEvent event = recorder.getEvent(2);
+		{
+			final MutationEvent event = recorder.getEvent(2);
 
-            assertEquals(DOM_EVENT_SUBTREE_MODIFIED, event.getType());
-            assertSame(getNode(document, "a/renamed-b"), event.getTarget());
-            assertEquals("b", event.getPrevValue());
-            assertEquals("renamed-b", event.getNewValue());
-        }
+			assertEquals(DOM_EVENT_SUBTREE_MODIFIED, event.getType());
+			assertSame(getNode(document, "a/renamed-b"), event.getTarget());
+			assertEquals("b", event.getPrevValue());
+			assertEquals("renamed-b", event.getNewValue());
+		}
 
-        assertEquals(3, recorder.getEvents().size());
-    }
+		assertEquals(3, recorder.getEvents().size());
+	}
 
-    @Test
-    public final void testGetQualifiedName() {
-        final Document document = XMLTools.parse("<root/>");
+	@Test
+	public final void testGetQualifiedName() {
+		final Document document = XMLTools.parse("<root/>");
 
-        assertEquals("root", getQualifiedName(document.getDocumentElement()));
+		assertEquals("root", getQualifiedName(document.getDocumentElement()));
 
-        document.renameNode(document.getDocumentElement(), null, "renamed-root");
+		document.renameNode(document.getDocumentElement(), null, "renamed-root");
 
-        assertEquals("renamed-root", getQualifiedName(document.getDocumentElement()));
+		assertEquals("renamed-root", getQualifiedName(document.getDocumentElement()));
 
-        document.renameNode(document.getDocumentElement(), NAMESPACE_URI, "renamed:root");
+		document.renameNode(document.getDocumentElement(), NAMESPACE_URI, "renamed:root");
 
-        assertEquals("renamed:root", getQualifiedName(document.getDocumentElement()));
-    }
+		assertEquals("renamed:root", getQualifiedName(document.getDocumentElement()));
+	}
 
-    @Test
-    public final void testParse() {
-        assertNotNull(parse("<a/>"));
-        assertNotNull(parse("<?xml version=\"1.0\" encoding=\"UTF-8\"?><a/>"));
-    }
+	@Test
+	public final void testParse() {
+		assertNotNull(parse("<a/>"));
+		assertNotNull(parse("<?xml version=\"1.0\" encoding=\"UTF-8\"?><a/>"));
+	}
 
-    @Test(expected=RuntimeException.class)
-    public final void testParseFailureMissingClosingTag() {
-        assertNotNull(parse("<a>"));
-    }
+	@Test(expected=RuntimeException.class)
+	public final void testParseFailureMissingClosingTag() {
+		assertNotNull(parse("<a>"));
+	}
 
-    @Test(expected=RuntimeException.class)
-    public final void testParseFailureMultipleRoots() {
-        assertNotNull(parse("<a/><b/>"));
-    }
+	@Test(expected=RuntimeException.class)
+	public final void testParseFailureMultipleRoots() {
+		assertNotNull(parse("<a/><b/>"));
+	}
 
-    @Test
-    public final void testNewDocument() {
-        assertNotNull(newDocument());
-    }
+	@Test
+	public final void testNewDocument() {
+		assertNotNull(newDocument());
+	}
 
-    @Test
-    public final void testNormalize() {
-        final Document document = parse("<a/>");
-        final Node root = document.getDocumentElement();
+	@Test
+	public final void testNormalize() {
+		final Document document = parse("<a/>");
+		final Node root = document.getDocumentElement();
 
-        assertEquals("a", root.getNodeName());
+		assertEquals("a", root.getNodeName());
 
-        // Make the document "not normalized" by adding an empty text node
-        root.appendChild(document.createTextNode(""));
+		// Make the document "not normalized" by adding an empty text node
+		root.appendChild(document.createTextNode(""));
 
-        assertEquals(1, root.getChildNodes().getLength());
-        assertSame(document, normalize(document));
-        assertEquals(0, root.getChildNodes().getLength());
-    }
+		assertEquals(1, root.getChildNodes().getLength());
+		assertSame(document, normalize(document));
+		assertEquals(0, root.getChildNodes().getLength());
+	}
 
-    @Test
-    public final void testWrite() {
-        final String xmlInput = "<a/>";
-        final Document document = parse(xmlInput);
+	@Test
+	public final void testWrite() {
+		final String xmlInput = "<a/>";
+		final Document document = parse(xmlInput);
 
-        {
-            final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+		{
+			final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
 
-            XMLTools.write(document, buffer, 0);
+			XMLTools.write(document, buffer, 0);
 
-            assertEquals(XML_1_0_UTF8_STANDALONE_NO + xmlInput, buffer.toString());
-        }
-        {
-            final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+			assertEquals(XML_1_0_UTF8_STANDALONE_NO + xmlInput, buffer.toString());
+		}
+		{
+			final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
 
-            XMLTools.write(standalone(document), buffer, 0);
+			XMLTools.write(standalone(document), buffer, 0);
 
-            assertEquals(XML_1_0_UTF8_STANDALONE_YES + xmlInput, buffer.toString());
-        }
-        {
-            final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+			assertEquals(XML_1_0_UTF8_STANDALONE_YES + xmlInput, buffer.toString());
+		}
+		{
+			final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
 
-            XMLTools.write(document.getDocumentElement(), buffer, 0);
+			XMLTools.write(document.getDocumentElement(), buffer, 0);
 
-            assertEquals(xmlInput, buffer.toString());
-        }
+			assertEquals(xmlInput, buffer.toString());
+		}
 
-    }
+	}
 
-    @Test
-    public final void testGetNode() throws Exception {
-        final Document document = parse(
-                "<a>" +
-                "   <b c='d'/>" +
-                "</a>"
-        );
+	@Test
+	public final void testGetNode() throws Exception {
+		final Document document = parse(
+				"<a>" +
+				"   <b c='d'/>" +
+				"</a>"
+		);
 
-        assertEquals("d", getNode(document, "a/b/@c").getNodeValue());
-        assertEquals("b", getNode(document, "a/b[@c='d']").getNodeName());
-        assertNull(getNode(document, "a/b[@c='e']"));
-    }
+		assertEquals("d", getNode(document, "a/b/@c").getNodeValue());
+		assertEquals("b", getNode(document, "a/b[@c='d']").getNodeName());
+		assertNull(getNode(document, "a/b[@c='e']"));
+	}
+	
+	@Test
+	public final void testGetElement() {
+		final Document document = parse(
+				"<a>" +
+				"   <b c='d'/>" +
+				"</a>"
+		);
 
-    @Test
-    public final void testGetOrCreateNode1() {
-        final Document document = newDocument();
+		assertEquals("b", getElement(document, "a/b[@c='d']").getNodeName());
+		assertNull(getElement(document, "a/b[@c='e']"));
+	}
 
-        getOrCreateNode(document, "aa[]");
+	@Test
+	public final void testGetOrCreateNode1() {
+		final Document document = newDocument();
 
-        assertXMLEquals(
-                "<aa/>"
-                , document);
+		getOrCreateNode(document, "aa[]");
 
-        getOrCreateNode(document, "aa/b");
+		assertXMLEquals(
+				"<aa/>"
+				, document);
 
-        assertXMLEquals(
-                "<aa>" +
-                    "<b/>" +
-                "</aa>"
-                , document);
+		getOrCreateNode(document, "aa/b");
 
-        getOrCreateNode(document, "aa/b[@c='d']");
+		assertXMLEquals(
+				"<aa>" +
+					"<b/>" +
+				"</aa>"
+				, document);
 
-        assertXMLEquals(
-                "<aa>" +
-                    "<b/>" +
-                    "<b c=\"d\"/>" +
-                "</aa>"
-                , document);
+		getOrCreateNode(document, "aa/b[@c='d']");
 
-        getOrCreateNode(document, "aa/b[]");
+		assertXMLEquals(
+				"<aa>" +
+					"<b/>" +
+					"<b c=\"d\"/>" +
+				"</aa>"
+				, document);
 
-        assertXMLEquals(
-                "<aa>" +
-                    "<b/>" +
-                    "<b c=\"d\"/>" +
-                    "<b/>" +
-                "</aa>"
-                , document);
+		getOrCreateNode(document, "aa/b[]");
 
-        getOrCreateNode(document, "aa/b[position()=2]/e");
+		assertXMLEquals(
+				"<aa>" +
+					"<b/>" +
+					"<b c=\"d\"/>" +
+					"<b/>" +
+				"</aa>"
+				, document);
 
-        assertXMLEquals(
-                "<aa>" +
-                    "<b/>" +
-                    "<b c=\"d\"><e/></b>" +
-                    "<b/>" +
-                "</aa>"
-                , document);
+		getOrCreateNode(document, "aa/b[position()=2]/e");
 
-        getOrCreateNode(document, "aa/b[position()=2]/e/@f");
+		assertXMLEquals(
+				"<aa>" +
+					"<b/>" +
+					"<b c=\"d\"><e/></b>" +
+					"<b/>" +
+				"</aa>"
+				, document);
 
-        assertXMLEquals(
-                "<aa>" +
-                    "<b/>" +
-                    "<b c=\"d\"><e f=\"\"/></b>" +
-                    "<b/>" +
-                "</aa>"
-                , document);
-    }
+		getOrCreateNode(document, "aa/b[position()=2]/e/@f");
 
-    @Test
-    public final void testGetOrCreateNode2() {
-        final Document document = newDocument();
+		assertXMLEquals(
+				"<aa>" +
+					"<b/>" +
+					"<b c=\"d\"><e f=\"\"/></b>" +
+					"<b/>" +
+				"</aa>"
+				, document);
+	}
 
-        getOrCreateNode(document, "a[@and='and' and @b='c']");
+	@Test
+	public final void testGetOrCreateNode2() {
+		final Document document = newDocument();
 
-        assertXMLEquals(
-                "<a and=\"and\" b=\"c\"/>"
-                , document);
-    }
+		getOrCreateNode(document, "a[@and='and' and @b='c']");
 
-    @Test
-    public final void testValidate() {
-        // DTD validation
-        testValidate("test.xml", "test.dtd", false);
+		assertXMLEquals(
+				"<a and=\"and\" b=\"c\"/>"
+				, document);
+	}
 
-        // XSD validation
-        testValidate("test.xml", "test.xsd", false);
+	@Test
+	public final void testValidate() {
+		// DTD validation
+		testValidate("test.xml", "test.dtd", false);
 
-        // Relax-NG validation, if available
-        testValidate("test.xml", "test.rng", true);
+		// XSD validation
+		testValidate("test.xml", "test.xsd", false);
 
-        // Compact Relax-NG validation, if available
-        testValidate("test.xml", "test.rnc", true);
-    }
+		// Relax-NG validation, if available
+		testValidate("test.xml", "test.rng", true);
 
-    private static final String PATH = getThisPackagePath();
+		// Compact Relax-NG validation, if available
+		testValidate("test.xml", "test.rnc", true);
+	}
 
-    /**
-     * {@value}.
-     */
-    private static final String NAMESPACE_URI = "urn:multij";
+	private static final String PATH = getThisPackagePath();
 
-    /**
-     *
-     * @param xmlFileName
-     * <br>Not null
-     * @param dtdOrSchemaFileName
-     * <br>Not null
-     * @param canBeUnavailable {@code true} if the validation can fail because the schema language is not available
-     */
-    private static final void testValidate(final String xmlFileName, final String dtdOrSchemaFileName,
-            final boolean canBeUnavailable) {
-        try {
-            assertEquals(0, validate(
-                    getResourceAsStream(PATH + xmlFileName),
-                    getResourceAsSource(PATH + dtdOrSchemaFileName)).size());
-        } catch (final IllegalArgumentException exception) {
-            if (canBeUnavailable &&
-                    exception.getMessage().startsWith("No SchemaFactory that implements the schema language specified")) {
-                getLoggerForThisMethod().log(Level.INFO, debug(3, exception.getMessage()));
-            } else {
-                throw exception;
-            }
-        }
-    }
+	/**
+	 * {@value}.
+	 */
+	private static final String NAMESPACE_URI = "urn:multij";
 
-    /**
-     *
-     * @param expectedXML
-     * <br>Not null
-     * @param document
-     * <br>Not null
-     */
-    private static final void assertXMLEquals(final String expectedXML, final Document document) {
-        final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-        final Result result = new StreamResult(buffer);
+	/**
+	 *
+	 * @param xmlFileName
+	 * <br>Not null
+	 * @param dtdOrSchemaFileName
+	 * <br>Not null
+	 * @param canBeUnavailable {@code true} if the validation can fail because the schema language is not available
+	 */
+	private static final void testValidate(final String xmlFileName, final String dtdOrSchemaFileName,
+			final boolean canBeUnavailable) {
+		try {
+			assertEquals(0, validate(
+					getResourceAsStream(PATH + xmlFileName),
+					getResourceAsSource(PATH + dtdOrSchemaFileName)).size());
+		} catch (final IllegalArgumentException exception) {
+			if (canBeUnavailable &&
+					exception.getMessage().startsWith("No SchemaFactory that implements the schema language specified")) {
+				getLoggerForThisMethod().log(Level.INFO, debug(3, exception.getMessage()));
+			} else {
+				throw exception;
+			}
+		}
+	}
 
-        write(normalize(document).getDocumentElement(), result, 0);
+	/**
+	 *
+	 * @param expectedXML
+	 * <br>Not null
+	 * @param document
+	 * <br>Not null
+	 */
+	private static final void assertXMLEquals(final String expectedXML, final Document document) {
+		final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+		final Result result = new StreamResult(buffer);
 
-        assertEquals(expectedXML, buffer.toString());
-    }
+		write(normalize(document).getDocumentElement(), result, 0);
+
+		assertEquals(expectedXML, buffer.toString());
+	}
 
 }
