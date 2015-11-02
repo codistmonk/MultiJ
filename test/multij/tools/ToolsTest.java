@@ -262,6 +262,7 @@ public final class ToolsTest {
 		assertEquals("testGetThisMethodName", Tools.getThisMethodName());
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Test
 	public final void testGetOrCreate() {
 		final Map<Object, Collection<?>> map = new HashMap<Object, Collection<?>>();
@@ -269,6 +270,13 @@ public final class ToolsTest {
 		Tools.getOrCreate(map, 42, (Factory) DefaultFactory.forClass(ArrayList.class)).add(42);
 		
 		assertEquals(Arrays.asList(42), map.get(42));
+	}
+	
+	@Test
+	public final void testJoinArray() {
+		assertEquals("", Tools.joinArray(",", new float[0]));
+		assertEquals("42.0", Tools.joinArray(",", new float[] { 42F }));
+		assertEquals("42.0,33.0", Tools.joinArray(",", new float[] { 42F, 33F }));
 	}
 	
 	@Test

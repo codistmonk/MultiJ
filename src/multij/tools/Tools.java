@@ -403,6 +403,33 @@ public final class Tools {
 	}
 	
 	/**
+	 * Creates a new string by concatenating the representations of the <code>array</code>
+	 * and using the specified <code>separator</code>.
+	 * 
+	 * @param separator
+	 * <br>Not null
+	 * @param array
+	 * <br>Not null
+	 * @return
+	 * <br>Not null
+	 * <br>New
+	 */
+	public static final String joinArray(final String separator, final Object array) {
+		final StringBuilder resultBuilder = new StringBuilder();
+		final int n = Array.getLength(array);
+		
+		if (0 < n) {
+			resultBuilder.append(Array.get(array, 0));
+			
+			for (int i = 1; i < n; ++i) {
+				resultBuilder.append(separator).append(Array.get(array, i));
+			}
+		}
+		
+		return resultBuilder.toString();
+	}
+	
+	/**
 	 * Creates a new string by concatenating the representations of the <code>objects</code>
 	 * and using the specified <code>separator</code>.
 	 * 
