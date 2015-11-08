@@ -3,7 +3,6 @@ package multij.gencode;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintStream;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Scanner;
@@ -30,9 +29,19 @@ public final class GenCodeTools {
 	 */
 	public static final String SERIAL_VERSION_UID_TEMPLATE = "jgencode.JGenCodeTools.$SERIAL_VERSION_UID";
 	
+	/**
+	 * @param rootDirectory
+	 * <br>Must not be null
+	 * @param template
+	 * <br>Must not be null
+	 * @param outputSimpleName
+	 * <br>Must not be null
+	 * @param replacements
+	 * <br>Must not be null
+	 */
 	public static final void instantiateTemplateSource(final String rootDirectory, final Class<?> template, final String outputSimpleName,
 			final String... replacements) {
-		final Map<String, String> replacementMap = new LinkedHashMap<String, String>();
+		final Map<String, String> replacementMap = new LinkedHashMap<>();
 		
 		for (int i = 0; i < replacements.length; i += 2) {
 			replacementMap.put(replacements[i], replacements[i + 1]);
@@ -41,6 +50,16 @@ public final class GenCodeTools {
 		instantiateTemplateSource(rootDirectory, template, outputSimpleName, replacementMap);
 	}
 	
+	/**
+	 * @param rootDirectory
+	 * <br>Must not be null
+	 * @param template
+	 * <br>Must not be null
+	 * @param outputSimpleName
+	 * <br>Must not be null
+	 * @param replacements
+	 * <br>Must not be null
+	 */
 	public static final void instantiateTemplateSource(final String rootDirectory, final Class<?> template, final String outputSimpleName,
 			final Map<String, String> replacements) {
 		final String inputName = template.getName();
@@ -50,10 +69,8 @@ public final class GenCodeTools {
 		
 		replacements.put(template.getSimpleName(), outputSimpleName);
 		
-		try {
-			final Scanner input = new Scanner(new File(inputPath));
-			final PrintStream output = new PrintStream(outputPath);
-			
+		try (final Scanner input = new Scanner(new File(inputPath));
+				final PrintStream output = new PrintStream(outputPath)) {
 			output.println("/* MACHINE-GENERATED FILE */");
 			
 			while (input.hasNext()) {
@@ -75,9 +92,6 @@ public final class GenCodeTools {
 					output.println(line);
 				}
 			}
-			
-			input.close();
-			output.close();
 		} catch (final FileNotFoundException exception) {
 			exception.printStackTrace();
 		}
