@@ -4,6 +4,7 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
+import multij.gencode.$Primitive.$Nonlinear;
 import multij.tools.IllegalInstantiationException;
 
 /**
@@ -18,6 +19,10 @@ public abstract interface $Primitive {
 	
 	@Transcription(" != ")
 	public abstract boolean $isNotEqualTo(Object that);
+	
+	public static <T extends $Primitive> T $cast(Object object) {
+		return null;
+	}
 	
 	/**
 	 * @author codistmonk (creation 2013-01-16)
@@ -57,31 +62,43 @@ public abstract interface $Primitive {
 	public static abstract interface $Number extends $Primitive {
 		
 		@Transcription(" + ")
-		public abstract $Primitive $plus(Object that);
+		public abstract $Number $plus(Object that);
 		
 		@Transcription(" - ")
-		public abstract $Primitive $minus(Object that);
+		public abstract $Number $minus(Object that);
 		
 		@Transcription(" * ")
-		public abstract $Primitive $times(Object that);
+		public abstract $Number $times(Object that);
 		
 		@Transcription(" / ")
-		public abstract $Primitive $dividedBy(Object that);
+		public abstract $Number $dividedBy(Object that);
 		
 		@Transcription(" % ")
-		public abstract $Primitive $mod(Object that);
+		public abstract $Number $mod(Object that);
+		
+		@Transcription(" += ")
+		public abstract boolean $add(Object that);
+		
+		@Transcription(" -= ")
+		public abstract boolean $subtract(Object that);
+		
+		@Transcription(" *= ")
+		public abstract boolean $multiplyBy(Object that);
+		
+		@Transcription(" /= ")
+		public abstract boolean $divideBy(Object that);
 		
 		@Transcription(" < ")
-		public abstract $Primitive $isLessThan(Object that);
+		public abstract boolean $isLessThan(Object that);
 		
 		@Transcription(" <= ")
-		public abstract $Primitive $isLessThanOrEqualTo(Object that);
+		public abstract boolean $isLessThanOrEqualTo(Object that);
 		
 		@Transcription(" > ")
-		public abstract $Primitive $isGreaterThan(Object that);
+		public abstract boolean $isGreaterThan(Object that);
 		
 		@Transcription(" >= ")
-		public abstract $Primitive $isGreaterThanOrEqualTo(Object that);
+		public abstract boolean $isGreaterThanOrEqualTo(Object that);
 		
 		/**
 		 * @author codistmonk (creation 2013-01-16)
@@ -213,6 +230,22 @@ public abstract interface $Primitive {
 	public static abstract interface $Nonlinear extends $Number {
 		
 		public static final String[] NAMES = { "float", "double" };
+		
+		public static final $Nonlinear NaN = null;
+		
+		public static final $Nonlinear MIN_EXPONENT = null;
+		
+		public static final $Nonlinear MIN_NORMAL = null;
+		
+		public static final $Nonlinear MIN_VALUE = null;
+		
+		public static final $Nonlinear MAX_EXPONENT = null;
+		
+		public static final $Nonlinear MAX_VALUE = null;
+		
+		public static final $Nonlinear NEGATIVE_INFINITY = null;
+		
+		public static final $Nonlinear POSITIVE_INFINITY = null;
 		
 	}
 	
