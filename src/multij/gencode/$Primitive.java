@@ -1,10 +1,11 @@
 package multij.gencode;
 
+import static multij.tools.Tools.ignore;
+
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-import multij.gencode.$Primitive.$Nonlinear;
 import multij.tools.IllegalInstantiationException;
 
 /**
@@ -21,6 +22,8 @@ public abstract interface $Primitive {
 	public abstract boolean $isNotEqualTo(Object that);
 	
 	public static <T extends $Primitive> T $cast(Object object) {
+		ignore(object);
+		
 		return null;
 	}
 	
@@ -142,6 +145,37 @@ public abstract interface $Primitive {
 			@Transcription("(double) ")
 			public static final double $double(final $Number x) {
 				return 0;
+			}
+			
+		}
+		
+		/**
+		 * @author codistmonk (creation 2015-11-08)
+		 */
+		public static final class Math {
+			
+			private Math() {
+				throw new IllegalInstantiationException();
+			}
+			
+			public static final $Number abs(final $Number a) {
+				ignore(a);
+				
+				return null;
+			}
+			
+			public static final $Number min(final $Number a, final $Number b) {
+				ignore(a);
+				ignore(b);
+				
+				return null;
+			}
+			
+			public static final $Number max(final $Number a, final $Number b) {
+				ignore(a);
+				ignore(b);
+				
+				return null;
 			}
 			
 		}
