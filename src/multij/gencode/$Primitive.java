@@ -80,16 +80,16 @@ public abstract interface $Primitive {
 		public abstract $Number $mod(Object that);
 		
 		@Transcription(" += ")
-		public abstract boolean $add(Object that);
+		public abstract $Number $add(Object that);
 		
 		@Transcription(" -= ")
-		public abstract boolean $subtract(Object that);
+		public abstract $Number $subtract(Object that);
 		
 		@Transcription(" *= ")
-		public abstract boolean $multiplyBy(Object that);
+		public abstract $Number $multiplyBy(Object that);
 		
 		@Transcription(" /= ")
-		public abstract boolean $divideBy(Object that);
+		public abstract $Number $divideBy(Object that);
 		
 		@Transcription(" < ")
 		public abstract boolean $isLessThan(Object that);
