@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintStream;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.regex.Pattern;
@@ -31,7 +32,7 @@ public final class GenCodeTools {
 	
 	public static final void instantiateTemplateSource(final String rootDirectory, final Class<?> template, final String outputSimpleName,
 			final String... replacements) {
-		final Map<String, String> replacementMap = new HashMap<String, String>();
+		final Map<String, String> replacementMap = new LinkedHashMap<String, String>();
 		
 		for (int i = 0; i < replacements.length; i += 2) {
 			replacementMap.put(replacements[i], replacements[i + 1]);
