@@ -27,6 +27,12 @@ public abstract interface $Primitive {
 		return null;
 	}
 	
+	public static int hashCode(final $Primitive primitive) {
+		ignore(primitive);
+		
+		return 0;
+	}
+	
 	/**
 	 * @author codistmonk (creation 2013-01-16)
 	 */
