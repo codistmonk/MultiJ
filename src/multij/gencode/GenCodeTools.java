@@ -66,8 +66,11 @@ public final class GenCodeTools {
 		final String outputName = template.getPackage().getName() + "." + outputSimpleName;
 		final String inputPath = rootDirectory + inputName.replace('.', '/') + ".java";
 		final String outputPath = rootDirectory + outputName.replace('.', '/') + ".java";
+		final Map<String, String> r = new LinkedHashMap<>();
 		
-		replacements.put(template.getSimpleName(), outputSimpleName);
+		r.put(template.getSimpleName(), outputSimpleName);
+		r.putAll(replacements);
+		
 		
 		try (final Scanner input = new Scanner(new File(inputPath));
 				final PrintStream output = new PrintStream(outputPath)) {
@@ -76,7 +79,7 @@ public final class GenCodeTools {
 			while (input.hasNext()) {
 				String line = input.nextLine();
 				
-				for (final String replaced : replacements.keySet()) {
+				for (final String replaced : r.keySet()) {
 					if (line.startsWith("import ") && line.endsWith(replaced + ";")) {
 						line = null;
 						break;
@@ -85,7 +88,7 @@ public final class GenCodeTools {
 				}
 				
 				if (line != null) {
-					for (final Map.Entry<String, String> entry : replacements.entrySet()) {
+					for (final Map.Entry<String, String> entry : r.entrySet()) {
 						line = line.replaceAll(Pattern.quote(entry.getKey()), entry.getValue());
 					}
 					
