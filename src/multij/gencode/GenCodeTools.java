@@ -71,6 +71,7 @@ public final class GenCodeTools {
 		r.put(template.getSimpleName(), outputSimpleName);
 		r.putAll(replacements);
 		
+		System.out.println(inputPath + " -> " + outputPath);
 		
 		try (final Scanner input = new Scanner(new File(inputPath));
 				final PrintStream output = new PrintStream(outputPath)) {
