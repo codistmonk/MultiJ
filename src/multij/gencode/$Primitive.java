@@ -38,8 +38,10 @@ public abstract interface $Primitive {
 	 */
 	public static abstract interface $Boolean extends $Primitive {
 		
+		@Transcription(" && ")
 		public abstract $Primitive $and(Object that);
 		
+		@Transcription(" || ")
 		public abstract $Primitive $or(Object that);
 		
 		public static final String[] NAMES = { "boolean" };
@@ -53,10 +55,12 @@ public abstract interface $Primitive {
 				throw new IllegalInstantiationException();
 			}
 			
+			@Transcription("!")
 			public static final $Boolean $not(final $Boolean x) {
 				return null;
 			}
 			
+			@Transcription("(boolean) ")
 			public static final boolean $boolean(final $Boolean x) {
 				return false;
 			}
@@ -170,6 +174,61 @@ public abstract interface $Primitive {
 				return null;
 			}
 			
+			public static final $Number exp(final $Number a) {
+				ignore(a);
+				
+				return null;
+			}
+			
+			public static final $Number sqrt(final $Number a) {
+				ignore(a);
+				
+				return null;
+			}
+			
+			public static final $Number cos(final $Number a) {
+				ignore(a);
+				
+				return null;
+			}
+			
+			public static final $Number sin(final $Number a) {
+				ignore(a);
+				
+				return null;
+			}
+			
+			public static final $Number tan(final $Number a) {
+				ignore(a);
+				
+				return null;
+			}
+			
+			public static final $Number acos(final $Number a) {
+				ignore(a);
+				
+				return null;
+			}
+			
+			public static final $Number asin(final $Number a) {
+				ignore(a);
+				
+				return null;
+			}
+			
+			public static final $Number atan(final $Number a) {
+				ignore(a);
+				
+				return null;
+			}
+			
+			public static final $Number atan2(final $Number y, final $Number x) {
+				ignore(y);
+				ignore(x);
+				
+				return null;
+			}
+			
 			public static final $Number min(final $Number a, final $Number b) {
 				ignore(a);
 				ignore(b);
@@ -251,6 +310,7 @@ public abstract interface $Primitive {
 			public static final $Number $minus(final $Number x) {
 				return null;
 			}
+			
 		}
 		
 	}
@@ -286,6 +346,22 @@ public abstract interface $Primitive {
 		public static final $Nonlinear NEGATIVE_INFINITY = null;
 		
 		public static final $Nonlinear POSITIVE_INFINITY = null;
+		
+		/**
+		 * @author codistmonk (creation 2015-11-11)
+		 */
+		public static abstract class UnaryOperations extends $Number.UnaryOperations {
+			
+			protected UnaryOperations() {
+				throw new IllegalInstantiationException();
+			}
+			
+			@Transcription("-")
+			public static final $Nonlinear $minus(final $Nonlinear x) {
+				return null;
+			}
+			
+		}
 		
 	}
 	
