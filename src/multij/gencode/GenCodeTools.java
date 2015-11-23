@@ -81,7 +81,7 @@ public final class GenCodeTools {
 				String line = input.nextLine();
 				
 				for (final String replaced : r.keySet()) {
-					if (line.startsWith("import ") && line.endsWith(replaced + ";")) {
+					if (line.startsWith("import ") && line.endsWith(replaced + ";") && line.contains("$")) {
 						line = null;
 						break;
 					}
