@@ -62,6 +62,14 @@ public final class ConsoleMonitor implements Serializable {
 	}
 	
 	/**
+	 * @return
+	 * <br>Range: <code>[0L .. Long.MAX_VALUE]</code>
+	 */
+	public final synchronized long getCurrentMilliseconds() {
+		return this.timer.getTotalTime();
+	}
+	
+	/**
 	 * Computes the elapsed time since the last call;
 	 * if it is greater or equal to <code>this.getPeriodMilliseconds()</code>,
 	 * then calls <code>this.getMessageBuilder().getMessage()</code>

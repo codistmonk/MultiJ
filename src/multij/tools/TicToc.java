@@ -47,6 +47,7 @@ public final class TicToc implements Serializable {
 	 * Starts a time interval.
 	 * 
 	 * @return The current time in milliseconds
+	 * <br>Range: <code>[0L .. Long.MAX_VALUE]</code>
 	 */
 	public final long tic() {
 		this.totalTime += this.ticTocTime;
@@ -66,6 +67,7 @@ public final class TicToc implements Serializable {
 	 * Calls {@link #toc()} and then {@link #tic()}.
 	 * 
 	 * @return The result of the call to {@link #toc()}
+	 * <br>Range: <code>[0L .. Long.MAX_VALUE]</code>
 	 */
 	public final long toctic() {
 		final long result = this.toc();
@@ -77,6 +79,7 @@ public final class TicToc implements Serializable {
 	
 	/**
 	 * @return The cumulative time of this timer (sum of tic toc intervals)
+	 * <br>Range: <code>[0L .. Long.MAX_VALUE]</code>
 	 */
 	public final long getTotalTime() {
 		return this.totalTime + this.ticTocTime;
