@@ -58,16 +58,16 @@ public final class CommandLineArgumentsParser implements Serializable {
 		
 		for (final String rangeRepresentation : valueRepresentation.split(",")) {
 	        final String[] rangeParameters = rangeRepresentation.split(":");
-	        final int first = Integer.decode(rangeParameters[0]);
+	        final int first = decodeInt(rangeParameters[0]);
 	        final int step;
 	        final int last;
 	        
 	        if (rangeParameters.length == 2) {
 	            step = 1;
-	            last = Integer.decode(rangeParameters[1]);
+	            last = decodeInt(rangeParameters[1]);
 	        } else if (rangeParameters.length == 3) {
-	            step = Integer.decode(rangeParameters[1]);
-	            last = Integer.decode(rangeParameters[2]);
+	            step = decodeInt(rangeParameters[1]);
+	            last = decodeInt(rangeParameters[2]);
 	        } else {
 	            step = 1;
 	            last = first;
@@ -129,7 +129,7 @@ public final class CommandLineArgumentsParser implements Serializable {
 	
 	public static final int parseIfAvailable(final String[] arguments, final int index, final int defaultValue) {
 		if (index < arguments.length) {
-			return Integer.decode(arguments[index]);
+			return decodeInt(arguments[index]);
 		}
 		
 		return defaultValue;
@@ -139,5 +139,9 @@ public final class CommandLineArgumentsParser implements Serializable {
 	 * {@value}.
 	 */
 	private static final long serialVersionUID = -3572883077330633932L;
+	
+	public static final int decodeInt(final String s) {
+		return Long.decode(s).intValue();
+	}
 	
 }
