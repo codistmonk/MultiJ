@@ -26,6 +26,7 @@ package multij.tools;
 
 import static multij.tools.Tools.*;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -195,7 +196,7 @@ public final class Scripting implements Serializable {
 	
 	public static final void listMainClasses() {
 		try {
-			final File applicationFile = Tools.getApplicationFile();
+			final File applicationFile = getApplicationFile();
 			
 			if (applicationFile.isDirectory()) {
 				final Path applicationPath = applicationFile.toPath();
@@ -204,32 +205,32 @@ public final class Scripting implements Serializable {
 						
 						@Override
 						public final void accept(final Path p) {
-							final String string = p.toString();
-							
-							if (string.endsWith(".class")) {
-								final String className = string.substring(applicationPath.toString().length() + 1).replaceFirst("\\.class$", "").replaceAll("[/$]+", ".");
-								
-								try {
-									final Method method = getMainMethod(className);
-									
-									if (Modifier.isStatic(method.getModifiers())) {
-										System.out.println(className);
-									}
-								} catch (final Exception exception) {
-									ignore(exception);
-								}
-							}
+							printIfMainClass(p.toString(), applicationPath);
 						}
 						
 					});
 				}
 			} else {
-				try (final ZipInputStream zip = new ZipInputStream(new FileInputStream(applicationFile))) {
-					ZipEntry entry = zip.getNextEntry();
+				final int maximumHeaderSize = 10_000;
+				try (final BufferedInputStream in = new BufferedInputStream(new FileInputStream(applicationFile))) {
+					in.mark(maximumHeaderSize);
 					
-					while (entry != null) {
-						System.out.println(entry.getName());
-						entry = zip.getNextEntry();
+					for (int i = 0; 0 < maximumHeaderSize; ++i) {
+						in.reset();
+						in.skip(i);
+						
+						final ZipInputStream zip = new ZipInputStream(in);
+						
+						ZipEntry entry = zip.getNextEntry();
+						
+						if (entry != null) {
+							while (entry != null) {
+								printIfMainClass(entry.getName(), null);
+								entry = zip.getNextEntry();
+							}
+							
+							break;
+						}
 					}
 				}
 			}
@@ -319,6 +320,34 @@ public final class Scripting implements Serializable {
 		return result;
 	}
 	
+	/**
+	 * @param string
+	 * <br>Must not be null
+	 * @param applicationPath
+	 * <br>May be null
+	 */
+	public static void printIfMainClass(final String string, final Path applicationPath) {
+		if (string.endsWith(".class")) {
+			String className = string;
+			
+			if (applicationPath != null) {
+				className = className.substring(applicationPath.toString().length() + 1);
+			}
+			
+			className = className.replaceFirst("\\.class$", "").replaceAll("[/$]+", ".");
+			
+			try {
+				final Method method = getMainMethod(className);
+				
+				if (Modifier.isStatic(method.getModifiers())) {
+					System.out.println(className);
+				}
+			} catch (final Throwable exception) {
+				ignore(exception);
+			}
+		}
+	}
+
 	/**
 	 * @author codistmonk (creation 2015-04-09)
 	 */
