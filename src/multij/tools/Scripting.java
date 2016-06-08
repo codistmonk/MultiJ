@@ -182,7 +182,7 @@ public final class Scripting implements Serializable {
 		System.out.println("	Print this message.");
 		System.out.println("listMainClasses();");
 		System.out.println("	List available main classes.");
-		System.out.println("run(\"name.of.class\", [arg0, arg1, ...]);");
+		System.out.println("run(\"name.of.Class arg0 arg1 ...\");");
 		System.out.println("	List available main classes.");
 		System.out.println("importPackage(name.of.package);");
 		System.out.println("	Import a package.");
