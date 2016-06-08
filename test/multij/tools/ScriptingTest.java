@@ -49,7 +49,7 @@ public final class ScriptingTest {
 		System.setIn(new ByteArrayInputStream("print(1+1);".getBytes()));
 		System.setOut(new PrintStream(buffer));
 		
-		Scripting.main();
+		Scripting.main("showHelp", "false");
 		
 		assertEquals("2", buffer.toString().trim());
 	}
@@ -61,9 +61,21 @@ public final class ScriptingTest {
 		System.setIn(new ByteArrayInputStream("1+1".getBytes()));
 		System.setOut(new PrintStream(buffer));
 		
-		Scripting.main();
+		Scripting.main("showHelp", "false");
 		
 		assertEquals("2", buffer.toString().trim());
+	}
+	
+	@Test
+	public final void testMain3() {
+		final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+		
+		System.setIn(new ByteArrayInputStream(("run(\"" + EchoApplicationFile.class.getName() + "\");").getBytes()));
+		System.setOut(new PrintStream(buffer));
+		
+		Scripting.main("showHelp", "false");
+		
+		assertEquals(Tools.getApplicationFile().toString(), buffer.toString().trim());
 	}
 	
 	@Test

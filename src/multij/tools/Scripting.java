@@ -24,10 +24,18 @@
 
 package multij.tools;
 
-import static multij.tools.Tools.ignore;
-import static multij.tools.Tools.unchecked;
+import static multij.tools.Tools.*;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.Serializable;
+import java.io.UncheckedIOException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -35,6 +43,9 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import javax.script.Bindings;
 import javax.script.ScriptContext;
@@ -63,6 +74,43 @@ public final class Scripting implements Serializable {
 	public Scripting(final String engineName) {
 		this.scriptEngine = getEngine(engineName);
 		this.importer = new Importer(this.scriptEngine, ScriptContext.ENGINE_SCOPE);
+		
+		{
+			final Bindings bindings = this.getScriptEngine().getBindings(ScriptContext.ENGINE_SCOPE);
+			
+			if (!bindings.containsKey("help")) {
+				bindings.put("help", new Runnable() {
+					
+					@Override
+					public final void run() {
+						help();
+					}
+					
+				});
+			}
+			
+			if (!bindings.containsKey("listMainClasses")) {
+				bindings.put("listMainClasses", new Runnable() {
+					
+					@Override
+					public final void run() {
+						listMainClasses();
+					}
+					
+				});
+			}
+			
+			if (!bindings.containsKey("run")) {
+				bindings.put("run", new Consumer<Object>() {
+					
+					@Override
+					public final void accept(final Object classNameAndCommandLineArguments) {
+						run(classNameAndCommandLineArguments.toString());
+					}
+					
+				});
+			}
+		}
 	}
 	
 	/**
@@ -127,6 +175,99 @@ public final class Scripting implements Serializable {
 	
 	private static final long serialVersionUID = -3104607045331464557L;
 	
+	public static final void help() {
+		System.out.println("--");
+		System.out.println("help();");
+		System.out.println("	Print this message.");
+		System.out.println("listMainClasses();");
+		System.out.println("	List available main classes.");
+		System.out.println("run(\"name.of.class\", [arg0, arg1, ...]);");
+		System.out.println("	List available main classes.");
+		System.out.println("importPackage(name.of.package);");
+		System.out.println("	Import a package.");
+		System.out.println("importClass(name.of.Class);");
+		System.out.println("	Import a class.");
+		System.out.println("quit()");
+		System.out.println("	Quit.");
+		System.out.println("--");
+		System.out.println();
+	}
+	
+	public static final void listMainClasses() {
+		try {
+			final File applicationFile = Tools.getApplicationFile();
+			
+			if (applicationFile.isDirectory()) {
+				final Path applicationPath = applicationFile.toPath();
+				try (final Stream<Path> walk = Files.walk(applicationPath)) {
+					walk.forEach(new Consumer<Path>() {
+						
+						@Override
+						public final void accept(final Path p) {
+							final String string = p.toString();
+							
+							if (string.endsWith(".class")) {
+								final String className = string.substring(applicationPath.toString().length() + 1).replaceFirst("\\.class$", "").replaceAll("[/$]+", ".");
+								
+								try {
+									final Method method = getMainMethod(className);
+									
+									if (Modifier.isStatic(method.getModifiers())) {
+										System.out.println(className);
+									}
+								} catch (final Exception exception) {
+									ignore(exception);
+								}
+							}
+						}
+						
+					});
+				}
+			} else {
+				try (final ZipInputStream zip = new ZipInputStream(new FileInputStream(applicationFile))) {
+					ZipEntry entry = zip.getNextEntry();
+					
+					while (entry != null) {
+						System.out.println(entry.getName());
+						entry = zip.getNextEntry();
+					}
+				}
+			}
+		} catch (final IOException exception) {
+			throw new UncheckedIOException(exception);
+		}
+	}
+	
+	/**
+	 * @param classNameAndCommandLineArguments
+	 * <br>Must not be null
+	 */
+	public static final void run(final String classNameAndCommandLineArguments) {
+		final String[] strings = classNameAndCommandLineArguments.split("\\s+");
+		
+		try {
+			getMainMethod(strings[0]).invoke(null, (Object) Arrays.copyOfRange(strings, 1, strings.length));
+		} catch (final Exception exception) {
+			throw unchecked(exception);
+		}
+	}
+	
+	/**
+	 * Returns the main method from <code>className</code> or throws an exception.
+	 * 
+	 * @param className
+	 * <br>Must not be null
+	 * @return
+	 * <br>Not null
+	 */
+	public static final Method getMainMethod(final String className) {
+		try {
+			return Class.forName(className).getMethod("main", String[].class);
+		} catch (final Exception exception) {
+			throw unchecked(exception);
+		}
+	}
+	
 	/**
 	 * @param commandLineArguments
 	 * <br>Must not be null
@@ -134,7 +275,12 @@ public final class Scripting implements Serializable {
 	public static final void main(final String... commandLineArguments) {
 		final CommandLineArgumentsParser arguments = new CommandLineArgumentsParser(commandLineArguments);
 		final String language = arguments.get("language", "JavaScript");
+		final boolean showHelp = arguments.get("showHelp", true);
 		final Scripting scripting = new Scripting(language);
+		
+		if (showHelp) {
+			scripting.eval("help()");
+		}
 		
 		try (final Scanner scanner = new Scanner(System.in)) {
 			while (scanner.hasNext()) {

@@ -47,6 +47,12 @@ public final class CommandLineArgumentsParser implements Serializable {
 		return valueRepresentation != null ? valueRepresentation : defaultValue;
 	}
 	
+	public final boolean get(final String key, final boolean defaultValue) {
+		final String valueRepresentation = this.map.get(key);
+		
+		return valueRepresentation == null ? defaultValue : Boolean.parseBoolean(valueRepresentation);
+	}
+	
 	public final int[] get(final String key, final int... defaultValue) {
 		final String valueRepresentation = this.map.get(key);
 		
