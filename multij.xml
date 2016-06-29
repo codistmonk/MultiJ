@@ -2,6 +2,7 @@
 <project default="create_lib_jar" name="Create Library Jar for Project MultiJ">
     <!--ANT 1.7 is required                                        -->
     <target name="create_lib_jar">
+    	<javac source="8" srcdir="src" destdir="bin" includeantruntime="false"/>
     	<tstamp>
     		<format property="timestamp" pattern="yyyyMMddHHmm" locale="en,US"/>
     	</tstamp> 
