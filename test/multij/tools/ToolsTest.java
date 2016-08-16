@@ -267,7 +267,7 @@ public final class ToolsTest {
 	public final void testGetOrCreate() {
 		final Map<Object, Collection<?>> map = new HashMap<Object, Collection<?>>();
 		
-		Tools.getOrCreate(map, 42, (Factory) DefaultFactory.forClass(ArrayList.class)).add(42);
+		((Collection) Tools.getOrCreate(map, 42, (Factory) DefaultFactory.forClass(ArrayList.class))).add(42);
 		
 		assertEquals(Arrays.asList(42), map.get(42));
 	}

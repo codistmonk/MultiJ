@@ -497,6 +497,7 @@ public final class Tools {
 	 * @return
 	 * <br>Maybe null
 	 */
+	@Deprecated
 	public static final <K, V> V getOrCreate(final Map<K, V> map, final K key, final Factory<V> valueFactory) {
 		V result = map.get(key);
 		
