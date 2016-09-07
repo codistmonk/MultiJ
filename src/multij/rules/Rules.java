@@ -21,7 +21,7 @@ public final class Rules<T, R> implements Rule<T, R> {
 	}
 	
 	public final R applyTo(final T input) {
-		return this.applyTo(input, (R) null);
+		return this.applyTo(input, new LinkedHashMap<>());
 	}
 	
 	public final R applyTo(final T input, final R defaultResult) {
@@ -29,7 +29,7 @@ public final class Rules<T, R> implements Rule<T, R> {
 	}
 	
 	public final R applyTo(final T input, final Map<Variable, Object> mapping) {
-		return this.applyTo(input, mapping, null);
+		return this.apply(input, mapping).get();
 	}
 	
 	public final R applyTo(final T input, final Map<Variable, Object> mapping, final R defaultResult) {
