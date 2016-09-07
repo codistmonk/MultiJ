@@ -187,6 +187,20 @@ public final class Tools {
 	}
 	
 	/**
+	 * Returns the first non-null argument, or <code>null</code> if there isn't one.
+	 * 
+	 * @param option0
+	 * <br>May be null
+	 * @param option1
+	 * <br>May be null
+	 * @return
+	 * <br>May be null
+	 */
+	public static final <T> T select(final T option0, final T option1) {
+		return option0 != null ? option0 : option1;
+	}
+	
+	/**
 	 * @param values
 	 * <br>Must not be null
 	 * @param comparator

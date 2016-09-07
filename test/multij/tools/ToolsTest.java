@@ -103,6 +103,13 @@ public final class ToolsTest {
 	}
 	
 	@Test
+	public final void testSelect() {
+		assertEquals("42", Tools.select("42", "0"));
+		assertEquals("42", Tools.select(null, "42"));
+		assertNull(Tools.select(null, null));
+	}
+	
+	@Test
 	public final void testEspaceHTML() {
 		assertEquals("&lt;html>&amp;amp;lt;<br>&lt;/html>", Tools.escapeHTML("<html>&amp;lt;\n</html>"));
 	}
