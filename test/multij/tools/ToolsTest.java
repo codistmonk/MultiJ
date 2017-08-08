@@ -68,6 +68,26 @@ import org.junit.Test;
 public final class ToolsTest {
 	
 	@Test
+	public final void testCheck1() {
+		Tools.check(true);
+	}
+	
+	@Test(expected=RuntimeException.class)
+	public final void testCheck2() {
+		Tools.check(false);
+	}
+	
+	@Test
+	public final void testCheckArgument1() {
+		Tools.checkArgument(true);
+	}
+	
+	@Test(expected=IllegalArgumentException.class)
+	public final void testCheckArgument2() {
+		Tools.checkArgument(false);
+	}
+	
+	@Test
 	public final void testCartesian() {
 		{
 			final int[][] expected = {

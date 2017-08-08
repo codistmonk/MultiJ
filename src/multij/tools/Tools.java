@@ -72,6 +72,30 @@ public final class Tools {
 	public static final String LINE_SEPARATOR = System.getProperty("line.separator");
 	
 	/**
+	 * Throws {@link RuntimeException} if <code>!test</code>.
+	 * 
+	 * @param test
+	 * <br>Range: any boolean
+	 */
+	public static final void check(final boolean test) {
+		if (!test) {
+			throw new RuntimeException();
+		}
+	}
+	
+	/**
+	 * Throws {@link IllegalArgumentException} if <code>!test</code>.
+	 * 
+	 * @param test
+	 * <br>Range: any boolean
+	 */
+	public static final void checkArgument(final boolean test) {
+		if (!test) {
+			throw new IllegalArgumentException();
+		}
+	}
+	
+	/**
 	 * Generates a sequence of int tuples that spans the hyperblock specified with <code>bounds</code>.
 	 * The generated tuples only differ by their values (the int array is updated during iteration).
 	 * 
