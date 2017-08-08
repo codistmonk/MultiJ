@@ -33,7 +33,17 @@ public final class LongList implements PrimitiveList {
 	}
 	
 	public LongList(final int initialCapacity) {
-		this.values = new long[initialCapacity];
+		this(new long[initialCapacity], 0, 0);
+	}
+	
+	public LongList(final long[] values) {
+		this(values, 0, values.length);
+	}
+	
+	public LongList(final long[] values, final int first, final int end) {
+		this.values = values;
+		this.first = first;
+		this.end = end;
 	}
 	
 	@Override

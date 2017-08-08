@@ -33,7 +33,17 @@ public final class BooleanList implements PrimitiveList {
 	}
 	
 	public BooleanList(final int initialCapacity) {
-		this.values = new boolean[initialCapacity];
+		this(new boolean[initialCapacity], 0, 0);
+	}
+	
+	public BooleanList(final boolean[] values) {
+		this(values, 0, values.length);
+	}
+	
+	public BooleanList(final boolean[] values, final int first, final int end) {
+		this.values = values;
+		this.first = first;
+		this.end = end;
 	}
 	
 	@Override

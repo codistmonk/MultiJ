@@ -33,7 +33,17 @@ public final class CharList implements PrimitiveList {
 	}
 	
 	public CharList(final int initialCapacity) {
-		this.values = new char[initialCapacity];
+		this(new char[initialCapacity], 0, 0);
+	}
+	
+	public CharList(final char[] values) {
+		this(values, 0, values.length);
+	}
+	
+	public CharList(final char[] values, final int first, final int end) {
+		this.values = values;
+		this.first = first;
+		this.end = end;
 	}
 	
 	@Override

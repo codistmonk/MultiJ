@@ -25,6 +25,7 @@
 package multij.primitivelists;
 
 import static multij.tools.Tools.array;
+import static multij.tools.Tools.intRange;
 import static multij.tools.Tools.invoke;
 import static multij.tools.Tools.toUpperCamelCase;
 import static org.junit.Assert.*;
@@ -58,6 +59,19 @@ public final class PrimitiveListTest {
 			
 			assertEquals(0L, list.size());
 		}
+	}
+	
+	@Test
+	public final void test3() {
+		final int[] ints = intRange(3);
+		final IntList list = new IntList(ints);
+		
+		assertSame(ints, list.toArray());
+		
+		list.add(-1);
+		
+		assertNotSame(ints, list.toArray());
+		assertEquals(-1L, list.get(3));
 	}
 	
 }

@@ -33,7 +33,17 @@ public final class DoubleList implements PrimitiveList {
 	}
 	
 	public DoubleList(final int initialCapacity) {
-		this.values = new double[initialCapacity];
+		this(new double[initialCapacity], 0, 0);
+	}
+	
+	public DoubleList(final double[] values) {
+		this(values, 0, values.length);
+	}
+	
+	public DoubleList(final double[] values, final int first, final int end) {
+		this.values = values;
+		this.first = first;
+		this.end = end;
 	}
 	
 	@Override

@@ -33,7 +33,17 @@ public final class ByteList implements PrimitiveList {
 	}
 	
 	public ByteList(final int initialCapacity) {
-		this.values = new byte[initialCapacity];
+		this(new byte[initialCapacity], 0, 0);
+	}
+	
+	public ByteList(final byte[] values) {
+		this(values, 0, values.length);
+	}
+	
+	public ByteList(final byte[] values, final int first, final int end) {
+		this.values = values;
+		this.first = first;
+		this.end = end;
 	}
 	
 	@Override

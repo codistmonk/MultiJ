@@ -33,7 +33,17 @@ public final class IntList implements PrimitiveList {
 	}
 	
 	public IntList(final int initialCapacity) {
-		this.values = new int[initialCapacity];
+		this(new int[initialCapacity], 0, 0);
+	}
+	
+	public IntList(final int[] values) {
+		this(values, 0, values.length);
+	}
+	
+	public IntList(final int[] values, final int first, final int end) {
+		this.values = values;
+		this.first = first;
+		this.end = end;
 	}
 	
 	@Override

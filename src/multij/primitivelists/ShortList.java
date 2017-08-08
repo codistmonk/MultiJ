@@ -33,7 +33,17 @@ public final class ShortList implements PrimitiveList {
 	}
 	
 	public ShortList(final int initialCapacity) {
-		this.values = new short[initialCapacity];
+		this(new short[initialCapacity], 0, 0);
+	}
+	
+	public ShortList(final short[] values) {
+		this(values, 0, values.length);
+	}
+	
+	public ShortList(final short[] values, final int first, final int end) {
+		this.values = values;
+		this.first = first;
+		this.end = end;
 	}
 	
 	@Override

@@ -33,7 +33,17 @@ public final class PrimitiveListTemplate implements PrimitiveList {
 	}
 	
 	public PrimitiveListTemplate(final int initialCapacity) {
-		this.values = new $Primitive[initialCapacity];
+		this(new $Primitive[initialCapacity], 0, 0);
+	}
+	
+	public PrimitiveListTemplate(final $Primitive[] values) {
+		this(values, 0, values.length);
+	}
+	
+	public PrimitiveListTemplate(final $Primitive[] values, final int first, final int end) {
+		this.values = values;
+		this.first = first;
+		this.end = end;
 	}
 	
 	@Override

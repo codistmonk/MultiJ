@@ -33,7 +33,17 @@ public final class FloatList implements PrimitiveList {
 	}
 	
 	public FloatList(final int initialCapacity) {
-		this.values = new float[initialCapacity];
+		this(new float[initialCapacity], 0, 0);
+	}
+	
+	public FloatList(final float[] values) {
+		this(values, 0, values.length);
+	}
+	
+	public FloatList(final float[] values, final int first, final int end) {
+		this.values = values;
+		this.first = first;
+		this.end = end;
 	}
 	
 	@Override
