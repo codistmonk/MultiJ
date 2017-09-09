@@ -88,6 +88,68 @@ public final class ToolsTest {
 	}
 	
 	@Test
+	public final void testPermutations() {
+		{
+			final int[][] expected = {
+					{ 0, 1 },
+					{ 0, 2 },
+					{ 1, 0 },
+					{ 1, 2 },
+					{ 2, 0 },
+					{ 2, 1 },
+			};
+			final Collection<int[]> actual = new ArrayList<>();
+			
+			Tools.permutations(3, 2).forEach(tuple -> actual.add(tuple.clone()));
+			
+			assertArrayEquals(expected, actual.toArray());
+		}
+		
+		{
+			final int[][] expected = {
+					{ 0, 1, 2 },
+					{ 0, 2, 1 },
+					{ 1, 0, 2 },
+					{ 1, 2, 0 },
+					{ 2, 0, 1 },
+					{ 2, 1, 0 },
+			};
+			final Collection<int[]> actual = new ArrayList<>();
+			
+			Tools.permutations(3, 3).forEach(tuple -> actual.add(tuple.clone()));
+			
+			assertArrayEquals(expected, actual.toArray());
+		}
+	}
+	
+	@Test
+	public final void testCombinations() {
+		{
+			final int[][] expected = {
+					{ 0, 1 },
+					{ 0, 2 },
+					{ 1, 2 },
+			};
+			final Collection<int[]> actual = new ArrayList<>();
+			
+			Tools.combinations(3, 2).forEach(tuple -> actual.add(tuple.clone()));
+			
+			assertArrayEquals(expected, actual.toArray());
+		}
+		
+		{
+			final int[][] expected = {
+					{ 0, 1, 2 },
+			};
+			final Collection<int[]> actual = new ArrayList<>();
+			
+			Tools.combinations(3, 3).forEach(tuple -> actual.add(tuple.clone()));
+			
+			assertArrayEquals(expected, actual.toArray());
+		}
+	}
+	
+	@Test
 	public final void testCartesian() {
 		{
 			final int[][] expected = {

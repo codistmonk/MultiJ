@@ -48,6 +48,7 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -96,10 +97,21 @@ public final class Tools {
 	}
 	
 	/**
-	 * Generates a sequence of int tuples that spans the hyperblock specified with <code>bounds</code>.
+	 * Generates a sequence of <code>int</code> tuples covering the hyperblock specified with <code>bounds</code>.
 	 * The generated tuples only differ by their values (the int array is updated during iteration).
-	 * 
-	 * @param bounds
+	 * <br>Example:<code>
+	 * <br>for (final int[] i : cartesian(-2, -1,&nbsp;&nbsp;0, 2)) {
+	 * <br>&nbsp;&nbsp;System.out.println(java.util.Arrays.toString(i));
+	 * <br>}
+	 * <br>// Expected output:
+	 * <br>// [-2, 0]
+	 * <br>// [-2, 1]
+	 * <br>// [-2, 2]
+	 * <br>// [-1, 0]
+	 * <br>// [-1, 1]
+	 * <br>// [-1, 2]
+	 * </code>
+	 * @param bounds Concatenation of pairs (lower bound, upper bound)
 	 * <br>Must not be null
 	 * @return
 	 * <br>New
@@ -150,6 +162,188 @@ public final class Tools {
 			}
 			
 		};
+	}
+	
+	/**
+	 * Generates filtered coordinates inside <code>r</code>-dimensional hypercube of side <code>[0 .. n - 1]</code>.
+	 * @param n
+	 * <br>Range: <code>[1 .. Integer.MAX_VALUE]</code>
+	 * @param r
+	 * <br>Range: <code>[1 .. Integer.MAX_VALUE / 2]</code>
+	 * @param filter
+	 * <br>Must not be null
+	 * @return
+	 * <br>New
+	 * <br>Not null
+	 */
+	public static final Iterable<int[]> hcf(final int n, final int r, final Predicate<int[]> filter) {
+		return new Iterable<int[]>() {
+			
+			@Override
+			public final Iterator<int[]> iterator() {
+				
+				return new Iterator<int[]>() {
+					
+					private final Iterator<int[]> i = cartesian(hypercubeBounds(r, n - 1)).iterator();
+					
+					private int[] result;
+					
+					@Override
+					public final boolean hasNext() {
+						while (this.i.hasNext()) {
+							this.result = this.i.next();
+							
+							if (filter.test(this.result)) {
+								return true;
+							}
+						}
+						
+						return false;
+					}
+					
+					@Override
+					public final int[] next() {
+						return this.result;
+					}
+					
+				};
+			}
+			
+		};
+	}
+	
+	/**
+	 * Generates indices for ordered choice of <code>r</code> elements in </code>n</code>
+	 * <br>Example:<code>
+	 * <br>for (final int[] i : permutations(3, 2)) {
+	 * <br>&nbsp;&nbsp;System.out.println(java.util.Arrays.toString(i));
+	 * <br>}
+	 * <br>// Expected output:
+	 * <br>// [0, 1]
+	 * <br>// [0, 2]
+	 * <br>// [1, 0]
+	 * <br>// [1, 2]
+	 * <br>// [2, 0]
+	 * <br>// [2, 1]
+	 * </code>
+	 * @param n
+	 * <br>Range: <code>[1 .. Integer.MAX_VALUE]</code>
+	 * @param r
+	 * <br>Range: <code>[1 .. Integer.MAX_VALUE / 2]</code>
+	 * @return <code>{@link hcf}(n, r, {@link #isUniques})</code>
+	 */
+	public static final Iterable<int[]> permutations(final int n, final int r) {
+		return hcf(n, r, Tools::isUniques);
+	}
+	
+	/**
+	 * Generates indices for unordered choice of <code>r</code> elements in </code>n</code>
+	 * <br>Example:<code>
+	 * <br>for (final int[] i : combinations(3, 2)) {
+	 * <br>&nbsp;&nbsp;System.out.println(java.util.Arrays.toString(i));
+	 * <br>}
+	 * <br>// Expected output:
+	 * <br>// [0, 1]
+	 * <br>// [0, 2]
+	 * <br>// [1, 2]
+	 * </code>
+	 * @param n
+	 * <br>Range: <code>[1 .. Integer.MAX_VALUE]</code>
+	 * @param r
+	 * <br>Range: <code>[1 .. Integer.MAX_VALUE / 2]</code>
+	 * @return <code>{@link hcf}(n, r, {@link #isStrictlySorted})</code>
+	 */
+	public static final Iterable<int[]> combinations(final int n, final int r) {
+		return hcf(n, r, Tools::isStrictlySorted);
+	}
+	
+	/**
+	 * Generates bounds for {@link #cartesian(int...)}.
+	 * <br>In this context, a hyperbox is a <code>upperBounds.length</code>-dimensional box with each side <code>i</code> being <code>[0 .. upperBounds[i]]</code>. 
+	 * @param upperBounds
+	 * <br>Must not be null
+	 * @return A concatenation of pairs (lower bound, upper bound)
+	 * <br>New
+	 * <br>Not null
+	 */
+	public static final int[] hyperboxBounds(final int... upperBounds) {
+		final int n = upperBounds.length;
+		final int[] result = new int[n * 2];
+		
+		for (int i = 0; i < n; ++i) {
+			result[2 * i + 1] = upperBounds[i];
+		}
+		
+		return result;
+	}
+	
+	/**
+	 * Generates bounds for {@link #cartesian(int...)}.
+	 * <br>In this context, a hypercube is a <code>n</code>-dimensional box with each side being <code>[0 .. upperBound]</code>. 
+	 * @param n
+	 * <br>Range: <code>[1 .. Integer.MAX_VALUE / 2]</code>
+	 * @param upperBound
+	 * <br>Range: <code>[1 .. Integer.MAX_VALUE]</code>
+	 * @return A concatenation of pairs (lower bound, upper bound)
+	 * <br>New
+	 * <br>Not null
+	 */
+	public static final int[] hypercubeBounds(final int n, final int upperBound) {
+		final int[] result = new int[n * 2];
+		
+		for (int i = 0; i < n; ++i) {
+			result[2 * i + 1] = upperBound;
+		}
+		
+		return result;
+	}
+	
+	/**
+	 * @param values
+	 * <br>Must not be null
+	 * @return <code>{@link #testPairwise}(&lt;, values)</code>
+	 */
+	public static final boolean isStrictlySorted(final int... values) {
+		return testPairwise((a, b) -> a < b, values);
+	}
+	
+	/**
+	 * @param values
+	 * <br>Must not be null
+	 * @return <code>{@link #testPairwise}(!=, values)</code>
+	 */
+	public static final boolean isUniques(final int... values) {
+		return testPairwise((a, b) -> a != b, values);
+	}
+	
+	/**
+	 * @param predicate
+	 * <br>Must not be null
+	 * @param values
+	 * <br>Must not be null
+	 * @return <code>true</code> iff <code>&forall;i,j&in;values i&lt;j &Rightarrow; predicate(i,j)</code>
+	 */
+	public static final boolean testPairwise(final IntBinaryPredicate predicate, final int... values) {
+		final int n = values.length;
+		
+		for (int i = 0; i < n; ++i) {
+			for (int j = i + 1; j < n; ++j) {
+				if (!predicate.test(values[i], values[j])) {
+					return false;
+				}
+			}
+		}
+		
+		return true;
+	}
+	
+	/**
+	 * @author codistmonk (creation 2017-09-09)
+	 */
+	public static abstract interface IntBinaryPredicate {
+		
+		public abstract boolean test(int left, int right);
+		
 	}
 	
 	/**
