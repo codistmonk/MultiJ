@@ -2,6 +2,8 @@ package multij.rules;
 
 import static java.util.stream.Collectors.toCollection;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -39,6 +41,15 @@ public final class RulesTest {
 		
 		assertEquals(Arrays.asList(number(2), "*", "a"), context.$("a", "+", "a"));
 		assertEquals(Arrays.asList("a", "^", number(2)), context.$("a", "*", "a"));
+	}
+	
+	@Test
+	public final void test2() {
+		final Variable v = new Variable();
+		
+		assertNull(v.get());
+		assertTrue(new PatternPredicate(Arrays.asList(v, "42")).test(Arrays.asList("v", "42")));
+		assertEquals("v", v.get());
 	}
 	
 	public static final boolean isScalarBinaryOperation(final Object operator, final Object expression, final ExpressionContext context) {
