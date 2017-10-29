@@ -45,7 +45,7 @@ public final class RulesTest {
 	
 	@Test
 	public final void test2() {
-		final Variable v = new Variable();
+		final Variable v = Variable.var();
 		
 		assertNull(v.get());
 		assertTrue(new PatternPredicate(Arrays.asList(v, "42")).test(Arrays.asList("v", "42")));

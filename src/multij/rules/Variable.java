@@ -18,10 +18,12 @@ public final class Variable implements Serializable {
 	
 	private Object value;
 	
+	@Deprecated
 	public Variable() {
-		this("" + nextId.getAndIncrement());
+		this(Long.toString(nextId.getAndIncrement()));
 	}
 	
+	@Deprecated
 	public Variable(final String name) {
 		this.name = name;
 	}
@@ -44,6 +46,14 @@ public final class Variable implements Serializable {
 	private static final long serialVersionUID = 8910318061831953418L;
 	
 	private static final AtomicLong nextId = new AtomicLong(1L);
+	
+	public static final Variable var() {
+		return var(Long.toString(nextId.getAndIncrement()));
+	}
+	
+	public static final Variable var(final String name) {
+		return new Variable(name);
+	}
 	
 	public static final void matchOrFail(final Object pattern, final Object target) {
 		if (!match(pattern, target)) {
