@@ -2,7 +2,6 @@ package multij.rules;
 
 import static multij.tools.Tools.cast;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -12,19 +11,13 @@ import java.util.concurrent.atomic.AtomicLong;
 /**
  * @author codistmonk (creation 2015-12-07)
  */
-public final class Variable implements Serializable {
+public abstract class Variable implements Predicate<Object> {
 	
 	private final String name;
 	
 	private Object value;
 	
-	@Deprecated
-	public Variable() {
-		this(Long.toString(nextId.getAndIncrement()));
-	}
-	
-	@Deprecated
-	public Variable(final String name) {
+	protected Variable(final String name) {
 		this.name = name;
 	}
 	
@@ -39,6 +32,11 @@ public final class Variable implements Serializable {
 	}
 	
 	@Override
+	public final boolean test(final Object object, final Map<Variable, Object> mapping) {
+		return match(this, object, mapping);
+	}
+	
+	@Override
 	public final String toString() {
 		return this.name;
 	}
@@ -47,12 +45,12 @@ public final class Variable implements Serializable {
 	
 	private static final AtomicLong nextId = new AtomicLong(1L);
 	
-	public static final Variable var() {
+	public static final Any var() {
 		return var(Long.toString(nextId.getAndIncrement()));
 	}
 	
-	public static final Variable var(final String name) {
-		return new Variable(name);
+	public static final Any var(final String name) {
+		return new Any(name);
 	}
 	
 	public static final void matchOrFail(final Object pattern, final Object target) {
@@ -71,7 +69,7 @@ public final class Variable implements Serializable {
 		if (variable != null) {
 			final Object existing = mapping.get(variable);
 			
-			if (existing == null) {
+			if (existing == null && variable.test(target)) {
 				mapping.put(variable, target);
 				
 				variable.set(target);
@@ -137,6 +135,24 @@ public final class Variable implements Serializable {
 		}
 		
 		return target;
+	}
+	
+	/**
+	 * @author codistmonk (creation 2017-10-29)
+	 */
+	public static final class Any extends Variable {
+		
+		public Any(final String name) {
+			super(name);
+		}
+		
+		@Override
+		public final boolean test(final Object object) {
+			return true;
+		}
+		
+		private static final long serialVersionUID = 2364757266207400578L;
+		
 	}
 	
 }
