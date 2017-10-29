@@ -15,25 +15,8 @@ public abstract class Variable implements Predicate<Object> {
 	
 	private final String name;
 	
-	private Object value;
-	
 	protected Variable(final String name) {
 		this.name = name;
-	}
-	
-	public final Object get() {
-		return this.value;
-	}
-	
-	public final Variable set(final Object value) {
-		this.value = value;
-		
-		return this;
-	}
-	
-	@Override
-	public final boolean test(final Object object, final Map<Variable, Object> mapping) {
-		return match(this, object, mapping);
 	}
 	
 	@Override
@@ -71,8 +54,6 @@ public abstract class Variable implements Predicate<Object> {
 			
 			if (existing == null && variable.test(target)) {
 				mapping.put(variable, target);
-				
-				variable.set(target);
 				
 				return true;
 			}
@@ -149,6 +130,11 @@ public abstract class Variable implements Predicate<Object> {
 		@Override
 		public final boolean test(final Object object) {
 			return true;
+		}
+		
+		@Override
+		public final boolean test(final Object object, final Map<Variable, Object> mapping) {
+			return match(this, object, mapping);
 		}
 		
 		private static final long serialVersionUID = 2364757266207400578L;
