@@ -67,11 +67,9 @@ public final class Rules<T, R> implements Rule<T, R> {
 	
 	private static final long serialVersionUID = 271358038357056552L;
 	
-	public static final void restore(final Map<Variable, Object> backup, final Map<Variable, Object> mapping) {
-		mapping.forEach((k, v) -> k.set(null));
+	public static final <K, V> void restore(final Map<K, V> backup, final Map<K, V> mapping) {
 		mapping.clear();
 		mapping.putAll(backup);
-		mapping.forEach(Variable::set);
 	}
 	
 	/**

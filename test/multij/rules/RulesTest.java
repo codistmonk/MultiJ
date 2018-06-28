@@ -2,14 +2,15 @@ package multij.rules;
 
 import static java.util.stream.Collectors.toCollection;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.BiFunction;
 
 import org.junit.Test;
@@ -28,8 +29,10 @@ public final class RulesTest {
 		context.addType((e, m) -> number(e) != null, (e, m) -> "Scalar");
 		context.addSimplification(isNumberBinaryOperation("+"), numberBinaryOperation(BigDecimal::add));
 		context.addSimplification(isNumberBinaryOperation("*"), numberBinaryOperation(BigDecimal::multiply));
-		context.addSimplification((e, m) -> isScalarBinaryOperation("+", e, context) && left(e).equals(right(e)), (e, m) -> context.$(2, "*", left(e)));
-		context.addSimplification((e, m) -> isScalarBinaryOperation("*", e, context) && left(e).equals(right(e)), (e, m) -> context.$(left(e), "^", 2));
+		context.addSimplification((e, m) -> isScalarBinaryOperation("+", e, context)
+				&& left(e).equals(right(e)), (e, m) -> context.$(2, "*", left(e)));
+		context.addSimplification((e, m) -> isScalarBinaryOperation("*", e, context)
+				&& left(e).equals(right(e)), (e, m) -> context.$(left(e), "^", 2));
 		
 		assertEquals("Scalar", context.getTypeOf(42));
 		assertEquals("Undefined", context.getTypeOf("toto"));
@@ -45,15 +48,18 @@ public final class RulesTest {
 	
 	@Test
 	public final void test2() {
-		final Variable v = new Variable();
+		final Variable v = Variable.var();
+		final Map<Variable, Object> m = new HashMap<>();
 		
-		assertNull(v.get());
-		assertTrue(new PatternPredicate(Arrays.asList(v, "42")).test(Arrays.asList("v", "42")));
-		assertEquals("v", v.get());
+		assertTrue(new PatternPredicate(Arrays.asList(v, "42")).test(Arrays.asList("v", "42"), m));
+		assertEquals("v", m.get(v));
 	}
 	
-	public static final boolean isScalarBinaryOperation(final Object operator, final Object expression, final ExpressionContext context) {
-		return isBinaryOperation(operator, expression) && "Scalar".equals(context.getTypeOf(left(expression))) && "Scalar".equals(context.getTypeOf(right(expression)));
+	public static final boolean isScalarBinaryOperation(final Object operator,
+			final Object expression, final ExpressionContext context) {
+		return isBinaryOperation(operator, expression)
+				&& "Scalar".equals(context.getTypeOf(left(expression)))
+				&& "Scalar".equals(context.getTypeOf(right(expression)));
 	}
 	
 	public static final <T> T right(final Object expression) {
@@ -64,7 +70,8 @@ public final class RulesTest {
 		return get(expression, 0);
 	}
 	
-	public static final Application<Object, Object> numberBinaryOperation(final BiFunction<BigDecimal, BigDecimal, BigDecimal> operation) {
+	public static final Application<Object, Object> numberBinaryOperation(
+			final BiFunction<BigDecimal, BigDecimal, BigDecimal> operation) {
 		return (e, m) -> operation.apply(number(left(e)), number(right(e)));
 	}
 	
@@ -143,7 +150,8 @@ public final class RulesTest {
 		}
 		
 		public final Object $(final Object... objects) {
-			return this.simplify(Arrays.stream(objects).map(ExpressionContext::expression).collect(toCollection(ArrayList::new)));
+			return this.simplify(Arrays.stream(objects)
+					.map(ExpressionContext::expression).collect(toCollection(ArrayList::new)));
 		}
 		
 		public final void declare(final Object object, final Object type) {
@@ -158,7 +166,8 @@ public final class RulesTest {
 			this.getTypeRules().add(rule);
 		}
 		
-		public final void addSimplification(final Predicate<Object> predicate, final Application<Object, Object> application) {
+		public final void addSimplification(final Predicate<Object> predicate,
+				final Application<Object, Object> application) {
 			this.addSimplification(new CompositeRule<>(predicate, application));
 		}
 		

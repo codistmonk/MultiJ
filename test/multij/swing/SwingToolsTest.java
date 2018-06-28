@@ -374,7 +374,7 @@ public final class SwingToolsTest {
 
 					fail("This section wasn't supposed to be reached");
 				} catch (final IllegalStateException expectedException) {
-					// Ignore
+					ignore(expectedException);
 				}
 			}
 
