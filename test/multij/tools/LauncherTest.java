@@ -114,15 +114,16 @@ public final class LauncherTest {
     public final void testPipe() throws IOException, InterruptedException {
         final String string = "42" + SystemProperties.getLineSeparator();
         final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-        final ByteArrayInputStream input = new ByteArrayInputStream(string.getBytes());
         
-        final Thread pipe = Launcher.pipe(input, new PrintStream(buffer));
-        
-        input.close();
-        buffer.flush();
-        pipe.join();
-        
-        assertEquals(string, buffer.toString());
+        try (final ByteArrayInputStream input = new ByteArrayInputStream(string.getBytes())) {
+        	final Thread pipe = Launcher.pipe(input, new PrintStream(buffer));
+        	
+        	input.close();
+        	buffer.flush();
+        	pipe.join();
+        	
+        	assertEquals(string, buffer.toString());
+        }
     }
 
     @Test

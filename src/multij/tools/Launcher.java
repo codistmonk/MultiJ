@@ -120,9 +120,7 @@ public final class Launcher {
 
             @Override
             public final void run() {
-                final Scanner errorScanner = new Scanner(input);
-
-                try {
+                try (final Scanner errorScanner = new Scanner(input)) {
                     while (errorScanner.hasNext()) {
                         output.println(errorScanner.nextLine());
                     }
@@ -239,33 +237,30 @@ public final class Launcher {
      * @throws RuntimeException If {@code applicationJar} cannot be read as a jar file
      */
     public static final String createLibraryPath(final File applicationJar) {
-        JarFile jarFile;
-        try {
-            jarFile = new JarFile(applicationJar);
+        try (final JarFile jarFile = new JarFile(applicationJar)) {
+        	final File nativeLibraryBase = createTemporaryFile("lib", "", null).getParentFile();
+        	
+        	for (final JarEntry entry : iterable(jarFile.entries())) {
+        		final File entryFile = new File(entry.getName());
+        		final String entryName = entryFile.getName();
+        		
+        		if (isNativeLibrary(entryFile)) {
+        			getLoggerForThisMethod().log(Level.INFO, "Unpacking native library: {0}", entryName);
+        			
+        			try {
+        				write(jarFile.getInputStream(entry), new FileOutputStream(new File(nativeLibraryBase, entryName)));
+        			} catch (final IOException exception) {
+        				getLoggerForThisMethod().log(Level.SEVERE, null, exception);
+        			}
+        		}
+        	}
+        	
+        	getLoggerForThisMethod().log(Level.INFO, "Native libraries unpacked in: {0}", nativeLibraryBase);
+        	
+        	return getLibraryPath(nativeLibraryBase);
         } catch (final IOException exception) {
             throw unchecked(exception);
         }
-        
-        final File nativeLibraryBase = createTemporaryFile("lib", "", null).getParentFile();
-
-        for (final JarEntry entry : iterable(jarFile.entries())) {
-            final File entryFile = new File(entry.getName());
-            final String entryName = entryFile.getName();
-
-            if (isNativeLibrary(entryFile)) {
-                getLoggerForThisMethod().log(Level.INFO, "Unpacking native library: {0}", entryName);
-
-                try {
-                    write(jarFile.getInputStream(entry), new FileOutputStream(new File(nativeLibraryBase, entryName)));
-                } catch (final IOException exception) {
-                    getLoggerForThisMethod().log(Level.SEVERE, null, exception);
-                }
-            }
-        }
-
-        getLoggerForThisMethod().log(Level.INFO, "Native libraries unpacked in: {0}", nativeLibraryBase);
-
-        return getLibraryPath(nativeLibraryBase);
     }
 
     /**
