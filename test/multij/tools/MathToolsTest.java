@@ -24,6 +24,9 @@
 
 package multij.tools;
 
+import static multij.tools.MathTools.lele;
+import static multij.tools.MathTools.lelt;
+import static multij.tools.MathTools.lerp;
 import static multij.tools.Tools.doubles;
 import static org.junit.Assert.*;
 import multij.tools.MathTools;
@@ -105,6 +108,34 @@ public final class MathToolsTest {
 				MathTools.add(doubles(2.0, 3.0), doubles(6.0, 7.0), new double[2]), 0.0);
 		assertArrayEquals(doubles(8.0, 10.0),
 				MathTools.add(doubles(2.0, 3.0), doubles(6.0, 7.0)), 0.0);
+	}
+	
+	@Test
+	public final void testLele() {
+		assertTrue(lele(1.0, 2.0, 3.0));
+		assertTrue(lele(1.0, 1.0, 3.0));
+		assertTrue(lele(1.0, 3.0, 3.0));
+		assertFalse(lele(2.0, 1.0, 3.0));
+		assertFalse(lele(1.0, 3.0, 2.0));
+		assertFalse(lele(3.0, 2.0, 1.0));
+	}
+	
+	@Test
+	public final void testLelt() {
+		assertTrue(lelt(1.0, 2.0, 3.0));
+		assertTrue(lelt(1.0, 1.0, 3.0));
+		assertFalse(lelt(1.0, 3.0, 3.0));
+		assertFalse(lelt(2.0, 1.0, 3.0));
+		assertFalse(lelt(1.0, 3.0, 2.0));
+		assertFalse(lelt(3.0, 2.0, 1.0));
+	}
+	
+	@Test
+	public final void testLerp() {
+		assertEquals(1.0, lerp(1.0, 0.0, 3.0), 0.0);
+		assertEquals(2.0, lerp(1.0, 0.5, 3.0), 0.0);
+		assertEquals(3.0, lerp(1.0, 1.0, 3.0), 0.0);
+		assertEquals(2.0, lerp(3.0, 0.5, 1.0), 0.0);
 	}
 	
 	@Test

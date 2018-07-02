@@ -392,6 +392,45 @@ public final class MathTools {
     }
     
     /**
+     * @param a
+     * <br>Range: any double
+     * @param b
+     * <br>Range: any double
+     * @param c
+     * <br>Range: any double
+     * @return <code>a <= b && b <= c</code>
+     */
+    public static final boolean lele(final double a, final double b, final double c) {
+    	return a <= b && b <= c;
+    }
+    
+    /**
+     * @param a
+     * <br>Range: any double
+     * @param b
+     * <br>Range: any double
+     * @param c
+     * <br>Range: any double
+     * @return <code>a <= b && b < c</code>
+     */
+    public static final boolean lelt(final double a, final double b, final double c) {
+    	return a <= b && b < c;
+    }
+    
+    /**
+     * @param a
+     * <br>Range: any double
+     * @param t
+     * <br>Range: <code>[0.0 .. 1.0]</code>
+     * @param b
+     * <br>Range: any double
+     * @return linear interpolation at position <code>t</code> between <code>a</code> and <code>b</code> 
+     */
+    public static final double lerp(final double a, final double t, final double b) {
+    	return a + t * (b - a);
+    }
+    
+    /**
      * @author codistmonk (creation 2012-06-20)
      */
     public static final class Statistics implements Serializable {
