@@ -49,6 +49,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -79,8 +80,20 @@ public final class Tools {
 	 * <br>Range: any boolean
 	 */
 	public static final void check(final boolean test) {
+		check(test, () -> "Internal check failed");
+	}
+	
+	/**
+	 * Throws {@link RuntimeException} if <code>!test</code>.
+	 * 
+	 * @param test
+	 * <br>Range: any boolean
+	 * @param message
+	 * <br>Must not be null
+	 */
+	public static final void check(final boolean test, final Supplier<String> message) {
 		if (!test) {
-			throw new RuntimeException();
+			throw new RuntimeException(message.get());
 		}
 	}
 	
@@ -91,8 +104,20 @@ public final class Tools {
 	 * <br>Range: any boolean
 	 */
 	public static final void checkArgument(final boolean test) {
+		checkArgument(test, () -> "");
+	}
+	
+	/**
+	 * Throws {@link IllegalArgumentException} if <code>!test</code>.
+	 * 
+	 * @param test
+	 * <br>Range: any boolean
+	 * @param message
+	 * <br>Must not be null
+	 */
+	public static final void checkArgument(final boolean test, final Supplier<String> message) {
 		if (!test) {
-			throw new IllegalArgumentException();
+			throw new IllegalArgumentException(message.get());
 		}
 	}
 	
