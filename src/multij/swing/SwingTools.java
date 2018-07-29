@@ -149,7 +149,7 @@ public final class SwingTools {
 	 */
 	public static final String ROLLOVER_ROLLOVER_SELECTED_ICON_SUFFIX = "_rollover_selected." + ICON_FORMAT;
 	
-	private static final Map<String, ImageIcon> iconCache = new HashMap<String, ImageIcon>();
+	private static final Map<String, ImageIcon> iconCache = new HashMap<>();
 	
 	private static String imagesBase = DEFAULT_IMAGES_BASE;
 	
@@ -168,7 +168,7 @@ public final class SwingTools {
 					
 					@Override
 					public final void run() {
-						awtEventDispatchingThread = new WeakReference<Thread>(currentThread());
+						awtEventDispatchingThread = new WeakReference<>(currentThread());
 					}
 					
 				});
@@ -689,18 +689,15 @@ public final class SwingTools {
 			final String transferDataString = (String) event.getTransferable().getTransferData(DataFlavor.stringFlavor);
 			
 			if (event.isDataFlavorSupported(getURIListAsStringFlavor())) {
-				final List<File> result = new ArrayList<File>();
-				final Scanner scanner = new Scanner(transferDataString);
+				final List<File> result = new ArrayList<>();
 				
-				try {
+				try (final Scanner scanner = new Scanner(transferDataString)) {
 					while (scanner.hasNext()) {
 						final String fileURL = URLDecoder.decode(scanner.nextLine(), "UTF-8");
 						final String protocol = "file:";
 						
 						result.add(new File(fileURL.startsWith(protocol) ? fileURL.substring(protocol.length()) : fileURL));
 					}
-				} finally {
-					scanner.close();
 				}
 				
 				return result;

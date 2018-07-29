@@ -71,7 +71,7 @@ public final class AFToolsTest {
 		
 		context.set("a", "b");
 		
-		context.getVariable("a").addListener(new Listener<Object>() {
+		context.getVariable("a").addListener(new Listener<>() {
 			
 			@Override
 			public final void valueChanged(final ValueChangedEvent<Object, ?> event) {
@@ -115,17 +115,19 @@ public final class AFToolsTest {
 
 	@Test
 	public final void testNewPreferencesItem() {
+		this.testSetupSystemLookAndFeel();
+		
 		if (SwingTools.canInvokeThisMethodInAWT(this)) {
 			final Context context = AFTools.newContext();
-
+			
 			if (MacOSXTools.MAC_OS_X && MacOSXTools.getUseScreenMenuBar()) {
 				assertEquals(null, AFTools.newPreferencesItem(context));
 			} else {
 				assertNotNull(AFTools.newPreferencesItem(context));
 			}
-
+			
 			final ShowPreferencesDialogAction action = context.get(AFConstants.Variables.ACTIONS_SHOW_PREFERENCES_DIALOG);
-
+			
 			assertNotNull(action);
 		}
 	}

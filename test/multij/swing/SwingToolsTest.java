@@ -40,8 +40,6 @@ import java.awt.dnd.DnDConstants;
 import java.awt.dnd.DropTarget;
 import java.awt.dnd.DropTargetContext;
 import java.awt.dnd.DropTargetDropEvent;
-import java.awt.dnd.InvalidDnDOperationException;
-import java.awt.dnd.peer.DropTargetContextPeer;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
@@ -98,7 +96,7 @@ public final class SwingToolsTest {
 		});
 	}
 	
-	@Test(timeout=2_000L)
+	@Test(timeout=TEST_TIMEOUT)
 	public final void testJoinEventThread() throws InterruptedException {
 		final Window window = SwingTools.show(new JLabel(), Tools.getThisMethodName(), false);
 		
@@ -289,15 +287,26 @@ public final class SwingToolsTest {
 			assertEquals(splitPane, component2.getParent());
 		}
 	}
-
+	
 	@Test
 	public final void testGetFiles() {
 		final DropTarget dropTarget = new DropTarget();
 		final DropTargetContext dtc = dropTarget.getDropTargetContext();
-		
-		dtc.addNotify(new DummyDropTargetContextPeer(dropTarget));
-		
-		final DropTargetDropEvent event = new DropTargetDropEvent(dtc, new Point(), DnDConstants.ACTION_MOVE, DnDConstants.ACTION_LINK | DnDConstants.ACTION_COPY_OR_MOVE);
+		final DropTargetDropEvent event = new DropTargetDropEvent(dtc, new Point(), DnDConstants.ACTION_MOVE, DnDConstants.ACTION_LINK | DnDConstants.ACTION_COPY_OR_MOVE) {
+			
+			@Override
+			public final Transferable getTransferable() {
+				return new StringSelection("file1" + SystemProperties.getLineSeparator() + "file2");
+			}
+			
+			@Override
+			public final boolean isDataFlavorSupported(final DataFlavor df) {
+				return SwingTools.getURIListAsStringFlavor().equals(df);
+			}
+			
+			private static final long serialVersionUID = 7290136898788585439L;
+			
+		};
 		
 		assertEquals(Arrays.asList("file1", "file2").toString(), SwingTools.getFiles(event).toString());
 	}
@@ -398,78 +407,6 @@ public final class SwingToolsTest {
 
 			semaphore.release();
 		}
-	}
-	
-	/**
-	 * @author codistmonk (creation 2013-01-09)
-	 */
-	public static final class DummyDropTargetContextPeer implements DropTargetContextPeer {
-		
-		private final DropTarget dropTarget;
-		
-		/**
-		 * @param dropTarget
-		 * <br>Will be stored as strong reference in <code>this</code>
-		 */
-		public DummyDropTargetContextPeer(final DropTarget dropTarget) {
-			this.dropTarget = dropTarget;
-		}
-		
-		@Override
-		public final void setTargetActions(final int actions) {
-			// NOP
-		}
-		
-		@Override
-		public final void rejectDrop() {
-			// NOP
-		}
-		
-		@Override
-		public final void rejectDrag() {
-			// NOP
-		}
-		
-		@Override
-		public final boolean isTransferableJVMLocal() {
-			return false;
-		}
-		
-		@Override
-		public final Transferable getTransferable() throws InvalidDnDOperationException {
-			return new StringSelection("file1" + SystemProperties.getLineSeparator() + "file2");
-		}
-		
-		@Override
-		public final DataFlavor[] getTransferDataFlavors() {
-			return array(SwingTools.getURIListAsStringFlavor());
-		}
-		
-		@Override
-		public final int getTargetActions() {
-			return 0;
-		}
-		
-		@Override
-		public final DropTarget getDropTarget() {
-			return this.dropTarget;
-		}
-		
-		@Override
-		public final void dropComplete(final boolean success) {
-			// NOP
-		}
-		
-		@Override
-		public final void acceptDrop(final int dropAction) {
-			// NOP
-		}
-		
-		@Override
-		public final void acceptDrag(final int dragAction) {
-			// NOP
-		}
-		
 	}
 	
 }
