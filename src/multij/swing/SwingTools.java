@@ -346,8 +346,10 @@ public final class SwingTools {
 			
 			@Override
 			public final void mouseMoved(final MouseEvent event) {
-				final int x = event.getX();
-				final int y = event.getY();
+				final int dw = imageView.getWidth() - image.getWidth();
+				final int dh = imageView.getHeight() - image.getHeight();
+				final int x = event.getX() - dw / 2;
+				final int y = event.getY() - dh / 2;
 				
 				if (0 <= x && x < image.getWidth() && 0 <= y && y < image.getHeight()) {
 					final Color color = new Color(image.getRGB(x, y));
