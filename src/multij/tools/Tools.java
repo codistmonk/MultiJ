@@ -472,7 +472,8 @@ public final class Tools {
 	 * <br>Must not be null
 	 */
 	public static final void sort(final int[] values, final int start, final int end, final IntComparator comparator) {
-		DualPivotQuicksort.sort(values, start, end - 1, null, 0, 0, comparator);
+//		DualPivotQuicksort.sort(values, start, end - 1, null, 0, 0, comparator);
+		TimSort.sort(values, start, end, comparator, null, 0, 0);
 	}
 	
 	/**
