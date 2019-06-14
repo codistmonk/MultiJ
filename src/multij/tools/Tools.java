@@ -1507,6 +1507,20 @@ public final class Tools {
 
 		return new RuntimeException(cause);
 	}
+	
+	/**
+	 * Typecasts {@code object} to {@code T} or throws an exception.
+	 * 
+	 * @param <T>
+	 * @param object
+	 * <br>Maybe null
+	 * @return
+	 * <br>Maybe null
+	 */
+	@SuppressWarnings("unchecked")
+	public static final <T> T dyncast(final Object object) {
+		return (T) object;
+	}
 
 	/**
 	 * Does the same thing as {@link Class#cast(Object)},

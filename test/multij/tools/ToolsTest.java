@@ -888,6 +888,22 @@ public final class ToolsTest {
 
 		assertNull(badCast);
 	}
+	
+	@Test
+	public final void testDyncast() {
+		final Object object = "42";
+		final String that = Tools.dyncast(object);
+		
+		assertSame(object, that);
+		
+		try {
+			final Integer badCast = Tools.dyncast(object);
+			
+			fail("badCast: " + badCast);
+		} catch (final ClassCastException exception) {
+			Tools.ignore(exception);
+		}
+	}
 
 	@Test
 	public final void testCastToCurrentClass() {
