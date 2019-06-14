@@ -44,6 +44,18 @@ public final class TicToc implements Serializable {
 	private long t0 = currentTimeMillis();
 	
 	/**
+	 * Sets total time to {@code 0L}.
+	 * 
+	 * @return {@code this}
+	 */
+	public final TicToc reset() {
+		this.totalTime = 0L;
+		this.ticTocTime = 0L;
+		
+		return this;
+	}
+	
+	/**
 	 * Starts a time interval.
 	 * 
 	 * @return The current time in milliseconds

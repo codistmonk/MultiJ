@@ -61,6 +61,17 @@ public final class NanoTicTocTest {
 		
 		assertTrue(sleepMilliseconds <= time && time < upperLimit);
 		assertTrue(2L * sleepMilliseconds <= timer.getTotalTime() && timer.getTotalTime() < 2L * upperLimit);
+		
+		timer.reset();
+		
+		assertEquals(0L, timer.getTotalTime());
+		
+		timer.tic();
+		Tools.sleep(sleepMilliseconds);
+		time = timer.toc();
+		
+		assertTrue(sleepMilliseconds <= time && time < upperLimit);
+		assertTrue(sleepMilliseconds <= timer.getTotalTime() && timer.getTotalTime() < upperLimit);
 	}
 	
 }

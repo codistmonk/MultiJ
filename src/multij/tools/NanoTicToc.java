@@ -44,6 +44,18 @@ public final class NanoTicToc implements Serializable {
 	private long t0 = nanoTime();
 	
 	/**
+	 * Sets total time to {@code 0L}.
+	 * 
+	 * @return {@code this}
+	 */
+	public final NanoTicToc reset() {
+		this.totalTime = 0L;
+		this.ticTocTime = 0L;
+		
+		return this;
+	}
+	
+	/**
 	 * Starts a time interval.
 	 * 
 	 * @return The current time in nanoseconds
