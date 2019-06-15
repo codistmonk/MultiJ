@@ -158,7 +158,7 @@ public final class Manifold implements Serializable {
 	 *                 |
 	 *                 V
 	 * 
-	 * *<--#########---**<--#########---*
+	 * *---#########-->**---#########-->*
 	 * *<--#########---**<--previous2---*
 	 *                 ^|
 	 *                 ||
@@ -172,7 +172,7 @@ public final class Manifold implements Serializable {
 	 *                 ||
 	 *                 |v
 	 * *---previous1-->**---#########-->*
-	 * *---#########-->**---#########-->*
+	 * *<--#########---**<--#########---*
 	 * </pre>
 	 * @param previous1
 	 * <br>Range: <code>[0 .. this.getDartCount() - 1]</code>
