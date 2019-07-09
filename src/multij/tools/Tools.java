@@ -143,13 +143,13 @@ public final class Tools {
 	 * <br>Not null
 	 */
 	public static final Iterable<int[]> cartesian(final int... bounds) {
-		return new Iterable<int[]>() {
+		return new SerializableIterable<>() {
 			
 			@Override
 			public final Iterator<int[]> iterator() {
 				final int n = bounds.length / 2;
 				
-				return new Iterator<int[]>() {
+				return new SerializableIterator<>() {
 					
 					private int[] result;
 					
@@ -183,8 +183,12 @@ public final class Tools {
 						return this.result;
 					}
 					
+					private static final long serialVersionUID = 9065529981270328991L;
+					
 				};
 			}
+			
+			private static final long serialVersionUID = 3121115796698425383L;
 			
 		};
 	}
@@ -202,12 +206,12 @@ public final class Tools {
 	 * <br>Not null
 	 */
 	public static final Iterable<int[]> hcf(final int n, final int r, final Predicate<int[]> filter) {
-		return new Iterable<int[]>() {
+		return new SerializableIterable<>() {
 			
 			@Override
 			public final Iterator<int[]> iterator() {
 				
-				return new Iterator<int[]>() {
+				return new SerializableIterator<>() {
 					
 					private final Iterator<int[]> i = cartesian(hypercubeBounds(r, n - 1)).iterator();
 					
@@ -231,8 +235,12 @@ public final class Tools {
 						return this.result;
 					}
 					
+					private static final long serialVersionUID = -3062245244704655931L;
+					
 				};
 			}
+			
+			private static final long serialVersionUID = 4591592527713199172L;
 			
 		};
 	}
@@ -276,10 +284,57 @@ public final class Tools {
 	 * <br>Range: <code>[1 .. Integer.MAX_VALUE]</code>
 	 * @param r
 	 * <br>Range: <code>[1 .. Integer.MAX_VALUE / 2]</code>
-	 * @return <code>{@link hcf}(n, r, {@link #isStrictlySorted})</code>
+	 * @return An Iterable equivalent to <code>{@link hcf}(n, r, {@link #isStrictlySorted})</code>
 	 */
 	public static final Iterable<int[]> combinations(final int n, final int r) {
-		return hcf(n, r, Tools::isStrictlySorted);
+		return new SerializableIterable<>() {
+			
+			@Override
+			public final Iterator<int[]> iterator() {
+				return new SerializableIterator<>() {
+					
+					private int[] result;
+					
+					private final void initResult() {
+						this.result = new int[r];
+						
+						for (int i = 0; i < r; ++i) {
+							this.result[i] = i;
+						}
+					}
+					
+					@Override
+					public final boolean hasNext() {
+						return this.result == null || this.result[0] < n - r;
+					}
+					
+					@Override
+					public final int[] next() {
+						if (this.result == null) {
+							this.initResult();
+						} else {
+							for (int i = r - 1, m = n; 0 <= i; --i, --m) {
+								if (++this.result[i] < m) {
+									while (++i < r) {
+										this.result[i] = this.result[i - 1] + 1;
+									}
+									
+									break;
+								}
+							}
+						}
+						
+						return this.result;
+					}
+					
+					private static final long serialVersionUID = 6220424109192112259L;
+					
+				};
+			}
+			
+			private static final long serialVersionUID = -6976187501837272179L;
+			
+		};
 	}
 	
 	/**
@@ -1040,11 +1095,11 @@ public final class Tools {
 	 * <br>New
 	 */
 	public static final <T> Iterable<T> iterable(final Enumeration<T> enumeration) {
-		return new Iterable<T>() {
+		return new SerializableIterable<>() {
 			
 			@Override
 			public final Iterator<T> iterator() {
-				return new Iterator<T>() {
+				return new SerializableIterator<>() {
 					
 					@Override
 					public final boolean hasNext() {
@@ -1061,8 +1116,12 @@ public final class Tools {
 						throw new UnsupportedOperationException();
 					}
 					
+					private static final long serialVersionUID = 7603688132245626455L;
+					
 				};
 			}
+			
+			private static final long serialVersionUID = -8000275794269447497L;
 			
 		};
 	}
@@ -1791,6 +1850,24 @@ public final class Tools {
 		 * {@value}.
 		 */
 		private static final long serialVersionUID = -656567263773327906L;
+		
+	}
+	
+	/**
+	 * @author codistmonk (creation 2019-07-09)
+	 * 
+	 * @param <T>
+	 */
+	private static abstract interface SerializableIterable<T> extends Serializable, Iterable<T> {
+		
+	}
+	
+	/**
+	 * @author codistmonk (creation 2019-07-09)
+	 * 
+	 * @param <T>
+	 */
+	private static abstract interface SerializableIterator<T> extends Serializable, Iterator<T> {
 		
 	}
 	
